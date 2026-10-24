@@ -61,6 +61,12 @@ class PaperdollTests(unittest.TestCase):
         self.assertIn("scale=253:-2", small)
         self.assertIn("-crf 36", small)
 
+    def test_poster_is_webp_with_alpha_kept(self):
+        s = " ".join(pv.poster_cmd(Path("/in/x050.png"), Path("/out/x.webp")))
+        self.assertIn("-c:v libwebp", s)
+        self.assertIn("-quality 90", s)
+        self.assertTrue(s.endswith("/out/x.webp"))
+
     def test_fingerprint_changes_with_content_and_is_stable(self):
         files = pv.discover(self.raw)["man/man_hand"]["files"]
         a = pv.fingerprint(files)

@@ -6,7 +6,7 @@
 Input  (read only): ~/work/cyber-art/raw/paperdoll/{man,woman}/<clip>NNN.png   (PNG frames with alpha, 30 fps, from RAD Video Tools)
 Output: ~/work/cyber-art/out/paperdoll/{man,woman}/<clip>.webm        full size
                                                        <clip>_sm.webm     half width (phone)
-                                                       <clip>.png         poster (middle frame): Safari / motion-off fallback
+                                                       <clip>.webp        poster (middle frame, WebP q90 with alpha): Safari / motion-off fallback
         ~/work/cyber-art/out/paperdoll/manifest.json                    clip -> files, sizes, frame count, alpha check
 
 Raw game content stays in ~/work/cyber-art; nothing here is committed. Re-runnable and deterministic: a clip whose frames (content hash)
@@ -93,8 +93,9 @@ def encode_cmd(src_dir: Path, clip: str, out: Path, crf: int, width=None):
 
 
 def poster_cmd(frame: Path, out: Path):
-    return ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(frame), "-frames:v", "1", "-pix_fmt", "rgba",
-            "-compression_level", "9", *DETERMINISTIC, str(out)]
+    """WebP q90 (alpha stays lossless): ~4x smaller than PNG, 49-52 dB PSNR against the source on a dark background, alpha identical."""
+    return ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(frame), "-frames:v", "1", "-c:v", "libwebp",
+            "-quality", "90", "-compression_level", "6", *DETERMINISTIC, str(out)]
 
 
 def alpha_stats(source, frame_index, decoder=None):
@@ -121,6 +122,16 @@ def run(cmd):
     subprocess.run(cmd, check=True, capture_output=True, text=True)
 
 
+def make_poster(info, out_root: Path):
+    """(Re)write just the poster; returns its manifest entry. Removes the old PNG poster of earlier runs."""
+    files, clip = info["files"], info["clip"]
+    dest = out_root / info["dir"].name
+    poster = dest / f"{clip}.webp"
+    run(poster_cmd(files[len(files) // 2], poster))
+    (dest / f"{clip}.png").unlink(missing_ok=True)
+    return {"file": str(poster.relative_to(out_root)), "bytes": poster.stat().st_size}
+
+
 def process(key, info, out_root: Path):
     """Encode one clip; return its manifest entry. Raises on a failed check."""
     files, clip = info["files"], info["clip"]
@@ -133,7 +144,7 @@ def process(key, info, out_root: Path):
     n, mid = len(files), len(files) // 2
     dest = out_root / info["dir"].name
     dest.mkdir(parents=True, exist_ok=True)
-    full, small, poster = dest / f"{clip}.webm", dest / f"{clip}_sm.webm", dest / f"{clip}.png"
+    full, small, poster = dest / f"{clip}.webm", dest / f"{clip}_sm.webm", dest / f"{clip}.webp"
     sw = round(w / 2)
     run(encode_cmd(info["dir"], clip, full, SETTINGS["full"]["crf"]))
     run(encode_cmd(info["dir"], clip, small, SETTINGS["small"]["crf"], width=sw))
@@ -150,7 +161,7 @@ def process(key, info, out_root: Path):
             raise RuntimeError(f"{key} {name}: alpha was lost (decoded alpha is all 255, source alpha min {src_alpha[0]})")
         entry[name] = {"file": str(path.relative_to(out_root)), "bytes": path.stat().st_size, "width": pw, "height": ph}
         entry["alpha"][name] = a
-    entry["poster"] = {"file": str(poster.relative_to(out_root)), "bytes": poster.stat().st_size}
+    entry["poster"] = make_poster(info, out_root)
     if src_alpha[0] == 255:
         entry["warning"] = "source frame has no transparency (alpha is all 255)"
     return entry
@@ -189,8 +200,10 @@ def main(argv=None):
             continue
         fp = fingerprint(v["files"])
         prev = old.get(k)
-        outputs = [out / prev[x]["file"] for x in ("full", "small", "poster")] if prev else []
+        outputs = [out / prev[x]["file"] for x in ("full", "small")] if prev else []
         if prev and prev.get("inputSha") == fp and not a.force and all(p.is_file() for p in outputs):
+            if prev["poster"]["file"] != f"{v['dir'].name}/{v['clip']}.webp" or not (out / prev["poster"]["file"]).is_file():
+                prev["poster"] = make_poster(v, out)      # poster format changed since the last run: no need to re-encode the video
             manifest[k] = prev
             print(f"{k}: up to date")
             continue
