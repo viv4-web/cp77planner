@@ -117,5 +117,14 @@ class BuildTests(unittest.TestCase):
                     self.fail(f"external URL in {p}: {m.group(0)!r}")
 
 
+
+class DeployHeaderTests(unittest.TestCase):
+    def test_htaccess_serves_webm_and_webp_with_the_right_types(self):
+        text = (ROOT / "tools" / "deploy.sh").read_text()
+        self.assertIn("AddType video/webm .webm", text)
+        self.assertIn("AddType image/webp .webp", text)
+        self.assertRegex(text, r'FilesMatch "\\\.\(woff2\|svg\|png\|webp\|jpg\|webm\)\$"')
+
+
 if __name__ == "__main__":
     unittest.main()

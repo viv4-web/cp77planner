@@ -92,15 +92,19 @@
 .rd-capbg img{display:block;width:123px;height:487px}
 .rd-seg{position:absolute;width:98px;height:5px;margin-top:4px;transition:background-color .3s,opacity .3s;background:var(--t-MainColors-MildRed,#AE3B36);opacity:.28}
 .rd-seg.safe{background:var(--t-NewMeter-BarColor-Safe_Default);opacity:var(--t-NewMeter-opacity-Safe_Default,.7);box-shadow:var(--t-NewMeter-BarColor-Safe_Default-glow,none)}
-.rd-seg.unsafe{background:var(--t-NewMeter-BarColor-Unsafe_Default);opacity:1;box-shadow:var(--t-NewMeter-BarColor-Unsafe_Default-glow,none)}
+.rd-seg.unsafe{background:repeating-linear-gradient(135deg,var(--t-NewMeter-BarColor-Unsafe_Default) 0 3px,#1a0a0c 3px 5px);opacity:1;box-shadow:var(--t-NewMeter-BarColor-Unsafe_Default-glow,none)}
 .rd-seg.safe-add{background:var(--t-NewMeter-BarColor-Safe_Add);opacity:1}
-.rd-seg.unsafe-add{background:var(--t-NewMeter-BarColor-Unsafe_Add);opacity:.7;box-shadow:var(--t-NewMeter-BarColor-Unsafe_Add-glow,none)}
+.rd-seg.unsafe-add{background:repeating-linear-gradient(135deg,var(--t-NewMeter-BarColor-Unsafe_Add) 0 3px,#1a0a0c 3px 5px);opacity:.85;box-shadow:var(--t-NewMeter-BarColor-Unsafe_Add-glow,none)}
+.rd-seg.safe-add{background-image:repeating-linear-gradient(90deg,var(--t-NewMeter-BarColor-Safe_Add) 0 6px,rgba(0,0,0,.35) 6px 7px)}
 .rd-limit{position:absolute;height:2px;background:var(--t-AttributeAllocation-dangerZone);opacity:.55}
 .rd-lab{position:absolute;min-width:46px;height:26px;padding:0 8px;display:grid;place-items:center;font:700 22px/1 "Rajdhani";font-variant-numeric:tabular-nums}
 .rd-lab.max{color:var(--t-AttributeAllocation-dangerZone);border:1px solid rgba(255,97,89,.5);background:rgba(255,97,89,.1)}
 .rd-lab.cur{background:var(--t-MetersLabels-LabelBgColor);color:#000;transition:top .4s cubic-bezier(.33,1,.68,1)}
 .rd-lab.cur.unsafe{background:var(--t-MetersLabels-LabelBgColor-Unsafe_Add)}
 .rd-lab.add{color:var(--t-MetersLabels-LabelTextColor-Safe_Add);border:1px solid var(--t-MetersLabels-LabelBgColor-Safe_Add)}
+.rd-over-mark{position:absolute;width:12px;height:14px;background:var(--t-MetersLabels-LabelBgColor-Unsafe_Add);clip-path:polygon(0 0,100% 50%,0 100%)}
+.rd-lab.over,.rd-lab.add.unsafe{display:flex;min-width:123px;justify-content:center;gap:6px;align-items:center;white-space:nowrap;font-size:19px;letter-spacing:.04em;color:var(--t-MetersLabels-LabelTextColor-Unsafe_Add);border:1px solid var(--t-MetersLabels-LabelBgColor-Unsafe_Add);background:rgba(255,97,89,.12)}
+.rd-lab .mi{width:15px;height:15px;flex:none}
 .rd-lab.add.unsafe{color:var(--t-MetersLabels-LabelTextColor-Unsafe_Add);border-color:var(--t-MetersLabels-LabelBgColor-Unsafe_Add)}
 .rd-captitle{position:absolute;width:123px;text-align:center;font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t-MainColors-Yellow);display:grid;gap:2px}
 .rd-captitle small{font:400 12px/1 "Share Tech Mono",monospace;letter-spacing:.06em;color:var(--t-MainColors-Grey);text-transform:none}

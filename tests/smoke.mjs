@@ -229,6 +229,9 @@ await t('ripperdoc: picking an implant fills the slot and updates the capacity m
   await page.waitForSelector('#rd-picker:not([hidden]) .rd-gbtn');
   const btn = page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first();
   const cost = Number((await btn.locator('.rd-cost').innerText()).trim());
+  await btn.hover();
+  assert.equal((await page.locator('#rd-cap .rd-lab.add').innerText()).trim(), `+${cost}`, 'preview has a text cue');
+  assert.equal(await page.locator('#rd-cap .rd-over-mark').count(), 0);
   await btn.click();
   assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('class').then((c) => c.includes('full')), true);
   assert.equal(await rdCap(page), String(cost));
@@ -259,6 +262,12 @@ await t('ripperdoc: over capacity is refused with a tooltip warning, never over 
   assert.equal(await blocked.getAttribute('aria-disabled'), 'true');
   await blocked.hover();
   assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over capacity/i);
+  // the over-capacity preview is never color alone: a text cue, a warning shape and a marker at the limit
+  assert.match(await page.locator('#rd-cap .rd-lab.add').innerText(), /OVER BY \d+/);
+  assert.equal(await page.locator('#rd-cap .rd-lab.add svg').count(), 1, 'warning shape in the label');
+  assert.equal(await page.locator('#rd-cap .rd-over-mark').count(), 1, 'marker at the limit line');
+  assert.ok(await page.locator('#rd-cap .rd-seg.unsafe-add').count() > 0);
+  assert.match(await page.locator('#rd-cap [aria-live]').innerText(), /over by \d+/);
   const before = await rdCap(page);
   await blocked.click({ force: true });
   assert.equal(await rdCap(page), before, 'a refused pick changes nothing');

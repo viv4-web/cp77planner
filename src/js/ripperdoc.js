@@ -333,6 +333,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const bg = urls.parts['cw_bars_assets/cw_barbg'];
     const top = m.origin[1] + 22, left = m.origin[0] + m.bgOffset[0] + (123 - SEG_W) / 2;
     const bottom = top + max * SEG_H;
+    const capLeft = m.origin[0] + m.bgOffset[0];
     const segs = [];
     const total = Math.max(max, ev.used + (preview > 0 ? preview : 0));
     for (let i = 0; i < total; i++) {            // i = 0 is the bottom segment
@@ -344,12 +345,18 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     }
     const labelY = bottom - Math.min(ev.used, max) * SEG_H - 17;
     const over = ev.used > max;
+    const after = ev.used + Math.max(0, preview);
+    const overBy = Math.max(0, after - max);          // shown as text and a marker shape, never by color alone
+    const warn = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l7 12H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.5v3.5M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
     return `<div class="rd-capbg" style="left:${m.origin[0] + m.bgOffset[0]}px;top:${m.origin[1] + m.bgOffset[1]}px">${bg ? `<img alt="" src="${bg}">` : ''}</div>
       ${segs.join('')}
       <span class="rd-limit" style="left:${left}px;top:${top - 1}px;width:${SEG_W}px"></span>
       <b class="rd-lab max" style="left:${left + SEG_W + 8}px;top:${top - 12}px" title="Capacity (provisional: growth by level is pending data)">${max}</b>
       <b class="rd-lab cur${over ? ' unsafe' : ''}" style="left:${left + SEG_W + 8}px;top:${labelY}px" data-over="${over}">${ev.used}</b>
-      ${preview > 0 ? `<b class="rd-lab add${ev.used + preview > max ? ' unsafe' : ''}" style="left:${left + SEG_W + 48}px;top:${labelY - 24}px">+${preview}</b>` : ''}
+      ${overBy > 0 ? `<i class="rd-over-mark" style="left:${left - 14}px;top:${top - 7}px" aria-hidden="true"></i>` : ''}
+      ${preview > 0 ? `<b class="rd-lab add${overBy > 0 ? ' unsafe' : ''}" style="left:${capLeft}px;top:${bottom + 54 + (over ? 34 : 0)}px">${overBy > 0 ? `${warn}OVER BY ${overBy}` : `+${preview}`}</b>` : ''}
+      ${over ? `<b class="rd-lab over" style="left:${capLeft}px;top:${bottom + 54}px">${warn}OVER BY ${ev.used - max}</b>` : ''}
+      <span class="sr" aria-live="polite">Capacity ${ev.used} of ${max}${preview > 0 ? (overBy > 0 ? `, this pick would be over by ${overBy}` : `, this pick adds ${preview}`) : ''}${over ? `, over by ${ev.used - max}` : ''}</span>
       <span class="rd-captitle" style="left:${m.origin[0] + m.bgOffset[0]}px;top:${bottom + 14}px">Capacity<small>provisional</small></span>`;
   }
 
