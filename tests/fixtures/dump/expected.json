@@ -1,0 +1,128 @@
+{
+ "rules": {
+  "capacityBase": 10,
+  "capacityPerLevel": 0,
+  "attrBonus": [],
+  "overcapFlag": "overcap"
+ },
+ "groups": [
+  {
+   "id": "Slot.Head",
+   "name": "Head",
+   "slots": 2,
+   "locked": 1
+  },
+  {
+   "id": "Slot.Leg",
+   "name": "Leg",
+   "slots": 1,
+   "locked": 0
+  },
+  {
+   "id": "Slot.Arm",
+   "name": "Arm",
+   "slots": 1,
+   "locked": 0
+  }
+ ],
+ "implants": [
+  {
+   "id": "T.WidgetCommon",
+   "name": "Widget",
+   "group": "Slot.Head",
+   "family": "Head/Widget",
+   "quality": "Common",
+   "tier": 1,
+   "cost": 4,
+   "stats": [
+    {
+     "stat": "Armor",
+     "op": "Additive",
+     "value": 1
+    },
+    {
+     "stat": "Speed",
+     "op": "AdditiveMultiplier",
+     "value": 0.1
+    }
+   ],
+   "flags": [
+    "AttunementHelper",
+    "HasWidget"
+   ],
+   "icon": "ico_a",
+   "req": null,
+   "variant": 1
+  },
+  {
+   "id": "T.WidgetRare",
+   "name": "Widget",
+   "group": "Slot.Head",
+   "family": "Head/Widget",
+   "quality": "Rare",
+   "tier": 2,
+   "cost": 4,
+   "stats": [
+    {
+     "stat": "Armor",
+     "op": "Additive",
+     "value": 5
+    },
+    {
+     "stat": "Armor",
+     "op": "Additive",
+     "value": 2
+    },
+    {
+     "stat": "Speed",
+     "op": "AdditiveMultiplier",
+     "value": 0.2
+    }
+   ],
+   "flags": [],
+   "icon": "ico_a",
+   "req": null,
+   "variant": 1
+  },
+  {
+   "id": "T.WidgetRare2",
+   "name": "Widget",
+   "group": "Slot.Head",
+   "family": "Head/Widget",
+   "quality": "Rare",
+   "tier": 2,
+   "cost": 6,
+   "stats": [
+    {
+     "stat": "Armor",
+     "op": "Additive",
+     "value": 5
+    }
+   ],
+   "flags": [],
+   "icon": "ico_a",
+   "req": null,
+   "variant": 2
+  },
+  {
+   "id": "T.Gizmo",
+   "name": "Gizmo",
+   "group": "Slot.Leg",
+   "family": "Leg/Gizmo",
+   "quality": "Epic",
+   "tier": 3,
+   "cost": 9,
+   "stats": [
+    {
+     "stat": "Mass",
+     "op": "Multiplier",
+     "value": 1.5
+    }
+   ],
+   "flags": [],
+   "icon": null,
+   "req": null,
+   "variant": 1
+  }
+ ]
+}

@@ -242,7 +242,7 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
 .cw-pick-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .cw-close{display:none}
 .cw-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.cw-li{display:flex;gap:8px;align-items:stretch}
+.cw-li{display:flex;gap:8px;align-items:flex-start}
 .cw-row{--tl:12px;--br:12px;--fill:#0d1130;--edge:var(--line);flex:1;min-width:0;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;padding:10px 14px;min-height:64px;color:var(--text)}
 .cw-row:hover:not(:disabled){--edge:var(--cyan)}
 .cw-row[aria-pressed=true]{--fill:linear-gradient(160deg,#242c5c,#161b42)}
@@ -265,8 +265,12 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
 .capbar[data-state=full] i{background:var(--cyan)}
 .capbar[data-state=over] i{background:repeating-linear-gradient(135deg,var(--yellow) 0 6px,#8a7712 6px 12px)}
 .cap-note{margin:0;font-size:11.5px;color:var(--dim);letter-spacing:.08em}
-.cw-armor{display:inline-block;margin-bottom:14px}
-.cw-armor b{color:var(--text)}
+.cw-fam{flex:1;min-width:0;display:grid;gap:6px}
+.cw-quals{display:flex;flex-wrap:wrap;gap:6px}
+.cw-q{--tl:6px;--br:6px;--fill:#0b0e2c;--edge:var(--line);padding:5px 9px;min-height:32px;font:500 11.5px var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+.cw-q:hover{--edge:var(--cyan)}
+.cw-q[aria-pressed=true]{--fill:linear-gradient(160deg,#242c5c,#161b42);--edge:var(--cyan);color:var(--text)}
+.sock[data-s=locked]{color:var(--dis-text);cursor:not-allowed}
 .cw-h,.cw-flagbox h3{margin:0 0 8px;font:500 11.5px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .cw-flagbox{margin-bottom:14px;padding:10px 12px;background:rgba(255,225,74,.06);border:1px dashed rgba(255,225,74,.45)}
 .cw-flags,.cw-effects{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -289,7 +293,6 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
   .cw-bar .cap{flex:1;margin:0;gap:4px}
   .cw-bar .cap-top b{font-size:16px}
   .cw-bar .cap-note{display:none}
-  .cw-bar-armor{font-size:12px;color:var(--muted);white-space:nowrap}
-  .cw-bar-armor b{color:var(--text);font-weight:500;font-size:16px}
+  .cw-q{min-height:44px;padding:5px 12px}
   .screen[data-tab=cyberware]:not([hidden]) ~ .foot{margin-bottom:56px}
 }

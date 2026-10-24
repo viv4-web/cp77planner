@@ -16,7 +16,40 @@ export function buildCyberIndex(data) {
     byGroup.get(imp.group).push(imp);
   }
   const groupByN = new Map(groups.map((g) => [g.n, g]));
-  return { rules: data.rules, groups, groupById, groupByN, implants, byGroup };
+  // One family per item (same name + slot, from the importer): the picker shows it once with a quality picker.
+  const familiesByGroup = new Map(groups.map((g) => [g.id, []]));
+  const familyOf = new Map();
+  for (const imp of implants.values()) {
+    const key = imp.family || imp.id;
+    let fam = familyOf.get(key);
+    if (!fam) {
+      fam = { key, name: imp.name, variants: [] };
+      familyOf.set(key, fam);
+      familiesByGroup.get(imp.group).push(fam);
+    }
+    fam.variants.push(imp);
+  }
+  for (const fam of familyOf.values()) fam.variants.sort((a, b) => (a.tier || 0) - (b.tier || 0) || (a.variant || 0) - (b.variant || 0) || a.n - b.n);
+  return { rules: data.rules, groups, groupById, groupByN, implants, byGroup, familiesByGroup, familyOf };
+}
+
+// Stats as display lines, one per stat name (a stat that appears several times keeps its values in file order).
+// The meaning of repeated values is not decoded yet, so they are listed, never summed.
+const fmtNum = (v) => String(Math.round(v * 1e4) / 1e4);
+const fmtStat = (op, v) => {
+  const sign = v < 0 ? '-' : '+';
+  if (op === 'AdditiveMultiplier') return `${sign}${fmtNum(Math.abs(v) * 100)}%`;
+  if (op === 'Multiplier') return `\u00d7${fmtNum(v)}`;
+  return `${sign}${fmtNum(Math.abs(v))}`;
+};
+export const statName = (stat) => stat.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+export function statLines(imp) {
+  const by = new Map();
+  for (const m of imp.stats || []) {
+    if (!by.has(m.stat)) by.set(m.stat, []);
+    by.get(m.stat).push(fmtStat(m.op, m.value));
+  }
+  return [...by].map(([stat, vals]) => `${statName(stat)} ${vals.join(' / ')}`);
 }
 
 export const maxCapacity = (C, D, state) => {
@@ -47,14 +80,13 @@ export function reqStatus(C, D, state, imp) {
 export function evaluate(C, D, state) {
   const max = maxCapacity(C, D, state);
   const overcapAllowed = hasFlag(D, state, C.rules.overcapFlag);
-  let used = 0, armor = 0;
+  let used = 0;
   const effects = [], flags = [], slots = new Map();
   for (const [key, n] of state.cyber) {
     const imp = C.implants.get(n);
     if (!imp) continue;
     used += imp.cost;
-    armor += imp.armor || 0;
-    for (const text of imp.effects || []) effects.push({ text, source: imp.name });
+    for (const text of statLines(imp)) effects.push({ text, source: imp.name });
     const req = reqStatus(C, D, state, imp);
     slots.set(key, { implant: imp, req });
     if (req.kind === 'unmet') flags.push({ key, implant: imp, reason: 'req-unmet', text: `${imp.name}: ${req.label} not met` });
@@ -63,7 +95,7 @@ export function evaluate(C, D, state) {
   if (over && !overcapAllowed) {
     flags.push({ key: null, implant: null, reason: 'over-capacity', text: `Over capacity by ${used - max} and no overcap perk` });
   }
-  return { max, used, over, overcapAllowed, exact: used === max, armor, effects, flags, slots };
+  return { max, used, over, overcapAllowed, exact: used === max, effects, flags, slots };
 }
 
 // Can this implant go into this slot? Over capacity is refused unless the build has the overcap perk.

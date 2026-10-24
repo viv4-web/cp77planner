@@ -1,0 +1,199 @@
+[
+ {
+  "id": "T.WidgetCommon",
+  "name": "Widget",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "HeadCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [
+   {
+    "stat": "Armor",
+    "op": "Additive",
+    "value": 1.0,
+    "rec": "x"
+   },
+   {
+    "stat": "AttunementHelper",
+    "op": "Additive",
+    "value": 0.5,
+    "rec": "x"
+   },
+   {
+    "stat": "HasWidget",
+    "op": "Additive",
+    "value": 1,
+    "rec": "x"
+   }
+  ],
+  "onEquip": [
+   {
+    "stat": "Speed",
+    "op": "AdditiveMultiplier",
+    "value": 0.10000000149012,
+    "rec": "x",
+    "group": "g"
+   }
+  ],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "T.WidgetRare",
+  "name": "Widget",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "HeadCW",
+  "quality": "Rare",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [
+   {
+    "stat": "Armor",
+    "op": "Additive",
+    "value": 5,
+    "rec": "x"
+   },
+   {
+    "stat": "Armor",
+    "op": "Additive",
+    "value": 2,
+    "rec": "x"
+   }
+  ],
+  "onEquip": [
+   {
+    "stat": "Speed",
+    "op": "AdditiveMultiplier",
+    "value": 0.20000000298023,
+    "rec": "x",
+    "group": "g"
+   }
+  ],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "T.WidgetRare2",
+  "name": "Widget",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "HeadCW",
+  "quality": "Rare",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [
+   {
+    "stat": "Armor",
+    "op": "Additive",
+    "value": 5,
+    "rec": "x"
+   }
+  ],
+  "onEquip": [
+   {
+    "stat": "Gone",
+    "op": "Additive",
+    "value": null,
+    "rec": "x",
+    "group": "g"
+   }
+  ],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "T.Gizmo",
+  "name": "Gizmo",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "LegCW",
+  "quality": "Epic",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [
+   {
+    "stat": "Mass",
+    "op": "Multiplier",
+    "value": 1.5,
+    "rec": "x"
+   }
+  ],
+  "onEquip": []
+ },
+ {
+  "id": "T.Free",
+  "name": "Free Thing",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "LegCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [],
+  "onEquip": [],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "T.Orphan",
+  "name": "Orphan",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "TailCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [],
+  "onEquip": [],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "T.Debug_Widget",
+  "name": "Widget",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "HeadCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [],
+  "onEquip": [],
+  "iconPart": "ico_a"
+ },
+ {
+  "id": "TEST.Thing",
+  "name": "Thing",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "HeadCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "<TDBID:0:0>",
+  "tags": [
+   "Cyberware"
+  ],
+  "stats": [],
+  "onEquip": [],
+  "iconPart": "ico_a"
+ }
+]

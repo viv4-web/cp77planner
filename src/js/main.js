@@ -10,7 +10,7 @@ async function boot() {
   const [art, data, cyberData] = await Promise.all([
     loadResolver(),
     fetch('data/sample/tree.json').then((r) => r.json()),
-    fetch('data/sample/cyberware.json').then((r) => r.json()),
+    fetch('data/cyberware.json').then((r) => r.json()),
   ]);
   const D = buildIndex(data, cyberData);
 

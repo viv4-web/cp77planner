@@ -18,6 +18,9 @@ FROZEN = {
     "SAMPLE.Perk.Relic.T3.B": 622,
     "SAMPLE.Slot.FrontalCortex": 700,
     "SAMPLE.Implant.FrontalCortex.A": 710,
+    "Slot.FrontalCortex": 1000,
+    "Slot.Legs": 1009,
+    "Items.AdvancedAdaptiveStemCellsCommon": 1010,
 }
 
 

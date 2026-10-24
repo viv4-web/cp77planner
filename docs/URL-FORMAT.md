@@ -30,3 +30,8 @@ The v1 payload, then:
 Group and implant ids come from the registry like every other record. Slot positions are per group; a group's slot count may only grow.
 The decoder rejects trailing bytes. Entries that don't match the data (unknown group or implant, wrong group, bad position, duplicate slot)
 are dropped on load; capacity and requirement conflicts are kept and flagged, never silently removed.
+
+## Cyberware record numbers
+The SAMPLE implants and slots (n 700-739) are retired: their numbers are never reused. Links made against them still decode; on load
+those entries are dropped like any unknown id. Real slots and implants have n >= 1000 (`data/ids.json`). Each quality variant of an
+item is its own record with its own n.
