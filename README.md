@@ -24,6 +24,11 @@ Both are built from the same source; only the art resolver map differs.
 See `docs/STYLE.md` for the design spec and `docs/URL-FORMAT.md` for the build-link format
 (which is append-only: every link ever shared must keep working).
 
+## Paperdoll clips
+
+The ripperdoc body animations (Bink 2) are converted on Windows (`tools/windows/`, see its README) and encoded to VP9+alpha WebM by
+`tools/paperdoll_video.py` (needs ffmpeg with libvpx-vp9). Output stays in `~/work/cyber-art/out/paperdoll/`, never in the repo.
+
 ## Licence and credits
 
 - Code: MIT, see `LICENSE`.
