@@ -20,3 +20,11 @@
 
 ## Style
 - Utopian 2077 neon with chrome accents (mockup v4); full spec in docs/STYLE.md. Motion is CSS only, transform/opacity, with a Full/Calm/Off setting; respect prefers-reduced-motion.
+
+## Game-files folders (outside the repo, never committed)
+- ~/work/cyber-extract/<version>/ — raw TweakDB dumps from WolvenKit. Read only. Never copy raw game data into the repo, tests or fixtures.
+- ~/work/cyber-art/raw/ — raw icon exports. Read only.
+- ~/work/cyber-art/out/ — site-ready art, written only by tools/art.py.
+- ~/work/cyber-art/manifest.json — record number → game path, sha256, export date, game version.
+- Only normalized planner data (names, numbers, rules, record numbers) goes in cyber/data/.
+- Record numbers only via tools/ids.py (append-only data/ids.json). Real records start at 1000.
