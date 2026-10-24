@@ -61,3 +61,12 @@ CSS only. Animate `transform`, `opacity`, `background-position` (plus `stroke-da
 ## Data and art
 - All placeholder content is marked SAMPLE. Do not invent game facts in code or docs.
 - Game art is resolved by record ID only (`src/js/art.js`); the offline build maps nothing and shows original placeholder glyphs from `src/img/placeholder/`.
+
+## Cyberware screen
+- Three panels: `02 // SLOTS` (sockets grouped by body area, count `x/y` per group, placeholder silhouette behind), `03 // IMPLANTS` (picker for the selected socket), `04 // LOADOUT` (capacity, armor, flags, granted effects).
+- Sockets, implant rows and chips use `.cutline`. Socket states: empty (dim outline), filled (chrome), flagged (yellow outline). Selection is the same extra layer as perk nodes (`.nbox`: cyan glow + yellow brackets) and never replaces the state outline.
+- Capacity bar: signal yellow, cyan when exactly full, striped yellow when over (overcap). No red anywhere.
+- Requirements use the REQ chip: yellow + lock when unmet, cyan + check when met. Unmet implants can be picked; they are flagged in the summary.
+- Disabled implant rows (over capacity) use the dashed `.cutline` variant and show the reason.
+- Below 720px: slot groups stack, the picker becomes a full-width sheet (Close button), and a compact capacity/armor bar is pinned above the bottom tabs.
+- Motion: the capacity bar rides a `transform` transition; a filled socket pops its icon in. Both stop under Off.

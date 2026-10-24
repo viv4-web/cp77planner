@@ -1,18 +1,24 @@
-// Pure perk/attribute rules. All numbers come from data (rules block), nothing is hard-coded here.
-// State: { level, attrs: number[] (one per attribute tree, in data order), perks: Set<number> }
+import { buildCyberIndex, cyberToRaw, sanitizeCyber } from './cyber.js';
 
-export function buildIndex(data) {
+// Pure perk/attribute rules. All numbers come from data (rules block), nothing is hard-coded here.
+// State: { level, attrs: number[] (one per attribute tree, in data order), perks: Set<number>, cyber: Map<slotKey, implant n> }
+// slotKey = `${group n}.${slot position}` (see cyber.js)
+
+export function buildIndex(data, cyberData = null) {
   const trees = data.trees;
   const attrTrees = trees.filter((t) => t.kind === 'attribute');
   const perks = new Map();
   for (const tree of trees) {
     for (const perk of tree.perks) perks.set(perk.n, { perk, tree, req: tree.tierReq[perk.tier] });
   }
-  return { rules: data.rules, trees, attrTrees, perks };
+  const perkById = new Map([...perks.values()].map((e) => [e.perk.id, e.perk.n]));
+  const D = { rules: data.rules, trees, attrTrees, perks, perkById, cyber: null };
+  if (cyberData) D.cyber = buildCyberIndex(cyberData);
+  return D;
 }
 
 export function defaultState(D) {
-  return { level: 1, attrs: D.attrTrees.map(() => D.rules.attrBase), perks: new Set() };
+  return { level: 1, attrs: D.attrTrees.map(() => D.rules.attrBase), perks: new Set(), cyber: new Map() };
 }
 
 const owned = (state, tree) => tree.perks.filter((p) => state.perks.has(p.n));
@@ -137,9 +143,15 @@ export function sanitize(D, raw) {
     }
     if (res.ok) state = res.state;
   }
-  return state;
+  return sanitizeCyber(D, state, raw.cyber);
+}
+
+// Does the build own a perk that carries this flag (e.g. 'overcap', SAMPLE)?
+export function hasFlag(D, state, flag) {
+  for (const n of state.perks) if (D.perks.get(n)?.perk.flags?.includes(flag)) return true;
+  return false;
 }
 
 export function toRaw(state) {
-  return { level: state.level, attrs: state.attrs.slice(), perks: [...state.perks] };
+  return { level: state.level, attrs: state.attrs.slice(), perks: [...state.perks], cyber: cyberToRaw(state) };
 }
