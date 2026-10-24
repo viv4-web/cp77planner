@@ -34,6 +34,10 @@ Regenerate after a game patch: `python3 tools/paperdoll_video.py`, `python3 tool
 - Safari gets posters only (it ignores WebM alpha); widths up to 1100 px or Save-Data get the `_sm.webm` clips.
 - Without art (offline build or no `out/` folder) the screen uses a silhouette placeholder and the glyph icons; everything still works.
 
+## Zone panel (matches the in-game Cyberware screen)
+One left column at the inventory origin (stage x 400, y 150; `layout.panel`), no box: header "< ZONE >" with arrows (cut-corner outline), one dash per body zone (current = cyan; arrows and dashes switch zones), the zone's slot tiles in a row (filled = icon, empty = socket plus, locked = lock + word, selected = cyan frames), a thin red divider, then a 4-column grid of compatible implants (the full 4 x 5 area is always drawn; "+" marks on empty cells; scrolls when there are more). Tiles are icon only: rarity = strip and frame colour plus a small letter, over capacity = hatch and a cross; the name, rarity, capacity cost, stats, #1/#2 diff and the quality / variant buttons are in the tooltip, which opens on hover or focus and pins on click or tap (Esc or a click elsewhere unpins; hovering another item replaces it). The body on the right is never covered by the panel.
+Meters: capacity (left) and armor (right, cyan) use the same two-column bar construction; capacity has the body icon on top, the red max box at the limit line, the yellow used box and the "OVER BY n" text and marker; armor shows "\u2014" and "pending data" until the armor rules are decoded.
+
 ## Game widgets (second pass)
 Slot tiles, picker tiles, capacity segments and the item tooltip are built from the game's own widgets and atlas parts (spec section 10):
 - `tools/atlas_cut.py` cuts atlas parts from the full PNGs (`inkatlas.json` UVs x PNG size) into `~/work/cyber-art/out/ui/<atlas>/<part>.webp` plus `atlas-index.json`.

@@ -32,7 +32,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const urls = ui || { parts: {}, clips: {} };
   const grpKey = (g) => g.id.replace(/^Slot\./, '');
   const zones = L.zones.map((z) => ({ ...z, g: C.groups.find((g) => grpKey(g) === z.group) })).filter((z) => z.g);
-  const S = { gender: safe.get('cp77.gender') === 'man' ? 'man' : 'woman', open: null, hover: null, slot: 0, pick: new Map(), tip: null, prev: null, fresh: new Set() };
+  const S = { gender: safe.get('cp77.gender') === 'man' ? 'man' : 'woman', open: null, hover: null, slot: 0, pick: new Map(), tip: null, pinned: false, prev: null, fresh: new Set() };
   const hitData = new Map();                              // `${gender}/${zone}` -> {w,h,data} alpha of the hover sprite
 
   root.innerHTML = `
@@ -44,6 +44,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
       <div class="rd-panel" id="rd-panel" hidden></div>
       <div class="rd-picker" id="rd-picker" hidden></div>
       <div class="rd-meter rd-cap" id="rd-cap"></div>
+      <div class="rd-meter rd-armor" id="rd-arm"></div>
       <div class="rd-gender" id="rd-gender" role="group" aria-label="Body"><button type="button" data-g="woman">Woman</button><button type="button" data-g="man">Man</button></div>
       <div class="rd-tip" id="rd-tip" hidden role="tooltip"></div>
     </div></div>`;
@@ -290,54 +291,62 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const TILE = '<i class="rd-m bg"></i><i class="rd-m ln"></i><i class="rd-m hv"></i><i class="rd-m fr"></i><i class="rd-m fe"></i><i class="rd-m side"></i><i class="rd-m sidefr"></i><i class="rd-m fl"></i><i class="rd-m sel"></i><i class="rd-m sel2"></i>';
   const cost = (n) => `<b class="rd-cost">${n}</b>`;
 
+  const RL = { Common: 'C', Uncommon: 'U', Rare: 'R', Epic: 'E', Legendary: 'L', Iconic: 'I' };
+  const rlabel = (imp) => `<i class="rd-rl" aria-hidden="true">${RL[rarityOf(imp.quality)] || ''}</i>`;
+  const tileLabel = (imp, extra = '') => esc(`${imp.name}, ${imp.quality}${imp.variant > 1 ? ` #${imp.variant}` : ''}, capacity ${imp.cost}${extra}`);
+
   function cellHtml(s, ev, sel) {
     const e = ev.slots.get(s.key);
     const imp = e && e.implant;
     const flag = e && e.req.kind === 'unmet';
     const just = imp && S.fresh.has(s.key) ? ' just' : '';
-    return `<button type="button" class="rd-tile rd-cell${imp ? ' full' : ''}${flag ? ' flag' : ''}${just}" data-slot="${s.p}" aria-pressed="${sel}" ${imp ? `data-imp="${imp.n}"` : ''}
-      style="--q:${imp ? qColor(imp.quality) : 'transparent'}" aria-label="${esc(`${imp ? imp.name : 'Empty slot'}, slot ${s.p + 1}`)}">${TILE}<i class="rd-m eqm"></i>
-      ${imp ? `<span class="rd-ico">${iconHtml(imp)}</span>${cost(imp.cost)}<span class="rd-cname">${esc(imp.name)}</span>` : '<i class="rd-m rd-add"></i>'}</button>`;
+    const fam = imp && C.familyOf.get(imp.family || imp.id);
+    return `<button type="button" class="rd-tile rd-cell${imp ? ' full' : ''}${flag ? ' flag' : ''}${just}" data-slot="${s.p}" aria-pressed="${sel}" ${imp ? `data-imp="${imp.n}" data-fam="${esc(fam.key)}" data-cost="${imp.cost}"` : ''}
+      style="--q:${imp ? qColor(imp.quality) : 'transparent'}" aria-label="${imp ? tileLabel(imp, `, slot ${s.p + 1}`) : esc(`Empty slot ${s.p + 1}`)}">${TILE}<i class="rd-m eqm"></i>
+      ${imp ? `<span class="rd-ico">${iconHtml(imp)}</span>${rlabel(imp)}` : '<i class="rd-m rd-add"></i>'}</button>`;
   }
   function lockedHtml(g) {
     return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span>`).join('');
   }
 
+  // left column: header "< ZONE >", one dash per body zone, the zone's slot tiles in a row
   function panelHtml(z, ev) {
     const s = slotsOf(z.g);
-    return `<div class="rd-panel-head"><button type="button" class="rd-back" data-act="back" aria-label="Back to the body">&larr;</button><h2>${esc(z.g.name)}</h2></div>
-      <div class="rd-cells">${s.map((x) => cellHtml(x, ev, x.p === S.slot)).join('')}${lockedHtml(z.g)}</div>
-      ${z.g.pendingData ? `<p class="rd-pending">${ICON_WARN}<span>Pending data: ${esc(z.g.pendingData)}</span></p>` : ''}`;
+    const idx = zones.findIndex((x) => x.key === z.key);
+    const dashes = zones.map((x, i) => `<button type="button" class="${i === idx ? 'on' : ''}" data-zone-go="${x.key}" aria-label="${esc(x.g.name)}" ${i === idx ? 'aria-current="true"' : ''}></button>`).join('');
+    return `<button type="button" class="rd-back" data-act="back" aria-label="Back to the body">&larr;</button>
+      <div class="rd-hdr"><button type="button" class="rd-arrow" data-zone-step="-1" aria-label="Previous body zone"><i class="chev l"></i></button><h2>${esc(z.g.name)}</h2><button type="button" class="rd-arrow" data-zone-step="1" aria-label="Next body zone"><i class="chev r"></i></button></div>
+      <div class="rd-dots">${dashes}</div>
+      <div class="rd-cells">${s.map((x) => cellHtml(x, ev, x.p === S.slot)).join('')}${lockedHtml(z.g)}</div>`;
   }
 
-  function famCell(fam, chosen, state, ev, key, equippedN) {
+  function famCell(fam, chosen, state, key, equippedN) {
     const isEq = equippedN === chosen.n;
     const can = canEquip(C, D, state, key, chosen.n);
     const blocked = !isEq && !can.ok;
-    const pips = fam.variants.length > 1
-      ? `<span class="rd-pips">${fam.variants.map((v) => `<i role="button" tabindex="0" class="rd-pip${v.n === chosen.n ? ' on' : ''}" data-pip="${v.n}" style="--q:${qColor(v.quality)}" aria-label="${esc(`${fam.name}, ${v.quality}${v.variant > 1 ? ` #${v.variant}` : ''}`)}"></i>`).join('')}</span>` : '';
     return `<div class="rd-gcell${isEq ? ' eq' : ''}${blocked ? ' blocked' : ''}" style="--q:${qColor(chosen.quality)}">
-      <button type="button" class="rd-tile rd-gbtn${isEq ? ' full' : ''}" data-imp="${chosen.n}" ${blocked ? 'aria-disabled="true"' : ''} ${isEq ? 'aria-pressed="true"' : ''} aria-label="${esc(`${fam.name}, ${chosen.quality}, capacity ${chosen.cost}${blocked ? ', over capacity' : ''}`)}">${TILE}<i class="rd-m eqm"></i><span class="rd-ico">${iconHtml(chosen)}</span>${cost(chosen.cost)}<span class="rd-cname">${esc(fam.name)}</span></button>${pips}</div>`;
+      <button type="button" class="rd-tile rd-gbtn${isEq ? ' full' : ''}" data-imp="${chosen.n}" data-fam="${esc(fam.key)}" data-cost="${chosen.cost}" ${blocked ? 'aria-disabled="true"' : ''} ${isEq ? 'aria-pressed="true"' : ''} aria-label="${tileLabel(chosen, blocked ? ', over capacity' : '')}">${TILE}<i class="rd-m eqm"></i><span class="rd-ico">${iconHtml(chosen)}</span>${rlabel(chosen)}${blocked ? '<i class="rd-x" aria-hidden="true">&times;</i>' : ''}</button></div>`;
   }
-  function pickerHtml(z, state, ev) {
+  const GRID_MIN = 20;                          // the grid area is always drawn: 4 columns x 5 rows, "+" marks on the empty cells
+  function pickerHtml(z, state) {
     const key = slotKey(z.g.n, S.slot);
     const equippedN = state.cyber.get(key);
     const fams = C.familiesByGroup.get(z.g.id);
     const cells = fams.map((fam) => {
       const chosen = fam.variants.find((v) => v.n === equippedN) || fam.variants.find((v) => v.n === S.pick.get(fam.key)) || fam.variants[0];
-      return famCell(fam, chosen, state, ev, key, equippedN);
-    }).join('');
-    const idx = zones.findIndex((x) => x.key === z.key);
-    const dots = zones.map((x, i) => `<i class="${i === idx ? 'on' : ''}"></i>`).join('');
-    return `<div class="rd-pfilter"><button type="button" class="rd-arrow" data-zone-step="-1" aria-label="Previous body zone">&lsaquo;</button><h3>${esc(z.g.name)} &middot; slot ${S.slot + 1}</h3><button type="button" class="rd-arrow" data-zone-step="1" aria-label="Next body zone">&rsaquo;</button></div>
-      <div class="rd-dots" aria-hidden="true">${dots}</div>
-      <div class="rd-pdiv"><i></i>${equippedN ? '<button type="button" class="rd-remove" data-act="remove">Remove</button>' : ''}</div>
-      <div class="rd-grid">${cells || '<p class="rd-empty">No implants for this slot in the data yet.</p>'}</div>`;
+      return famCell(fam, chosen, state, key, equippedN);
+    });
+    const total = Math.max(GRID_MIN, Math.ceil(cells.length / 4) * 4);
+    const empties = Array.from({ length: total - cells.length }, () => '<div class="rd-gempty" aria-hidden="true"></div>').join('');
+    return `<div class="rd-pdiv"><i></i>${equippedN ? '<button type="button" class="rd-remove" data-act="remove">Remove</button>' : ''}</div>
+      <div class="rd-grid" role="group" aria-label="${esc(z.g.name)} implants, slot ${S.slot + 1}">${cells.join('')}${empties}</div>
+      ${cells.length ? '' : `<p class="rd-empty">${ICON_WARN}<span>${z.g.pendingData ? `Pending data: ${esc(z.g.pendingData)}` : 'No implants for this slot in the data yet.'}</span></p>`}`;
   }
 
-  // ---------- capacity meter
+  // ---------- capacity meter (left) and armor meter (right): one construction, two-column bars stacked from the bottom
   const SEG_H = 13.5, SEG_W = 98;
-  let lastUsed = 0;
+  const warnSvg = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l7 12H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.5v3.5M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const seg = (cls, y, x) => `${cls === 'e' ? '' : `<i class="rd-seghl ${cls}" style="top:${y}px;left:${x}px"></i>`}<i class="rd-seg ${cls}" style="top:${y}px;left:${x}px"><i></i><i></i></i>`;
   function capHtml(ev, preview) {
     const m = L.meters.capacity;
     const max = ev.max;
@@ -348,56 +357,96 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const segs = [];
     const total = Math.max(max, ev.used + (preview > 0 ? preview : 0));
     for (let i = 0; i < total; i++) {            // i = 0 is the bottom segment
-      const y = bottom - (i + 1) * SEG_H;
       let cls = 'e';
       if (i < ev.used) cls = i >= max ? 'unsafe' : 'safe';
       else if (preview > 0 && i < ev.used + preview) cls = (ev.used + preview > max) ? 'unsafe-add' : 'safe-add';
-      segs.push(`${cls === 'e' ? '' : `<i class="rd-seghl ${cls}" style="top:${y}px;left:${left}px"></i>`}<i class="rd-seg ${cls}" style="top:${y}px;left:${left}px"></i>`);
+      segs.push(seg(cls, bottom - (i + 1) * SEG_H, left));
     }
     const labelY = bottom - Math.min(ev.used, max) * SEG_H - 17;
     const over = ev.used > max;
     const after = ev.used + Math.max(0, preview);
     const overBy = Math.max(0, after - max);          // shown as text and a marker shape, never by color alone
-    const warn = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l7 12H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.5v3.5M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
-    return `<div class="rd-capbg" style="left:${m.origin[0] + m.bgOffset[0]}px;top:${m.origin[1] + m.bgOffset[1]}px">${bg ? `<img alt="" src="${bg}">` : ''}</div>
+    return `<div class="rd-capbg" style="left:${capLeft}px;top:${m.origin[1] + m.bgOffset[1]}px">${bg ? `<img alt="" src="${bg}">` : ''}</div>
+      <i class="rd-mico cap" style="left:${left + SEG_W / 2 - 14}px;top:${top - 50}px" aria-hidden="true"></i>
       ${segs.join('')}
       <span class="rd-limit" style="left:${left}px;top:${top - 1}px;width:${SEG_W}px"></span>
       <b class="rd-lab max" style="left:${left + SEG_W + 8}px;top:${top - 12}px" title="Capacity (provisional: growth by level is pending data)">${max}</b>
       <b class="rd-lab cur${over ? ' unsafe' : ''}" style="left:${left + SEG_W + 8}px;top:${labelY}px" data-over="${over}">${ev.used}</b>
       ${overBy > 0 ? `<i class="rd-over-mark" style="left:${left - 14}px;top:${top - 7}px" aria-hidden="true"></i>` : ''}
-      ${preview > 0 ? `<b class="rd-lab add${overBy > 0 ? ' unsafe' : ''}" style="left:${capLeft}px;top:${bottom + 54 + (over ? 34 : 0)}px">${overBy > 0 ? `${warn}OVER BY ${overBy}` : `+${preview}`}</b>` : ''}
-      ${over ? `<b class="rd-lab over" style="left:${capLeft}px;top:${bottom + 54}px">${warn}OVER BY ${ev.used - max}</b>` : ''}
+      ${preview > 0 ? `<b class="rd-lab add${overBy > 0 ? ' unsafe' : ''}" style="left:${capLeft}px;top:${bottom + 54 + (over ? 34 : 0)}px">${overBy > 0 ? `${warnSvg}OVER BY ${overBy}` : `+${preview}`}</b>` : ''}
+      ${over ? `<b class="rd-lab over" style="left:${capLeft}px;top:${bottom + 54}px">${warnSvg}OVER BY ${ev.used - max}</b>` : ''}
       <span class="sr" aria-live="polite">Capacity ${ev.used} of ${max}${preview > 0 ? (overBy > 0 ? `, this pick would be over by ${overBy}` : `, this pick adds ${preview}`) : ''}${over ? `, over by ${ev.used - max}` : ''}</span>
-      <span class="rd-captitle" style="left:${m.origin[0] + m.bgOffset[0]}px;top:${bottom + 14}px">Capacity<small>provisional</small></span>`;
+      <span class="rd-captitle" style="left:${capLeft}px;top:${bottom + 14}px">Capacity<small>provisional</small></span>`;
+  }
+  // armor (cyan): same construction, no value until the armor rules are decoded
+  function armHtml() {
+    const m = L.meters.armor, max = 27;
+    const bg = urls.parts['cw_bars_assets/armor_barbg'];
+    const top = L.meters.capacity.origin[1] + 22, armLeft = m.origin[0] + m.bgOffset[0], left = armLeft + (123 - SEG_W) / 2;
+    const bottom = top + max * SEG_H;
+    const segs = Array.from({ length: max }, (_, i) => seg('e', bottom - (i + 1) * SEG_H, left)).join('');
+    return `<div class="rd-capbg arm" style="left:${armLeft}px;top:${m.origin[1] + m.bgOffset[1]}px">${bg ? `<img alt="" src="${bg}">` : ''}</div>
+      <i class="rd-mico arm" style="left:${left + SEG_W / 2 - 14}px;top:${top - 50}px" aria-hidden="true"></i>
+      ${segs}
+      <span class="rd-limit arm" style="left:${left}px;top:${top - 1}px;width:${SEG_W}px"></span>
+      <b class="rd-lab max arm" style="left:${left - 62}px;top:${top - 12}px" title="Armor total: pending data">&mdash;</b>
+      <span class="rd-captitle arm" style="left:${armLeft}px;top:${bottom + 14}px">Armor<small>pending data</small></span>
+      <span class="sr">Armor: pending data, not decoded yet</span>`;
   }
 
-  // ---------- tooltip (per spec: name, rarity color, capacity row, stats)
+  // ---------- tooltip (itemtooltip layout) with the planner extras: capacity, stats, quality / variant choice, over-capacity cue
+  const openZoneDef = () => zones.find((x) => x.key === S.open);
+  function tipExtra(imp) {
+    const z = openZoneDef(), key = slotKey(z.g.n, S.slot);
+    const cur = C.implants.get(store.get().cyber.get(key));
+    if (cur && cur.n === imp.n) return '';
+    const can = canEquip(C, D, store.get(), key, imp.n);
+    return can.ok ? '' : `Over capacity by ${can.need}`;
+  }
   function tipHtml(imp, extra, groupName) {
     const lines = statLines(imp);
-    const sibs = C.familyOf.get(imp.family || imp.id).variants.filter((o) => o.tier === imp.tier && o.n !== imp.n);
+    const fam = C.familyOf.get(imp.family || imp.id);
+    const sibs = fam.variants.filter((o) => o.tier === imp.tier && o.n !== imp.n);
     const diff = sibs.map((o) => `vs #${o.variant}: ${variantDiff(imp, o).join(' · ') || 'same stats'}`);
+    const vars = fam.variants.length > 1 ? `<div class="rd-tip-vars" role="group" aria-label="Quality and variant">${fam.variants.map((v) => `<button type="button" class="rd-var${v.n === imp.n ? ' on' : ''}" data-pip="${v.n}" aria-pressed="${v.n === imp.n}" style="--q:${qColor(v.quality)}" aria-label="${esc(`${rarityOf(v.quality)}${plusOf(v.quality)}${v.variant > 1 ? ` #${v.variant}` : ''}, capacity ${v.cost}`)}"><i></i><span>${esc(rarityOf(v.quality))}${esc(plusOf(v.quality))}${v.variant > 1 ? ` #${v.variant}` : ''}</span><b>${v.cost}</b></button>`).join('')}</div>` : '';
     return `<i class="rd-tipfill"></i><i class="rd-tipstroke"></i><div class="rd-tipc" style="--q:${qColor(imp.quality)}">
       <div class="rd-tip-head"><div class="rd-tip-name">${esc(imp.name)}</div><i class="rd-tip-sep"></i>
         <div class="rd-tip-rar"><span>${esc(rarityOf(imp.quality))}</span><em>${esc(plusOf(imp.quality))}</em>${imp.variant > 1 || diff.length ? `<small>#${imp.variant}</small>` : ''}</div>
         <div class="rd-tip-type">${esc(groupName || 'Cyberware')}</div></div>
       <div class="rd-tip-cap"><b>${imp.cost}</b><i class="ric"></i><span class="lbl">Capacity</span></div>
+      ${vars}
       ${lines.length ? `<ul class="rd-tip-stats">${lines.slice(0, 10).map((l) => `<li>${esc(l)}</li>`).join('')}${lines.length > 10 ? `<li class="more">+${lines.length - 10} more</li>` : ''}</ul>` : '<p class="rd-tip-none">No stat modifiers in the data.</p>'}
       ${diff.length ? `<p class="rd-tip-diff"><i class="cmp"></i><span>${esc(diff.join(' | '))}</span></p>` : ''}
       ${extra ? `<p class="rd-tip-warn">${ICON_WARN}<span>${esc(extra)}</span></p>` : ''}</div>`;
   }
-  function showTip(target, imp, extra) {
+  let hideT = 0;
+  function showTip(target, imp) {
+    clearTimeout(hideT);
     const tip = $('#rd-tip');
-    const zg = zones.find((x) => x.key === S.open);
+    const zg = openZoneDef();
+    const extra = tipExtra(imp);
+    S.tip = { fam: C.familyOf.get(imp.family || imp.id).key, slot: !!target.closest('#rd-panel') };
     tip.innerHTML = tipHtml(imp, extra, zg && zg.g.name);
     tip.classList.toggle('over', !!extra);
+    tip.classList.toggle('pinned', !!S.pinned);
     tip.hidden = false;
     const b = stage.getBoundingClientRect(), t = target.getBoundingClientRect(), s = stage._s || 1;
     const x = (t.right - b.left) / s, y = (t.top - b.top) / s;
     const w = 355;
-    tip.style.left = `${x + 12 + w > 1900 ? (t.left - b.left) / s - 12 - w : x + 12}px`;
-    tip.style.top = `${Math.max(20, Math.min(y, 1080 - tip.offsetHeight - 20))}px`;
+    tip.style.left = `${x + 4 + w > 1900 ? (t.left - b.left) / s - 4 - w : x + 4}px`;
+    tip.style.top = `${Math.max(20, Math.min(y - 8, 1080 - tip.offsetHeight - 20))}px`;
   }
-  const hideTip = () => { $('#rd-tip').hidden = true; };
+  const hideTip = () => { $('#rd-tip').hidden = true; S.tip = null; S.pinned = false; };
+  const hideSoon = () => { if (S.pinned) return; clearTimeout(hideT); hideT = setTimeout(hideTip, 180); };
+  function tileOf(fam, inPanel) {
+    return [...root.querySelectorAll(inPanel ? '#rd-panel .rd-cell[data-fam]' : '#rd-picker .rd-gbtn[data-fam]')].find((e) => e.dataset.fam === fam);
+  }
+  function refreshTip() {      // tiles are rebuilt on every render: put the open tooltip back on the same item
+    if (!S.tip || $('#rd-tip').hidden) return;
+    const el = tileOf(S.tip.fam, S.tip.slot);
+    if (!el) { hideTip(); return; }
+    showTip(el, C.implants.get(Number(el.dataset.imp)));
+  }
 
   // ---------- render
   function render() {
@@ -408,40 +457,45 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     S.prev = cur;
     $('#rd-tags').innerHTML = S.open ? '' : tagsHtml(ev);
     $('#rd-cap').innerHTML = capHtml(ev, S.preview || 0);
+    $('#rd-arm').innerHTML = armHtml();
     const panel = $('#rd-panel'), picker = $('#rd-picker');
-    const z = zones.find((x) => x.key === S.open);
+    const z = openZoneDef();
     panel.hidden = picker.hidden = !z;
     if (z) {
-      panel.style.left = `${z.anchor[0]}px`; panel.style.top = `${z.anchor[1]}px`;
+      const [px, py] = L.panel.origin;
+      panel.style.left = picker.style.left = `${px}px`;
+      panel.style.top = `${py}px`;
+      picker.style.top = `${py + L.panel.gridTop}px`;
+      picker.style.width = `${L.inventory.grid[0] + 8}px`;
       panel.innerHTML = panelHtml(z, ev);
-      const left = z.anchor[0] < 960;
-      const pw = L.inventory.grid[0];
-      picker.style.width = `${pw + 8}px`;
-      picker.style.left = `${left ? z.anchor[0] + 122 + 20 : z.anchor[0] - 20 - pw - 8}px`;
-      picker.style.top = `${Math.min(z.anchor[1], 1080 - 640)}px`;
-      picker.hidden = !(S.pickerOpen);
-      if (S.pickerOpen) { const sc = picker.querySelector('.rd-grid')?.scrollTop || 0; picker.innerHTML = pickerHtml(z, state, ev); const g = picker.querySelector('.rd-grid'); if (g) g.scrollTop = sc; }
+      const sc = picker.querySelector('.rd-grid')?.scrollTop || 0;
+      picker.innerHTML = pickerHtml(z, state);
+      const g = picker.querySelector('.rd-grid'); if (g) g.scrollTop = sc;
     }
     root.querySelectorAll('#rd-gender button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.g === S.gender)));
+    refreshTip();
   }
 
   // ---------- events
   root.addEventListener('click', (e) => {
+    if (!e.target.closest('#rd-tip,.rd-gbtn,.rd-cell')) { S.pinned = false; if (!$('#rd-tip').hidden) hideTip(); }
     const g = e.target.closest('#rd-gender button');
-    if (g) { if (g.dataset.g !== S.gender) { closeNow(); S.gender = g.dataset.g; safe.set('cp77.gender', S.gender); S.open = null; delete stage.dataset.open; S.pickerOpen = false; buildDoll(); render(); } return; }
+    if (g) { if (g.dataset.g !== S.gender) { closeNow(); S.gender = g.dataset.g; safe.set('cp77.gender', S.gender); S.open = null; delete stage.dataset.open; hideTip(); buildDoll(); render(); } return; }
     const tag = e.target.closest('.rd-tag');
-    if (tag) { S.pickerOpen = false; openZone(tag.dataset.zone); return; }
+    if (tag) { openZone(tag.dataset.zone); return; }
     const back = e.target.closest('[data-act=back]');
-    if (back) { S.pickerOpen = false; closeZone(); return; }
+    if (back) { hideTip(); closeZone(); return; }
     const step = e.target.closest('[data-zone-step]');
-    if (step) {
-      const i = zones.findIndex((x) => x.key === S.open), n = (i + Number(step.dataset.zoneStep) + zones.length) % zones.length;
-      closeNow(); S.pickerOpen = true; openZone(zones[n].key); return;
+    const go = e.target.closest('[data-zone-go]');
+    if (step || go) {
+      const i = zones.findIndex((x) => x.key === S.open);
+      const k = go ? go.dataset.zoneGo : zones[(i + Number(step.dataset.zoneStep) + zones.length) % zones.length].key;
+      hideTip(); closeNow(); openZone(k); return;
     }
     const cell = e.target.closest('.rd-panel .rd-cell[data-slot]');
-    if (cell) { S.slot = Number(cell.dataset.slot); S.pickerOpen = true; render(); return; }
+    if (cell) { S.slot = Number(cell.dataset.slot); render(); return; }
     if (e.target.closest('[data-act=remove]')) {
-      const z = zones.find((x) => x.key === S.open);
+      const z = openZoneDef();
       const r = unequip(C, D, store.get(), slotKey(z.g.n, S.slot));
       if (r.ok) store.set(r.state);
       return;
@@ -451,48 +505,58 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
       const n = Number(pip.dataset.pip), imp = C.implants.get(n);
       const fam = C.familyOf.get(imp.family || imp.id);
       S.pick.set(fam.key, n);
-      const z = zones.find((x) => x.key === S.open), key = slotKey(z.g.n, S.slot);
+      const z = openZoneDef(), key = slotKey(z.g.n, S.slot);
       if (fam.variants.some((v) => v.n === store.get().cyber.get(key))) { const r = equip(C, D, store.get(), key, n); if (r.ok) { store.set(r.state); return; } }
       render(); return;
     }
     const gb = e.target.closest('.rd-gbtn');
-    if (gb && gb.getAttribute('aria-disabled') !== 'true') {
-      const z = zones.find((x) => x.key === S.open);
-      const r = equip(C, D, store.get(), slotKey(z.g.n, S.slot), Number(gb.dataset.imp));
-      if (r.ok) store.set(r.state);
+    if (gb) {
+      S.pinned = true;                                  // a click or tap pins the tooltip so its quality choice can be used
+      if (gb.getAttribute('aria-disabled') !== 'true') {
+        const z = openZoneDef();
+        const r = equip(C, D, store.get(), slotKey(z.g.n, S.slot), Number(gb.dataset.imp));
+        if (r.ok) { store.set(r.state); return; }
+      }
+      showTip(gb, C.implants.get(Number(gb.dataset.imp)));
     }
   });
-  root.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && S.open) { if (S.pickerOpen) { S.pickerOpen = false; render(); } else closeZone(); }
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-pip]')) { e.preventDefault(); e.target.click(); }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && S.pinned) { hideTip(); return; }
+    if (e.key === 'Escape' && S.open) { hideTip(); closeZone(); }
   });
   // sprite click (alpha hit test) and tooltips / capacity preview
   stage.addEventListener('click', (e) => {
     if (S.open || e.target.closest('button,.rd-tag')) return;
     const [x, y] = stagePoint(e);
     const k = zoneAt(x, y);
-    if (k) { S.pickerOpen = false; openZone(k); }
+    if (k) openZone(k);
   });
-  stage.addEventListener('pointerover', (e) => {
-    const gb = e.target.closest('.rd-gbtn'), cell = e.target.closest('.rd-panel .rd-cell.full');
-    if (gb) {
-      const imp = C.implants.get(Number(gb.dataset.imp));
-      const z = zones.find((x) => x.key === S.open), key = slotKey(z.g.n, S.slot);
-      const cur = C.implants.get(store.get().cyber.get(key));
-      S.preview = cur && cur.n === imp.n ? 0 : imp.cost - (cur ? cur.cost : 0);
-      const can = canEquip(C, D, store.get(), key, imp.n);
-      showTip(gb, imp, can.ok || (cur && cur.n === imp.n) ? '' : `Over capacity by ${can.need}`);
-      $('#rd-cap').innerHTML = capHtml(evaluate(C, D, store.get()), Math.max(0, S.preview));
-    } else if (cell) {
-      showTip(cell, C.implants.get(Number(cell.dataset.imp)), '');
+  function previewFor(imp) {
+    const z = openZoneDef(), key = slotKey(z.g.n, S.slot);
+    const cur = C.implants.get(store.get().cyber.get(key));
+    S.preview = cur && cur.n === imp.n ? 0 : imp.cost - (cur ? cur.cost : 0);
+    $('#rd-cap').innerHTML = capHtml(evaluate(C, D, store.get()), Math.max(0, S.preview));
+  }
+  const tileEl = (t) => t.closest('.rd-gbtn,.rd-panel .rd-cell.full');
+  function over(e) {
+    if (e.target.closest('#rd-tip')) { clearTimeout(hideT); return; }
+    const el = tileEl(e.target);
+    if (!el || !S.open) return;
+    const imp = C.implants.get(Number(el.dataset.imp));
+    if (S.pinned && S.tip && S.tip.fam !== C.familyOf.get(imp.family || imp.id).key) S.pinned = false;      // hovering another item replaces a pinned tooltip
+    if (el.classList.contains('rd-gbtn')) previewFor(imp);
+    showTip(el, imp);
+  }
+  stage.addEventListener('pointerover', over);
+  root.addEventListener('focusin', (e) => { const el = tileEl(e.target); if (el && S.open) over(e); });
+  const leave = (e) => {
+    if (e.target.closest('.rd-gbtn,.rd-panel .rd-cell,#rd-tip')) {
+      if (S.preview && e.target.closest('.rd-gbtn')) { S.preview = 0; $('#rd-cap').innerHTML = capHtml(evaluate(C, D, store.get()), 0); }
+      hideSoon();
     }
-  });
-  stage.addEventListener('pointerout', (e) => {
-    if (e.target.closest('.rd-gbtn,.rd-panel .rd-cell')) {
-      hideTip();
-      if (S.preview) { S.preview = 0; $('#rd-cap').innerHTML = capHtml(evaluate(C, D, store.get()), 0); }
-    }
-  });
+  };
+  stage.addEventListener('pointerout', leave);
+  root.addEventListener('focusout', leave);
 
   store.subscribe(render);
   fit();
@@ -500,7 +564,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   render();
   if (new URLSearchParams(location.search).get('zone')) {      // deep link for screenshots and tests: ?tab=cyberware&zone=frontal_cortex
     const q = new URLSearchParams(location.search).get('zone');
-    if (zones.some((z) => z.key === q)) { S.pickerOpen = new URLSearchParams(location.search).get('picker') === '1'; openZone(q); }
+    if (zones.some((z) => z.key === q)) { openZone(q); }
   }
   return { open: openZone, close: closeZone, state: S };
 }

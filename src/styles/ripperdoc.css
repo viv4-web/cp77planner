@@ -41,30 +41,8 @@
 .rd-tag.hot,.rd-tag:focus-visible{background:rgba(10,30,44,.85);border-color:var(--t-MainColors-ActiveBlue);color:var(--t-MainColors-ActiveBlue);text-shadow:var(--t-MainColors-ActiveBlue-glow,none)}
 .rd-tag[data-pending]{border-left-style:dashed}
 
-/* zone slot panel */
-.rd-panel{position:absolute;width:122px}
+/* zone panel: see ripperdoc-widgets.css (left column, no box) */
 .rd-panel[hidden],.rd-picker[hidden],.rd-tip[hidden]{display:none}
-.rd-panel-head{display:flex;align-items:center;gap:8px;margin:0 0 8px}
-.rd-panel-head h2{margin:0;font-size:18px;line-height:1;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t-MainColors-ActiveBlue);text-shadow:var(--t-MainColors-ActiveBlue-glow,none)}
-.rd-back{width:30px;height:30px;border:1px solid rgba(94,246,255,.4)!important;font-size:18px;line-height:1}
-.rd-cells{display:grid;gap:6px;grid-template-columns:112px}
-.rd-pending{display:flex;gap:6px;align-items:flex-start;margin:10px 0 0;font-size:15px;color:var(--t-MainColors-Yellow);width:150px}
-.rd-pending .mi{flex:none;width:16px;height:16px}
-
-/* implant picker: the inventory grid of the spec (453x505, four 112x101 cells), filter bar, ten dots, divider */
-.rd-picker{position:absolute;padding:0 0 12px;background:linear-gradient(90deg,rgba(6,10,26,.9),rgba(6,10,26,.78));border-left:2px solid var(--t-MainColors-Red,#FF6159)}
-.rd-pfilter{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 6px;background:rgba(18,18,33,.5);border-bottom:1px solid rgba(255,97,89,.3)}
-.rd-pfilter h3{margin:0;font-size:21px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t-MainColors-Blue);text-shadow:var(--t-MainColors-Blue-glow,none)}
-.rd-arrow{width:40px;height:40px;font-size:30px;line-height:1;color:var(--t-MainColors-Blue)}
-.rd-arrow:hover{color:var(--t-MainColors-ActiveBlue)}
-.rd-dots{display:flex;gap:4px;justify-content:center;padding:6px 40px 0}
-.rd-dots i{flex:1;height:4px;background:var(--t-QuickFilterDots-DotColor,#431618)}
-.rd-dots i.on{background:var(--t-MainColors-Blue)}
-.rd-pdiv{display:flex;align-items:center;justify-content:space-between;margin:10px 6px 8px}
-.rd-pdiv i{display:block;width:32px;height:2px;background:var(--t-MainColors-Red)}
-.rd-remove{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--t-MainColors-Red);border:1px solid rgba(255,97,89,.5)!important;padding:3px 10px!important}
-.rd-grid{height:505px;overflow-y:auto;display:grid;grid-template-columns:repeat(4,112px);grid-auto-rows:101px;gap:0 1px;padding:0 0 0 2px;scrollbar-width:thin;scrollbar-color:var(--t-MainColors-Red) transparent;align-content:start}
-.rd-empty{grid-column:1/-1;padding:14px;color:var(--t-MainColors-Grey)}
 
 /* capacity meter (left): 13.5px segments stacked from the bottom, states from the NewMeter tokens */
 .rd-meter{position:absolute;inset:0;pointer-events:none}

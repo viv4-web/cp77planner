@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ids  # noqa: E402
 ART_EXT = {".png", ".webp", ".jpg", ".jpeg", ".svg"}
 UI_OUT = Path.home() / "work" / "cyber-art" / "out"
-UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg", "cw_bars_assets/bar_long2", "cw_bars_assets/perk_highlight_nottransparent"]  # besides the hover sprites named in the layout
+UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg", "cw_bars_assets/bar_long1", "cw_bars_assets/bar_long2", "cw_bars_assets/armor_barbg", "cw_bars_assets/perk_highlight_nottransparent", "mappin_icons/armor"]  # besides the hover sprites named in the layout
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
 

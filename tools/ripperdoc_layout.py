@@ -153,6 +153,8 @@ def build_layout():
                         "armor": {"origin": pt(arect[:2]), "bgOffset": pt((-40, -17)), "labelX": r1(-130 * H), "iconOffset": pt((79, -30))}}
     _, inv = chain(root, find_path(root, "cyberwareContainer"))
     layout["inventory"] = {"origin": pt(inv[:2]), "grid": [r1(906 * H), r1(1010 * H)], "cell": [112, 101], "filter": [r1(888 * H), 50]}
+    # the zone panel is one left column at the inventory list origin (spec: wrapper child at 800,300 design): header, dashes, slot row, then the grid
+    layout["panel"] = {"origin": layout["inventory"]["origin"], "gridTop": 190}
     return layout
 
 

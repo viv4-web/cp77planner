@@ -211,11 +211,11 @@ await t('ripperdoc: selecting a zone opens that zone\'s slot panel at its anchor
   assert.equal(await page.locator('#rd-panel .rd-cell[data-slot]').count(), 2);
   assert.equal(await page.locator('#rd-panel .rd-cell.locked').count(), 1);
   const lay = await page.evaluate(() => fetch('data/ripperdoc/layout.json').then((r) => r.json()));
-  const anchor = lay.zones.find((z) => z.key === 'skeleton').anchor;
+  const anchor = lay.panel.origin;      // one left column for every zone
   await page.waitForTimeout(1000);                       // the panel fades in with a short slide
   const st = await page.locator('#rd').boundingBox(), pb = await page.locator('#rd-panel').boundingBox();
   const sc = st.width / 1920;
-  assert.ok(Math.abs((pb.x - st.x) / sc - anchor[0]) < 3 && Math.abs((pb.y - st.y) / sc - anchor[1]) < 3, 'panel sits at the spec anchor');
+  assert.ok(Math.abs((pb.x - st.x) / sc - anchor[0]) < 3 && Math.abs((pb.y - st.y) / sc - anchor[1]) < 3, 'panel is the left column at the inventory origin');
   await page.click('#rd-panel .rd-back');
   await page.waitForSelector('#rd-panel', { state: 'hidden' });
   await page.click('.rd-tag[data-zone=hands]');
@@ -229,7 +229,7 @@ await t('ripperdoc: picking an implant fills the slot and updates the capacity m
   await page.click('#rd-panel .rd-cell[data-slot="0"]');
   await page.waitForSelector('#rd-picker:not([hidden]) .rd-gbtn');
   const btn = page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first();
-  const cost = Number((await btn.locator('.rd-cost').innerText()).trim());
+  const cost = Number(await btn.getAttribute('data-cost'));
   await btn.hover();
   assert.equal((await page.locator('#rd-cap .rd-lab.add').innerText()).trim(), `+${cost}`, 'preview has a text cue');
   assert.equal(await page.locator('#rd-cap .rd-over-mark').count(), 0);
@@ -239,6 +239,7 @@ await t('ripperdoc: picking an implant fills the slot and updates the capacity m
   assert.equal(await page.locator('#rd-cap .rd-seg.safe').count(), cost, 'one lit segment per capacity point');
   await btn.hover();
   assert.match(await page.locator('#rd-tip').innerText(), /capacity/i);       // tooltip: name, quality, capacity, stats
+  await page.keyboard.press('Escape');                                      // unpin the tooltip the click pinned
   await page.click('#rd-picker [data-act=remove]');
   assert.equal(await rdCap(page), '0');
   await page.click('#rd-panel .rd-back');
@@ -250,9 +251,9 @@ await t('ripperdoc: over capacity is refused with a tooltip warning, never over 
   await openRd(page);
   await page.click('.rd-tag[data-zone=operating]');
   await page.click('#rd-panel .rd-cell[data-slot="0"]');
-  const costs = await page.$$eval('.rd-gcell:not(.blocked) .rd-cost', (els) => els.map((e) => Number(e.textContent)));
+  const costs = await page.$$eval('.rd-gcell:not(.blocked) .rd-gbtn', (els) => els.map((e) => Number(e.dataset.cost)));
   assert.ok(costs.length > 0);
-  await page.locator('.rd-gcell:not(.blocked) .rd-gbtn', { has: page.locator(`.rd-cost:text-is("${Math.max(...costs)}")`) }).first().click();
+  await page.locator(`.rd-gcell:not(.blocked) .rd-gbtn[data-cost="${Math.max(...costs)}"]`).first().click();
   const used = Number(await rdCap(page));
   assert.ok(used > 0 && used <= 27);
   await page.click('#rd-panel .rd-back');
@@ -352,7 +353,9 @@ await t('ripperdoc: picker tiles are the game slot tile with the real item icon 
   assert.ok(await page.evaluate(() => document.getElementById('rd').style.getPropertyValue('--p-atlas_shapes_sync-item_bg').includes('item_bg.webp')), 'game shape part available');
   const mask = await page.locator('#rd-picker .rd-tile .bg').first().evaluate((e) => getComputedStyle(e).webkitMaskImage || getComputedStyle(e).maskImage);
   assert.match(mask, /item_bg\.webp/, 'tile background is the game item_bg part');
-  assert.match(await page.locator('#rd-picker .rd-gbtn .rd-cost').first().innerText(), /^\d+$/, 'capacity chip is the number only (icon is a mask)');
+  const lab = await page.locator('#rd-picker .rd-gbtn').first().getAttribute('aria-label');
+  assert.match(lab, /, (Common|Uncommon|Rare|Epic|Legendary|Iconic)\+*( #\d)?, capacity \d+/, 'name, rarity and capacity are in the label');
+  assert.equal(await page.locator('#rd-picker .rd-cost, #rd-picker .rd-cname, #rd-picker .rd-pip').count(), 0, 'tiles are icon only');
 });
 
 await t('ripperdoc: slot cell states are shapes and words, not color alone (empty plus, filled marker, locked icon + text, selected frame)', async (page) => {
@@ -368,7 +371,7 @@ await t('ripperdoc: slot cell states are shapes and words, not color alone (empt
   await page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first().click();
   const full = page.locator('#rd-panel .rd-cell[data-slot="0"]');
   assert.ok((await full.getAttribute('class')).includes('full'));
-  assert.ok((await full.locator('.rd-cname').innerText()).trim().length > 0, 'the name is written out');
+  assert.match(await full.getAttribute('aria-label'), /capacity \d+/, 'name and capacity are in the label');
   assert.equal(await full.locator('.eqm').count(), 1, 'equipped marker shape');
 });
 
@@ -382,7 +385,7 @@ await t('ripperdoc: item tooltip follows the game layout: name, rarity, type, ca
   assert.ok((await tip.locator('.rd-tip-name').innerText()).trim().length > 0);
   assert.match(await tip.locator('.rd-tip-rar').innerText(), /Common|Uncommon|Rare|Epic|Legendary|Iconic/);
   assert.match(await tip.locator('.rd-tip-type').innerText(), /frontal cortex/i);
-  const cost = (await g.locator('.rd-cost').innerText()).trim();
+  const cost = await g.getAttribute('data-cost');
   assert.equal((await tip.locator('.rd-tip-cap b').innerText()).trim(), cost, 'capacity row equals the tile chip');
   assert.equal(await tip.locator('.rd-tipfill').count(), 1);
   assert.equal(await tip.evaluate((e) => e.offsetWidth), 355, 'width is 710 / 2 on the stage grid');
@@ -400,7 +403,8 @@ await t('ripperdoc: capacity segments are the cw_bars_assets parts and keep the 
   await page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first().click();
   const seg = page.locator('#rd-cap .rd-seg.safe').first();
   await seg.waitFor();
-  assert.match(await seg.evaluate((e) => getComputedStyle(e).webkitMaskImage || getComputedStyle(e).maskImage), /bar_long2\.webp/);
+  assert.equal(await seg.locator('i').count(), 2, 'two-column bar');
+  assert.match(await seg.locator('i').first().evaluate((e) => getComputedStyle(e).webkitMaskImage || getComputedStyle(e).maskImage), /bar_long1\.webp/);
   assert.ok(await page.locator('#rd-cap .rd-seghl.safe').count() > 0, 'highlight glow part under lit segments');
   assert.equal(await page.locator('#rd-cap .rd-capbg img').getAttribute('src'), 'img/ui/cw_bars_assets/cw_barbg.webp');
 });
@@ -414,6 +418,64 @@ await t('ripperdoc: tile hover plays the game flicker in Full, nothing in Off', 
   await page.mouse.move(5, 5);
   await g.hover();
   assert.equal(await g.locator('.rd-ico').evaluate((e) => getComputedStyle(e).animationName), 'none');
+});
+
+await t('ripperdoc: zone panel is a left column without a box; header arrows and dashes switch zones; the body stays uncovered', async (page) => {
+  await openRdZone(page, 'ocular', false);
+  assert.match(await page.locator('#rd-panel h2').innerText(), /face/i);
+  assert.equal(await page.locator('#rd-panel .rd-dots button').count(), 10, 'one dash per body zone');
+  assert.equal(await page.locator('#rd-panel .rd-dots button.on').count(), 1);
+  for (const sel of ['#rd-panel', '#rd-picker']) assert.equal(await page.locator(sel).evaluate((e) => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)', `${sel} has no box`);
+  const st = await page.locator('#rd').boundingBox(), sc = st.width / 1920;
+  const pb = await page.locator('#rd-panel').boundingBox(), gb = await page.locator('#rd-picker .rd-grid').boundingBox();
+  assert.ok((pb.x + pb.width - st.x) / sc < 880 && (gb.x + gb.width - st.x) / sc < 880, 'panel and grid stay in the left column (x < ~875)');
+  assert.ok(gb.y > pb.y + 150 * sc, 'grid is below the slot row');
+  await page.click('#rd-panel [data-zone-step="1"]');
+  assert.match(await page.locator('#rd-panel h2').innerText(), /circulatory/i);
+  await page.click('#rd-panel [data-zone-go="skeleton"]');
+  assert.match(await page.locator('#rd-panel h2').innerText(), /skeleton/i);
+  assert.equal(await page.locator('#rd-panel .rd-cells .rd-tile').count(), 3, 'two slots and the locked one in one row');
+});
+
+await t('ripperdoc: the inventory grid area is always drawn, with plus marks on the empty cells; tiles are icon only', async (page) => {
+  await openRdZone(page, 'legs', false);
+  await page.waitForSelector('#rd-picker .rd-grid');
+  const cells = await page.locator('#rd-picker .rd-grid > *').count();
+  assert.ok(cells >= 20 && cells % 4 === 0, `${cells} cells (4 columns, at least 5 rows)`);
+  assert.ok(await page.locator('#rd-picker .rd-gempty').count() > 0);
+  assert.equal(await page.locator('#rd-picker .rd-gempty').first().evaluate((e) => getComputedStyle(e, '::before').content), '""');
+  assert.equal(await page.locator('#rd-picker .rd-grid').evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(' ').length), 4);
+});
+
+await t('ripperdoc: the tooltip pins on click, offers the quality choice, and Escape unpins it', async (page) => {
+  await openRdZone(page, 'ocular', false);
+  const tile = page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first();
+  await tile.click();
+  const tip = page.locator('#rd-tip');
+  await tip.waitFor({ state: 'visible' });
+  assert.ok((await tip.getAttribute('class')).includes('pinned'));
+  assert.ok(await tip.locator('.rd-var').count() > 1, 'quality / variant buttons in the tooltip');
+  const before = await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp');
+  await tip.locator('.rd-var:not(.on)').first().click();
+  assert.notEqual(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp'), before, 'the equipped variant changed');
+  assert.equal(await tip.isVisible(), true, 'tooltip stays open after the choice');
+  assert.ok(await tip.locator('.rd-tip-cap b').innerText());
+  await page.mouse.move(5, 5);
+  await page.waitForTimeout(400);
+  assert.equal(await tip.isVisible(), true, 'pinned: stays when the pointer leaves');
+  await page.keyboard.press('Escape');
+  assert.equal(await tip.isVisible(), false);
+});
+
+await t('ripperdoc: the armor meter is built like the capacity meter and says pending data', async (page) => {
+  await openRd(page);
+  assert.equal((await page.locator('#rd-arm .rd-lab.max').innerText()).trim(), '—');
+  assert.match(await page.locator('#rd-arm .rd-captitle').innerText(), /pending data/i);
+  assert.equal(await page.locator('#rd-arm .rd-seg').count(), 27);
+  assert.equal(await page.locator('#rd-arm .rd-seg.safe').count(), 0, 'no lit bars without data');
+  assert.equal(await page.locator('#rd-cap .rd-mico.cap').count(), 1, 'body icon on top of the capacity meter');
+  const cap = await page.locator('#rd-cap .rd-capbg').boundingBox(), arm = await page.locator('#rd-arm .rd-capbg').boundingBox();
+  assert.ok(arm.x > cap.x + 800, 'armor is on the right');
 });
 
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
