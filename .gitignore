@@ -1,0 +1,6 @@
+art/
+incoming/
+dist/
+node_modules/
+__pycache__/
+.claude/
