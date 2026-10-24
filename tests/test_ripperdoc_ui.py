@@ -95,7 +95,7 @@ class WidgetTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / "tools"))
         import build
         wanted = {"/".join(m.split("-", 1)) for m in re.findall(r"--p-([A-Za-z0-9_]+-[A-Za-z0-9_]+)", (ROOT / "src" / "styles" / "ripperdoc-widgets.css").read_text())}
-        have = set(WIDGETS["parts"]) | set(build.UI_EXTRA_PARTS)
+        have = set(WIDGETS["parts"]) | set(build.UI_EXTRA_PARTS) | set(build.RING_PARTS)      # ring parts are only built with the bgRings flag
         self.assertEqual(sorted(wanted - have), [], "a CSS mask part that build.py would not copy")
 
     def test_widget_numbers_are_the_game_grid_halved(self):
@@ -120,3 +120,10 @@ class LoopTests(unittest.TestCase):
     def test_overview_anchors_split_into_left_and_right_columns(self):
         left = sorted(z["key"] for z in LAYOUT["zones"] if z["anchor"][0] <= 600)
         self.assertEqual(left, ["arms", "frontal_cortex", "integumentary", "nervous", "skeleton"])
+
+
+class FlagTests(unittest.TestCase):
+    def test_rings_are_off_and_not_built(self):
+        flags = json.loads((ROOT / "data" / "ripperdoc" / "flags.json").read_text())
+        self.assertFalse(flags["bgRings"])
+        self.assertTrue(flags["idleFloat"])

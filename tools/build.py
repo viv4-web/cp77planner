@@ -22,7 +22,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ids  # noqa: E402
 ART_EXT = {".png", ".webp", ".jpg", ".jpeg", ".svg"}
 UI_OUT = Path.home() / "work" / "cyber-art" / "out"
-UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg", "cw_bars_assets/bar_long1", "cw_bars_assets/bar_long2", "cw_bars_assets/armor_barbg", "cw_bars_assets/perk_highlight_nottransparent", "mappin_icons/armor"] + [f"cw_paperdoll_assets/{n}" for n in ("circle_1", "circle_2", "circle_3", "dots_bg", "man_cables", "woman_cables")]  # besides the hover sprites named in the layout
+UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg", "cw_bars_assets/bar_long1", "cw_bars_assets/bar_long2", "cw_bars_assets/armor_barbg", "cw_bars_assets/perk_highlight_nottransparent", "mappin_icons/armor"]
+RING_PARTS = [f"cw_paperdoll_assets/{n}" for n in ("circle_1", "circle_2", "circle_3", "dots_bg", "man_cables", "woman_cables")]       # only when flags.json bgRings is true  # besides the hover sprites named in the layout
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
 
@@ -68,6 +69,9 @@ def build_ui_art(ui_out: Path, out: Path) -> dict:
         return doc
     layout = json.loads(lay_file.read_text())
     parts = list(UI_EXTRA_PARTS)
+    flags = ROOT / "data" / "ripperdoc" / "flags.json"
+    if flags.is_file() and json.loads(flags.read_text()).get("bgRings"):
+        parts += RING_PARTS
     wfile, ifile = ROOT / "data" / "ripperdoc" / "widgets.json", ROOT / "data" / "ripperdoc" / "icons.json"
     if wfile.is_file():
         parts += json.loads(wfile.read_text())["parts"]                       # slot tile / tooltip frame parts

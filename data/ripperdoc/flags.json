@@ -1,0 +1,5 @@
+{
+ "_note": "Feature flags for the ripperdoc screen (read by src/js/ripperdoc.js and tools/build.py). bgRings: the BG_animation rings, dots and cables behind the body (off: the in-game overview shows none; the parent widget is not exported; with it off the ring art is not built or deployed). idleFloat: the woman's 2 px idle float (our approximation).",
+ "bgRings": false,
+ "idleFloat": true
+}

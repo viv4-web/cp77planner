@@ -20,8 +20,6 @@ const ease = (type, mode) => {
   if (!b) return 'linear';
   return `cubic-bezier(${b[{ EasyIn: 0, EasyOut: 1, EasyInOut: 2 }[mode] ?? 2]})`;
 };
-// Idle float of the woman's body (our approximation, docs/RIPPERDOC-UI.md): one flag, set false to remove it.
-const IDLE_FLOAT = true;
 const isSafari = () => /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
 const motion = () => document.documentElement.getAttribute('data-motion') || 'full';
 const tm = () => (motion() === 'calm' ? 0.5 : 1);      // Calm: shorter
@@ -32,6 +30,9 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const C = D.cyber;
   const L = await fetch('data/ripperdoc/layout.json').then((r) => r.json());
   const urls = ui || { parts: {}, clips: {} };
+  // feature flags (data/ripperdoc/flags.json): bgRings = the BG_animation rings behind the body, idleFloat = the woman's float (our approximation)
+  const FLAGS = await fetch('data/ripperdoc/flags.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const BG_RINGS = !!FLAGS.bgRings, IDLE_FLOAT = FLAGS.idleFloat !== false;
   const LP = await fetch('data/ripperdoc/loops.json').then((r) => (r.ok ? r.json() : { clips: {} })).catch(() => ({ clips: {} }));
   const grpKey = (g) => g.id.replace(/^Slot\./, '');
   const zones = L.zones.map((z) => ({ ...z, g: C.groups.find((g) => grpKey(g) === z.group) })).filter((z) => z.g);
@@ -41,7 +42,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   root.innerHTML = `
     <div class="rd-fit" id="rd-fit"><div class="rd" id="rd" data-art="${Object.keys(urls.parts).length ? 'on' : 'off'}">
       <div class="rd-bg" id="rd-bg"></div>
-      <div class="rd-rings" id="rd-rings" aria-hidden="true"><i class="rg dots"></i><i class="rg cab"></i><i class="rg c1"></i><i class="rg c2"></i><i class="rg c3"></i></div>
+      ${BG_RINGS ? '<div class="rd-rings" id="rd-rings" aria-hidden="true"><i class="rg dots"></i><i class="rg cab"></i><i class="rg c1"></i><i class="rg c2"></i><i class="rg c3"></i></div>' : ''}
       <div class="rd-layer rd-tab" id="rd-tab"></div>
       <div id="rd-canvases"></div>
       <div class="rd-tags" id="rd-tags"></div>
@@ -123,11 +124,13 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const piv = L.tabPivot;
     // rings and cables sit behind the body, centred on it (placement is our guess: no anchor in the export)
     const br = G.body.rect, rg = $('#rd-rings');
-    rg.className = `rd-rings ${S.gender}`;
-    rg.style.setProperty('--cx', `${br[0] + br[2] / 2}px`);
-    rg.style.setProperty('--ring-y', `${br[1] + br[3] * 0.36}px`);
-    rg.style.setProperty('--mid-y', `${br[1] + br[3] / 2}px`);
-    rg.style.setProperty('--top-y', `${br[1] + 6}px`);
+    if (rg) {
+      rg.className = `rd-rings ${S.gender}`;
+      rg.style.setProperty('--cx', `${br[0] + br[2] / 2}px`);
+      rg.style.setProperty('--ring-y', `${br[1] + br[3] * 0.36}px`);
+      rg.style.setProperty('--mid-y', `${br[1] + br[3] / 2}px`);
+      rg.style.setProperty('--top-y', `${br[1] + 6}px`);
+    }
     const tab = $('#rd-tab');
     tab.classList.toggle('float', IDLE_FLOAT && S.gender === 'woman');      // our idle float (the source video is static); see docs/RIPPERDOC-UI.md
     tab.style.transformOrigin = `${piv[0]}px ${piv[1]}px`;
@@ -331,7 +334,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const g = z.g;
     const sp = L.genders[S.gender].zones[z.key].sprite.part;
     const src = urls.parts[`${S.gender}_body/${sp}`];
-    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}${src ? `<img class="rd-sil" alt="" src="${src}" draggable="false">` : ''}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span>`);
+    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}<span class="rd-lkw">${src ? `<img class="rd-sil" alt="" src="${src}" draggable="false">` : ''}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span></span>`);
   }
   const lockedHtml = (g) => lockedTiles(zones.find((x) => x.g === g)).join('');
 

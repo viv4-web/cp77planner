@@ -99,6 +99,11 @@ class BuildTests(unittest.TestCase):
             self.assertTrue((live / doc["parts"][icons[key]]).is_file())
             self.assertFalse((live / "img" / "ui" / "item_icons9" / "not_in_our_data.webp").exists())
 
+    def test_ring_art_is_not_built_while_the_flag_is_off(self):
+        ui = json.loads((self.live / "ui-art.json").read_text())
+        self.assertEqual([k for k in ui["parts"] if k.startswith("cw_paperdoll_assets/")], [])
+        self.assertFalse((self.live / "img" / "ui" / "cw_paperdoll_assets").exists())
+
     def test_offline_has_no_ripperdoc_game_art(self):
         self.assertEqual(json.loads((self.offline / "ui-art.json").read_text()), {"clips": {}, "icons": {}, "parts": {}})
         self.assertFalse((self.offline / "img" / "ui").exists())

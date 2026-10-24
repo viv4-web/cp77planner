@@ -11,7 +11,7 @@
 .rd:not([data-art=on]) .rd-m.fr,.rd:not([data-art=on]) .rd-m.fe,.rd:not([data-art=on]) .rd-m.sel,.rd:not([data-art=on]) .rd-m.sel2{background:none;box-shadow:inset 0 0 0 1px var(--c)}
 
 /* ---- tile: slot cell (panel) and picker tile share it ---- */
-.rd-tile{position:relative;display:block;width:108px;height:97px;text-align:left;--bd:var(--t-ItemDisplay-borderColor);--bo:var(--t-ItemDisplay-borderOpacity)}
+.rd-tile{position:relative;contain:layout;display:block;flex:none;width:108px;height:97px;text-align:left;--bd:var(--t-ItemDisplay-borderColor);--bo:var(--t-ItemDisplay-borderOpacity)}
 .rd-tile:hover,.rd-tile:focus-visible{--bo:var(--t-ItemDisplay-borderOpacity-Hover)}
 .rd-tile .bg{--m:var(--p-atlas_shapes_sync-item_bg);--c:var(--t-ItemDisplay-background);--o:var(--t-ItemDisplay-backgroundOpacity)}
 .rd-tile .ln{--m:var(--p-atlas_shapes_sync-item_bg);--c:repeating-linear-gradient(135deg,var(--t-ItemDisplay-emptyLinesColor) 0 1px,transparent 1px 7px);--o:var(--t-ItemDisplay-emptyLinesOpacity)}
@@ -195,3 +195,6 @@ html[data-motion=off] .rd-tile *,html[data-motion=off] .rd-tile{animation:none!i
 .rd:not([data-art=on]) .rd-tile .upc{clip-path:polygon(0 0,100% 0,100% 100%)}
 .rd-sil{position:absolute;left:12px;top:6px;width:84px;height:62px;object-fit:contain;opacity:.22;filter:grayscale(1);pointer-events:none}
 .rd-tile.locked{--bo:.13}
+
+/* locked tile: everything that is not a shape layer lives in one clipped, positioned wrapper, so nothing can escape the tile */
+.rd-lkw{position:absolute;inset:0;overflow:hidden;pointer-events:none}

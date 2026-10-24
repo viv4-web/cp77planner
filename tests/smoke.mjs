@@ -574,32 +574,64 @@ await t('ripperdoc: the woman floats gently at idle in Full (our approximation);
   assert.equal(await name(), 'none', 'Calm: no float');
 });
 
-await t('ripperdoc: rotating rings behind the body (BG_animation: 360 / 720 / 1080 deg in 18 s), static in Calm', async (page) => {
+await t('ripperdoc: the BG rings are behind the BG_RINGS flag (off): no ring layer, no ring art', async (page) => {
+  const reqs = [];
+  page.on('request', (r) => reqs.push(r.url()));
   await openRd(page);
-  if (!(await hasArt(page))) return;
-  const css = (sel, prop) => page.locator(sel).evaluate((e, p) => getComputedStyle(e)[p], prop);
-  assert.equal(await page.locator('#rd-rings .c1, #rd-rings .c2, #rd-rings .c3, #rd-rings .dots, #rd-rings .cab').count(), 5);
-  assert.equal(await css('#rd-rings .c1', 'animationName'), 'rdspin1');
-  assert.equal(await css('#rd-rings .c2', 'animationName'), 'rdspin2');
-  assert.equal(await css('#rd-rings .c3', 'animationName'), 'rdspin3');
-  assert.equal(await css('#rd-rings .c3', 'animationDuration'), '18s');
-  assert.equal(await css('#rd-rings .c3', 'animationIterationCount'), 'infinite');
-  assert.match(await css('#rd-rings .cab', 'backgroundImage'), /woman_cables/);
-  // the rings sit behind the body
-  const order = await page.evaluate(() => { const k = [...document.querySelectorAll('#rd > *')].map((e) => e.id); return [k.indexOf('rd-rings'), k.indexOf('rd-tab')]; });
-  assert.ok(order[0] >= 0 && order[0] < order[1]);
-  await page.click('#rd-gender [data-g=man]');
-  assert.match(await css('#rd-rings .cab', 'backgroundImage'), /man_cables/);
-  await page.click('#motion [data-m=calm]');
-  assert.equal(await css('#rd-rings .c1', 'animationName'), 'none', 'Calm: static rings');
-  await page.click('#motion [data-m=off]');
-  assert.equal(await css('#rd-rings .c2', 'animationName'), 'none', 'Off: static rings');
+  const flags = await page.evaluate(() => fetch('data/ripperdoc/flags.json').then((r) => r.json()));
+  assert.equal(flags.bgRings, false);
+  assert.equal(await page.locator('#rd-rings').count(), 0);
+  assert.deepEqual(reqs.filter((u) => /cw_paperdoll_assets/.test(u)), [], 'no ring art requested');
+  const ui = await page.evaluate(() => fetch('ui-art.json').then((r) => r.json()));
+  assert.deepEqual(Object.keys(ui.parts).filter((k) => k.startsWith('cw_paperdoll_assets/')), [], 'the ring art is not built');
+});
+
+await t('ripperdoc: every tile of an overview group sits in its row: inside the group box, same size, equal gaps, locked tiles in line', async (page) => {
+  for (const g of ['woman', 'man']) {
+    await page.goto(`${BASE}?tab=cyberware`);
+    await page.evaluate((g) => localStorage.setItem('cp77.gender', g), g);
+    await openRd(page);
+    await page.waitForTimeout(700);                                   // the groups fade in
+    const lay = await page.evaluate(() => fetch('data/ripperdoc/layout.json').then((r) => r.json()));
+    const st = await page.locator('#rd').boundingBox(), sc = st.width / 1920;
+    for (const z of lay.zones) {
+      const left = z.anchor[0] <= 600;
+      const tiles = await page.locator(`.rd-grp[data-zone=${z.key}] .rd-row > *`).evaluateAll((els) => els.map((e) => { const b = e.getBoundingClientRect(); return [b.x, b.y, b.width, b.height, e.classList.contains('locked')]; }));
+      const n = tiles.length;
+      const edge = left ? Math.min(z.anchor[0] + 250, 800) : z.anchor[0] + 45;
+      const box = left ? [edge - (n * 108 + (n - 1) * 4), edge] : [edge, edge + n * 108 + (n - 1) * 4];       // the group's box on the stage, x range
+      const top = z.anchor[1] + 28;
+      tiles.forEach(([x, y, w, h, lk], i) => {
+        const sx = (x - st.x) / sc, sy = (y - st.y) / sc;
+        assert.ok(sx >= box[0] - 1 && sx + w / sc <= box[1] + 1, `${g}/${z.key} tile ${i} inside the group box (${sx.toFixed(1)} in ${box})`);
+        assert.ok(Math.abs(sy - top) < 2, `${g}/${z.key} tile ${i} on the row (y ${sy.toFixed(1)} vs ${top})`);
+        assert.ok(Math.abs(w / sc - 108) < 1 && Math.abs(h / sc - 97) < 1, `${g}/${z.key} tile ${i} has the tile size`);
+        if (i) assert.ok(Math.abs((x - (tiles[i - 1][0] + tiles[i - 1][2])) / sc - 4) < 1, `${g}/${z.key} gap ${i} is 4`);
+      });
+      if (tiles.some((t) => t[4])) {                                  // the locked tile is the outer one, in line with the others
+        const idx = tiles.findIndex((t) => t[4]);
+        assert.equal(idx, left ? 0 : n - 1, `${g}/${z.key} locked tile at the outer end`);
+      }
+    }
+  }
 });
 
 await t('ripperdoc: the woman float is small (2 px, 1.002 scale)', async (page) => {
   await openRd(page);
   const v = await page.evaluate(() => { const s = getComputedStyle(document.getElementById('rd')); return [s.getPropertyValue('--rd-float-y').trim(), s.getPropertyValue('--rd-float-s').trim()]; });
   assert.deepEqual(v, ['2px', '1.002']);
+});
+
+await t('ripperdoc: the woman float is the only endless motion on the stage and stays within 2 px (no jitter)', async (page) => {
+  await openRd(page);
+  const inf = await page.evaluate(() => document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations === Infinity && a.effect.target && a.effect.target.closest && a.effect.target.closest('#rd')).map((a) => a.animationName || a.constructor.name));
+  assert.deepEqual(inf, ['rdfloat'], 'one endless animation on the stage');
+  const ys = [];
+  for (let i = 0; i < 24; i++) { ys.push(await page.evaluate(() => parseFloat(getComputedStyle(document.getElementById('rd-tab')).translate.split(' ')[1] || '0'))); await page.waitForTimeout(250); }
+  assert.ok(Math.min(...ys) >= -2.001 && Math.max(...ys) <= 0.001, `range ${Math.min(...ys)}..${Math.max(...ys)}`);
+  const steps = ys.slice(1).map((y, i) => Math.abs(y - ys[i]));
+  assert.ok(Math.max(...steps) < 1.3, `smooth (largest step ${Math.max(...steps).toFixed(2)} px per 0.25 s)`);
+  assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById('rd-tab')).transform), 'none', 'the float does not touch the zone transform');
 });
 
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
