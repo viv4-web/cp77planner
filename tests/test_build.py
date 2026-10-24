@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import build  # noqa: E402
 
+UI_FILES = {   # fake ripperdoc art: one sprite, the background, one body loop with all three files
+    "ui/woman_body/wo_arms.webp": b"RIFF-fake-sprite", "ui/background/background.webp": b"RIFF-fake-bg",
+    "paperdoll/woman/female_body_loop.webm": b"fake-webm", "paperdoll/woman/female_body_loop_sm.webm": b"fake-webm-sm",
+    "paperdoll/woman/female_body_loop.webp": b"RIFF-fake-poster", "ui/woman_body/not_referenced.webp": b"RIFF-unused",
+}
 ART_BYTES = {"SAMPLE.Perk.Body.T1.A.png": b"\x89PNG-fake-game-art-1", "secret_art_file.webp": b"RIFF-fake-game-art-2"}
 
 
@@ -27,7 +32,12 @@ class BuildTests(unittest.TestCase):
         for name, data in ART_BYTES.items():
             (cls.art / name).write_bytes(data)
         cls.dist = t / "dist"
-        cls.live, cls.offline = build.build(cls.dist, cls.art)
+        cls.ui = t / "ui-out"
+        for rel, data in UI_FILES.items():
+            f = cls.ui / rel
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(data)
+        cls.live, cls.offline = build.build(cls.dist, cls.art, cls.ui)
 
     @classmethod
     def tearDownClass(cls):
@@ -45,7 +55,7 @@ class BuildTests(unittest.TestCase):
             return {p.relative_to(d): sha(p) for p in d.rglob("*") if p.is_file()}
         live, off = files(self.live), files(self.offline)
         diff = {k for k in set(live) | set(off) if live.get(k) != off.get(k)}
-        allowed = {Path("art-map.json")} | {k for k in live if k.parts[:2] == ("img", "game")}
+        allowed = {Path("art-map.json"), Path("ui-art.json")} | {k for k in live if k.parts[:2] in (("img", "game"), ("img", "ui")) or k.parts[0] == "media"}
         self.assertLessEqual(diff, allowed)
 
     def test_live_uses_art(self):
@@ -62,6 +72,47 @@ class BuildTests(unittest.TestCase):
             if p.is_file():
                 self.assertNotIn(sha(p), art_hashes, p)
                 self.assertNotIn(p.name, art_names, p)
+
+    def test_live_gets_only_referenced_ui_art(self):
+        ui = json.loads((self.live / "ui-art.json").read_text())
+        self.assertEqual(ui["parts"]["woman_body/wo_arms"], "img/ui/woman_body/wo_arms.webp")
+        self.assertIn("background/background", ui["parts"])
+        self.assertEqual(sorted(ui["clips"]), ["woman/female_body_loop"])
+        self.assertEqual(sorted(ui["clips"]["woman/female_body_loop"]), ["poster", "sm", "webm"])
+        for rel in [*ui["parts"].values(), *ui["clips"]["woman/female_body_loop"].values()]:
+            self.assertTrue((self.live / rel).is_file(), rel)
+        self.assertFalse((self.live / "img" / "ui" / "woman_body" / "not_referenced.webp").exists())
+
+    def test_icons_are_copied_only_when_our_data_references_them(self):
+        icons = json.loads((ROOT / "data" / "ripperdoc" / "icons.json").read_text())["map"]
+        used = {i.get("icon") or i.get("iconName") for i in json.loads((ROOT / "data" / "cyberware.json").read_text())["implants"]}
+        key = sorted(used & set(icons))[0]
+        with tempfile.TemporaryDirectory() as t:
+            ui = Path(t) / "ui"
+            for part in (icons[key], "item_icons9/not_in_our_data"):
+                f = ui / "ui" / f"{part}.webp"
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_bytes(b"RIFF....WEBP")
+            live, _ = build.build(Path(t) / "dist", Path(t) / "no-art", ui)
+            doc = json.loads((live / "ui-art.json").read_text())
+            self.assertEqual(doc["icons"][key], icons[key])
+            self.assertTrue((live / doc["parts"][icons[key]]).is_file())
+            self.assertFalse((live / "img" / "ui" / "item_icons9" / "not_in_our_data.webp").exists())
+
+    def test_ring_art_is_not_built_while_the_flag_is_off(self):
+        ui = json.loads((self.live / "ui-art.json").read_text())
+        self.assertEqual([k for k in ui["parts"] if k.startswith("cw_paperdoll_assets/")], [])
+        self.assertFalse((self.live / "img" / "ui" / "cw_paperdoll_assets").exists())
+
+    def test_offline_has_no_ripperdoc_game_art(self):
+        self.assertEqual(json.loads((self.offline / "ui-art.json").read_text()), {"clips": {}, "icons": {}, "parts": {}})
+        self.assertFalse((self.offline / "img" / "ui").exists())
+        self.assertFalse((self.offline / "media").exists())
+
+    def test_missing_ui_art_folder_gives_placeholders(self):
+        with tempfile.TemporaryDirectory() as t:
+            live, _ = build.build(Path(t) / "dist", Path(t) / "nope", Path(t) / "nope-ui")
+            self.assertEqual(json.loads((live / "ui-art.json").read_text()), {"clips": {}, "icons": {}, "parts": {}})
 
     def test_offline_never_references_art_dir(self):
         pat = re.compile(rb"(^|[^A-Za-z0-9_])art/")
@@ -85,6 +136,15 @@ class BuildTests(unittest.TestCase):
             if p.is_file() and p.suffix in {".html", ".js", ".css"}:
                 for m in pat.finditer(p.read_bytes()):
                     self.fail(f"external URL in {p}: {m.group(0)!r}")
+
+
+
+class DeployHeaderTests(unittest.TestCase):
+    def test_htaccess_serves_webm_and_webp_with_the_right_types(self):
+        text = (ROOT / "tools" / "deploy.sh").read_text()
+        self.assertIn("AddType video/webm .webm", text)
+        self.assertIn("AddType image/webp .webp", text)
+        self.assertRegex(text, r'FilesMatch "\\\.\(woff2\|svg\|png\|webp\|jpg\|webm\)\$"')
 
 
 if __name__ == "__main__":

@@ -57,9 +57,13 @@ STAGE="$STATE/stage"; rm -rf "$STAGE"; mkdir -p "$STAGE"; cp -a "$DIST/." "$STAG
   <FilesMatch "\.(html|js|css|json)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
-  <FilesMatch "\.(woff2|svg|png|webp|jpg)$">
+  <FilesMatch "\.(woff2|svg|png|webp|jpg|webm)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
+</IfModule>
+<IfModule mod_mime.c>
+  AddType video/webm .webm
+  AddType image/webp .webp
 </IfModule>
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml

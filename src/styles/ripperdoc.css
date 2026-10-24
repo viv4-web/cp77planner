@@ -1,0 +1,94 @@
+/* Ripperdoc-style Cyberware screen. A 1920x1080 stage (positions from data/ripperdoc/layout.json), scaled to fit by JS.
+   Colors come from ripperdoc-tokens.css (generated from the game's style tokens; HDR excess is the -glow shadow). */
+@font-face{font-family:"Rajdhani";font-weight:500;font-display:swap;src:url(../fonts/rajdhani-500.woff2) format("woff2")}
+@font-face{font-family:"Rajdhani";font-weight:600;font-display:swap;src:url(../fonts/rajdhani-600.woff2) format("woff2")}
+@font-face{font-family:"Rajdhani";font-weight:700;font-display:swap;src:url(../fonts/rajdhani-700.woff2) format("woff2")}
+@font-face{font-family:"Share Tech Mono";font-weight:400;font-display:swap;src:url(../fonts/sharetechmono-400.woff2) format("woff2")}
+
+.rd-root{display:block;width:100vw;position:relative;left:50%;margin-left:-50vw}
+.cw-legacy{display:none}
+@media (max-width:899px){.rd-root{display:none}.cw-legacy{display:block}}
+
+.rd-fit{position:relative;margin:0 auto;overflow:hidden;background:#04050a;border:1px solid var(--line)}
+.rd{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#04050a;
+  font:600 20px/1.1 "Rajdhani",var(--f-head);color:var(--t-MainColors-Blue,#5EF6FF);user-select:none;-webkit-user-select:none}
+.rd button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.rd-bg{position:absolute;inset:0;background:radial-gradient(60% 70% at 50% 40%,#3a0f14 0%,#0a0c18 60%,#04050a 100%) center/cover no-repeat;opacity:.9}
+.rd[data-art=on] .rd-bg{background-size:cover;background-position:center;opacity:.8}
+.rd-layer{position:absolute;inset:0;will-change:transform,opacity}
+.rd-canvas{opacity:0;pointer-events:none}
+.rd-media{position:absolute}
+.rd-media img,.rd-media video{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.rd-media .rd-video{opacity:0}
+.rd-media.live .rd-video{opacity:1}
+.rd-media.live .rd-poster{opacity:0}
+.rd-media:empty{background:url(../img/placeholder/silhouette.svg) center/contain no-repeat;opacity:.55}
+.rd-clip:empty{background:none}
+.rd-sprite{position:absolute;opacity:0;pointer-events:none;transition:opacity .2333s linear;mix-blend-mode:screen}
+.rd-sprite img{width:100%;height:100%;display:block}
+.rd-sprite.hot{opacity:1}
+.rd[data-art=off] .rd-sprite{display:none}
+.rd.over-zone{cursor:pointer}
+
+/* overview: zone groups (label + slot tiles) around the body, see ripperdoc-widgets.css */
+.rd-tags{position:absolute;inset:0;pointer-events:none}
+  text-transform:uppercase;letter-spacing:.06em;background:rgba(5,9,22,.62);border:1px solid rgba(94,246,255,.28);border-left:3px solid var(--t-MainColors-Blue);
+  clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%);transition:background-color .2s,border-color .2s}
+
+/* zone panel: see ripperdoc-widgets.css (left column, no box) */
+.rd-panel[hidden],.rd-picker[hidden],.rd-tip[hidden]{display:none}
+
+/* capacity meter (left): 13.5px segments stacked from the bottom, states from the NewMeter tokens */
+.rd-meter{position:absolute;inset:0;pointer-events:none}
+.rd-capbg{position:absolute;opacity:.22}
+.rd-capbg img{display:block;width:123px;height:487px}
+.rd-lab{position:absolute;min-width:46px;height:26px;padding:0 8px;display:grid;place-items:center;font:700 22px/1 "Rajdhani";font-variant-numeric:tabular-nums}
+.rd-lab.max{color:var(--t-AttributeAllocation-dangerZone);border:1px solid rgba(255,97,89,.5);background:rgba(255,97,89,.1)}
+.rd-lab.cur{background:var(--t-MetersLabels-LabelBgColor);color:#000;transition:top .4s cubic-bezier(.33,1,.68,1)}
+.rd-lab.cur.unsafe{background:var(--t-MetersLabels-LabelBgColor-Unsafe_Add)}
+.rd-lab.add{color:var(--t-MetersLabels-LabelTextColor-Safe_Add);border:1px solid var(--t-MetersLabels-LabelBgColor-Safe_Add)}
+.rd-over-mark{position:absolute;width:12px;height:14px;background:var(--t-MetersLabels-LabelBgColor-Unsafe_Add);clip-path:polygon(0 0,100% 50%,0 100%)}
+.rd-lab.over,.rd-lab.add.unsafe{display:flex;min-width:123px;justify-content:center;gap:6px;align-items:center;white-space:nowrap;font-size:19px;letter-spacing:.04em;color:var(--t-MetersLabels-LabelTextColor-Unsafe_Add);border:1px solid var(--t-MetersLabels-LabelBgColor-Unsafe_Add);background:rgba(255,97,89,.12)}
+.rd-lab .mi{width:15px;height:15px;flex:none}
+.rd-lab.add.unsafe{color:var(--t-MetersLabels-LabelTextColor-Unsafe_Add);border-color:var(--t-MetersLabels-LabelBgColor-Unsafe_Add)}
+.rd-captitle{position:absolute;width:123px;text-align:center;font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--t-MainColors-Yellow);display:grid;gap:2px}
+.rd-captitle small{font:400 12px/1 "Share Tech Mono",monospace;letter-spacing:.06em;color:var(--t-MainColors-Grey);text-transform:none}
+
+.rd-gender{position:absolute;left:24px;top:20px;display:flex;gap:0;z-index:3}
+.rd-gender button{height:32px;padding:0 16px;font-size:18px;text-transform:uppercase;letter-spacing:.08em;border:1px solid rgba(94,246,255,.35)!important;background:rgba(5,9,22,.6)!important;color:var(--t-MainColors-Grey)}
+.rd-gender button[aria-pressed=true]{color:var(--t-MainColors-ActiveBlue);border-color:var(--t-MainColors-ActiveBlue)!important;text-shadow:var(--t-MainColors-ActiveBlue-glow,none)}
+
+/* tooltip: 354px wide (the spec's 654-710 on the 3840 grid, halved) */
+
+/* panel and picker fade in (Off: instant) */
+.rd-panel:not([hidden]),.rd-picker:not([hidden]){animation:rdfade .35s .45s backwards cubic-bezier(.33,1,.68,1)}
+@keyframes rdfade{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+html[data-motion=calm] .rd-panel:not([hidden]),html[data-motion=calm] .rd-picker:not([hidden]){animation-duration:.18s;animation-delay:.2s}
+
+/* below 900px wide the older stacked layout is shown instead (.cw-legacy), see main.js */
+
+/* idle float of the woman's body: OUR approximation (the source video female_body_loop is static and the game data has no float animation).
+   Uses the individual `translate` / `scale` properties so it composes with the zone zoom transform; Calm, Off and reduced motion: none. */
+.rd{--rd-float-y:2px;--rd-float-s:1.002}
+.rd:not([data-open]) .rd-tab.float{animation:rdfloat 5s ease-in-out infinite}
+@keyframes rdfloat{0%,100%{translate:0 0;scale:1}50%{translate:0 calc(var(--rd-float-y) * -1);scale:var(--rd-float-s)}}
+html[data-motion=calm] .rd-tab.float,html[data-motion=off] .rd-tab.float{animation:none!important}
+@media (prefers-reduced-motion:reduce){.rd-tab.float{animation:none!important}}
+
+/* rotating rings behind the body: BG_animation (circle_1..3 turn 360 / 720 / 1080 degrees in 18 s, linear, endless; which ring gets which is our guess),
+   with dots_bg and the gender's cables from cw_paperdoll_assets. Sizes are the parts' natural size / 2 (stage), centred on the body: our placement guess.
+   Calm, Off and reduced motion: static. While a zone is open they fade out (the zone clip takes over). */
+.rd-rings{position:absolute;inset:0;pointer-events:none;transition:opacity .4s}
+.rd[data-open] .rd-rings{opacity:0}
+.rd-rings .rg{position:absolute;display:block;background:center/100% 100% no-repeat}
+.rd-rings .c1{width:325.5px;height:326px;left:calc(var(--cx) - 162.75px);top:calc(var(--ring-y) - 163px);background-image:var(--p-cw_paperdoll_assets-circle_1);opacity:.85;animation:rdspin1 18s linear infinite}
+.rd-rings .c2{width:444px;height:445px;left:calc(var(--cx) - 222px);top:calc(var(--ring-y) - 222.5px);background-image:var(--p-cw_paperdoll_assets-circle_2);opacity:.8;animation:rdspin2 18s linear infinite}
+.rd-rings .c3{width:405.5px;height:405px;left:calc(var(--cx) - 202.75px);top:calc(var(--ring-y) - 202.5px);background-image:var(--p-cw_paperdoll_assets-circle_3);opacity:.85;animation:rdspin3 18s linear infinite}
+.rd-rings .dots{width:588.5px;height:707.5px;left:calc(var(--cx) - 294.25px);top:calc(var(--mid-y) - 353.75px);background-image:var(--p-cw_paperdoll_assets-dots_bg);opacity:.7}
+.rd-rings .cab{width:896.5px;height:809.5px;left:calc(var(--cx) - 448.25px);top:var(--top-y);background-image:var(--p-cw_paperdoll_assets-woman_cables);opacity:.9}
+.rd-rings.man .cab{width:880.5px;height:847px;left:calc(var(--cx) - 440.25px);background-image:var(--p-cw_paperdoll_assets-man_cables)}
+@keyframes rdspin1{to{transform:rotate(360deg)}}
+@keyframes rdspin2{to{transform:rotate(720deg)}}
+@keyframes rdspin3{to{transform:rotate(1080deg)}}
+html[data-motion=calm] .rd-rings .rg,html[data-motion=off] .rd-rings .rg{animation:none}
+@media (prefers-reduced-motion:reduce){.rd-rings .rg{animation:none}}

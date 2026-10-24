@@ -103,7 +103,8 @@ def build(records, costs, cfg):
             rep["noIcon"].append(r["id"])
         items.append({"id": r["id"], "name": r["name"], "group": gid(slot), "family": f"{slot['key']}/{r['name']}",
                       "quality": quality_label[r["quality"]], "tier": quality_tier[r["quality"]],
-                      "cost": cost, "stats": stats, "flags": flags, "icon": icon, "req": None})
+                      "cost": cost, "stats": stats, "flags": flags, "icon": icon, "req": None,
+                      **({"iconName": r["iconName"]} if not icon and r.get("iconName") else {})})
 
     order = {gid(s): i for i, s in enumerate(cfg["slots"])}
     items.sort(key=lambda i: (order[i["group"]], i["name"], i["tier"], i["id"]))
