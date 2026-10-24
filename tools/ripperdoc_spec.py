@@ -7,6 +7,7 @@ Reads ~/work/cyber-art/raw/ui (read only, raw game content that never enters the
 the two spec documents. The documents hold layout numbers, token values, widget and sequence names, and our own descriptions; no
 game text (captions, descriptions) is copied. Re-run it after a game patch to refresh the numbers.
 """
+import json
 import re
 import sys
 from collections import Counter, OrderedDict, defaultdict
@@ -279,6 +280,129 @@ def exported(atlas, part):
             hits.append(f"{atlas}/{res}/{part}.png")
     return hits
 
+# ---------------------------------------------------------------- section 10: slot tile, tooltip, capacity segment
+SLOTS_REL = f"{rd.COMMON}/components/slots.inkwidget.json"
+TIP_REL = f"{rd.COMMON}/tooltip/itemtooltip.inkwidget.json"
+SLOT_ANIM_REL = f"{rd.COMMON}/components/slots_animations.inkanim.json"
+
+
+def tile_layers(root):
+    """Direct image layers of itemDisplay's `container` plus the rarity strip, as table rows."""
+    rows = []
+    want = ("accent", "rarity", "rarityEmpty", "background", "emptyItemLines", "backgroundEquipped", "backgroundEquippedLines", "backgroundHover", "backgroundEquippedHover",
+            "backgroundIconic", "frame", "frameEquipped", "itemEmptyIcon", "itemIcon", "itemFallbackIcon", "selectedFrame", "selectedFrame2", "lockedIcon", "equippedMarker",
+            "equipped_feedback", "backgroundEquippedFrame")
+    for n, d in flat(root):
+        if n["name"] in want and (n.get("part") or n["type"] == "inkFlexWidget"):
+            tok = ", ".join(f"{a} <- `{b}`" for a, b in n["bindings"] if b) or "-"
+            rows.append(("  " * min(d, 3) + f"`{n['name']}`", ".".join(map(str, n["path"])), n["type"].replace("ink", "").replace("Widget", ""), n["anchor"], sz(n), marg(n["margin"]),
+                         (f"`{n['part']}` @ {Path(n['atlas'] or '?').name}" if n.get("part") else f"state {n['state']}"), num(n["opacity"]) + ("" if n["visible"] else " (hidden)"), tok))
+    return rows
+
+
+def sec_widgets():
+    lib = rd.widget_library(SLOTS_REL)
+    tip = rd.widget_library(TIP_REL)
+    disp = lib["itemDisplay"]["root"]
+    seqs = {q["name"]: q for q in rd.animations(SLOT_ANIM_REL)}
+    sstyle = rd.styles(f"{rd.COMMON}/components/slots_style.inkstyle.json")
+    rar = rd.styles(f"{rd.COMMON}/rarity_menus.inkstyle.json")
+    out = []
+    w = out.append
+    w("")
+    w("## 10. Slot tile, item tooltip and capacity segment (second pass)")
+    w("Source: `common/components/slots.inkwidget` (library item `itemDisplay`), `slots_style.inkstyle`, `slots_animations.inkanim`, `common/rarity_menus.inkstyle`, `common/tooltip/itemtooltip.inkwidget`, "
+      "and the atlases they use, cut from the full PNGs with `tools/atlas_cut.py` (UV rectangle x PNG size). Numbers on the 3840x2160 design grid unless marked *stage* (1920x1080 = grid / 2). "
+      "Generated numbers for the code: `data/ripperdoc/widgets.json` (`tools/ripperdoc_widgets.py`); the `itemDisplay` and tooltip names below are the game's.")
+    w("")
+    w("### 10.1 `itemDisplay` (the slot tile)")
+    w(f"Root `container` is {sz(disp)} (stage 108 x 97): the cell of the side grids and of the slot panels. `itemWrapper` is a horizontal panel: `rarityContainer` (23 x 195: the rarity strip), "
+      "a 2 px spacer, then the flex `container` with the layers below. Every image layer is `contentHAlign/VAlign = Fill` with `useNineSliceScale = 1` and zero slice margins: the part is **stretched to the layer** "
+      "(the slice data is not in the export, so our CSS stretches the part with a mask too). Colors are set through style bindings: the tint in the widget is only the state the file was saved in.")
+    w("")
+    w(md(["Layer", "Path", "Type", "Anchor", "Size", "Margin", "Part / note", "Opacity", "Style bindings (property <- token)"], tile_layers(disp)))
+    w("")
+    w("**States** (`slots_style.inkstyle`, state names as in the file; all colors link to `MainColors.*`, see section 5): ")
+    tok = [("ItemDisplay.borderColor / borderOpacity", f"Default red @ {num(sstyle['ItemDisplay.borderOpacity']['Default'])}; Hover opacity {num(sstyle['ItemDisplay.borderOpacity']['Hover'])}; ReadOnly {num(sstyle['ItemDisplay.borderOpacity']['ReadOnly'])}; Locked color DarkGrey"),
+           ("ItemDisplay.background / backgroundOpacity", f"Default `Fullscreen_PrimaryBackgroundDarkest` @ {num(sstyle['ItemDisplay.backgroundOpacity']['Default'])}; Locked DarkGrey @ {num(sstyle['ItemDisplay.backgroundOpacity']['Locked'])}; Unavailable @ {num(sstyle['ItemDisplay.backgroundOpacity']['Unavailable'])}"),
+           ("ItemDisplay.equippedColor", "Default Blue; Locked DarkGrey; ReadOnly PanelRed"),
+           ("ItemDisplay.emptyIconColor / emptyIconOpacity", f"Default Blue @ {num(sstyle['ItemDisplay.emptyIconOpacity']['Default'])}; Hover {num(sstyle['ItemDisplay.emptyIconOpacity']['Hover'])}; Selected ActiveBlue @ {num(sstyle['ItemDisplay.emptyIconOpacity']['Selected'])}; Locked DarkGrey"),
+           ("ItemDisplay.hoverBackgroundOpacity", f"Default 0, Hover {num(sstyle['ItemDisplay.hoverBackgroundOpacity']['Hover'])} (equipped: {num(sstyle['ItemDisplay.hoverEquippedBackgroundOpacity']['Hover'])}): practically invisible; the visible hover is the border opacity 0.13 -> 1"),
+           ("ItemDisplay.emptyLinesOpacity / equippedLinesOpacity", f"{num(sstyle['ItemDisplay.emptyLinesOpacity']['Default'])} (Hover {num(sstyle['ItemDisplay.emptyLinesOpacity']['Hover'])}): the hatch texture is almost invisible"),
+           ("selectedFrame / selectedFrame2", "`item_fg` tinted `MainColors.ActiveBlue`, opacity 0.8 and 0.5 (shown when selected)"),
+           ("lockedIcon", "`ico_lock` tinted `MainColors.Grey`, TopLeft margin L12 B12")]
+    w(md(["Token", "Values"], tok))
+    w("")
+    w("**Rarity** (`rarity_menus.inkstyle`, state per quality; linear HDR, clamped here): the strip `rarityContainer/rarity/background` is `item_side_bg` tinted `Rarity.mainColor`; `rarityLabel` in the tooltip uses the same token. "
+      "`Rarity.decalsOpacity` is 0 for Common and 1 for the rest. The empty strip (`rarityEmpty`) is `item_side_bg` + `item_side_fg` in the empty-slot colors.")
+    w("")
+    w(md(["Quality", "mainColor (r, g, b)"], [(k, "(" + ", ".join(f"{x:.2f}" for x in v["Default"][:3]) + ")") for k, v in rar.items() if k.startswith("Rarity.") and k.split(".")[1] in ("Common", "Uncommon", "Rare", "Epic", "Legendary", "Iconic")]))
+    w("")
+    w("**Animations** (`slots_animations.inkanim`). Paths are indexes inside `container` (`[2,2,n]` = child n of the flex `container`, e.g. 11 `itemWrapper` (the icon), 13 `itemMods`, 14 `ammoContainer`, 22 `equippedMarker`, 25 `equipped_feedback`).")
+    w("")
+    arows = []
+    for name in ("Item_Hover_In", "Item_Hover_Out", "CW_selected_slot", "Equip_Item_Display", "itemDisplay_upgrade", "itemDisplayRequirements_OnClick"):
+        q = seqs[name]
+        by = defaultdict(list)
+        for d in q["defs"]:
+            for i in d["interpolators"]:
+                by[(".".join(map(str, d["path"])) or "root", i["kind"])].append(i)
+        for (tp, kind), ips in by.items():
+            ip = ips[0]
+            if len(ips) > 1 and kind == "Transparency" and all(x["duration"] == ip["duration"] for x in ips):
+                last = ips[-1]
+                arows.append((name, tp, kind, f"{len(ips)} alternating keys 1 <-> 0", ip["duration"], f"every {num(ips[1]['delay'] - ip['delay'])}s, total {num(last['delay'] + last['duration'])}s", f"{ip['type']} {ip['mode']}"))
+            else:
+                for x in ips:
+                    fr = vec(x["from"]) if isinstance(x["from"], list) else num(x["from"])
+                    to = vec(x["to"]) if isinstance(x["to"], list) else num(x["to"])
+                    arows.append((name, tp, kind, f"{fr} -> {to}", x["duration"], x["delay"], f"{x['type']} {x['mode']}"))
+    w(md(["Sequence", "Target", "Interpolator", "From -> to", "Dur", "Delay", "Easing"], arows))
+    w("")
+    w("Our mapping: **hover** = border opacity 0.13 -> 1 (state `Hover`) and the 4-pulse flicker of the icon (`Item_Hover_In`, 0.247 s; Calm x0.5; Off none). **Select** = `CW_selected_slot` on the equipped-marker shape "
+      "(fade in 0.9157 s with a 10-unit slide, then 0.551 s out) plus the selected frames. **Equip** = `Equip_Item_Display`: `equipped_feedback` flash (opacity 0 -> 1 -> 0, scale 1 -> 1.2 over 0.45 s) and the marker sliding in over 0.41 s. "
+      "Upgrade sequences are not used (no upgrades in the planner).")
+    w("")
+    w("### 10.2 Picker grid tile")
+    w("The side grid cell is the same `itemDisplay` (`inventoryItem` 224 x 202, margin R8 B8: stage 112 x 101 cell, 108 x 97 tile). We draw: rarity strip (colour = quality), the item icon, the capacity chip (the `ripperdoc` mappin icon + the number: the game's `requirementsWrapper/capacity` look) "
+      "and, because a planner must show names, the item name. Variants of one item are the small quality pips under the name (our own control). Over-capacity tiles use the game's `Unavailable` background tokens, dim, and a text mark (x) on the chip.")
+    w("")
+    w("### 10.3 Item tooltip (`itemTooltip`)")
+    tl = tip["itemTooltip"]["root"]
+    hd = tip["itemHeader"]["root"]
+    cp = tip["itemCapacityStat"]["root"]
+    ds = tip["itemDetailsStat"]["root"]
+    rows = []
+    for item, root_, names in (("itemTooltip", tl, ("tooltip", "background", "frame", "contentWrapper", "minWidth", "categoriesWrapper", "itemHeaderContainer", "itemItemInfoContainer", "itemDetailsContainer", "itemBottomContainer")),
+                               ("itemHeader", hd, ("nameLabel", "separator", "rarityLabel", "itemTypeLabel")),
+                               ("itemCapacityStat", cp, ("value", "ripperdocIcon", "arrow", "comparedValue")),
+                               ("itemDetailsStat", ds, ("value", "name", "arrow", "comparedValue"))):
+        seen = set()
+        for n, d in flat(root_):
+            if n["name"] in names and (item, n["name"], n.get("part")) not in seen:
+                seen.add((item, n["name"], n.get("part")))
+                tk = ", ".join(f"{a} <- `{b}`" for a, b in n["bindings"] if b) or "-"
+                font = f"{n['text']['fontSize']} {n['text']['fontStyle']}" if n.get("text") else "-"
+                rows.append((f"`{item}/{n['name']}`", n["type"].replace("ink", "").replace("Widget", ""), sz(n), marg(n["margin"]), font, f"`{n['part']}`" if n.get("part") else "-", tk))
+    w(md(["Widget", "Type", "Size", "Margin", "Font (design px)", "Part", "Style bindings"], rows))
+    w("")
+    w("Frame: `unified_tooltip_fill` (tint `Tooltip.backgroundColor`), `unified_tooltip_stroke` (`Tooltip.frameColor`) and `unified_tooltip_outline` (`Tooltip.frameEquippedColor`, the comparison outline, not used) are all Fill-stretched with a cut bottom-right corner. "
+      "**Body order** (stage): name 25 px (`MainColors.Blue`), a 32 x 1 separator, rarity 21 px (`Rarity.mainColor`), type 21 px (`MainColors.Red`), capacity row (value 35 px `MainColors.Yellow` + the 16 px `ripperdoc` icon; the comparison arrow `icon_compare_small` "
+      "when a variant differs), the stat lines 18 px (`MainColors.Blue`), then bottom (price/weight: not used). Everything sits in `contentWrapper` (margins L15 T6 R6 B6, min width 710 = stage 355).")
+    w("")
+    w("### 10.4 Capacity segment")
+    w("`CapacityMeterBar` = `bar` (`bar_long2`) + `highlight` (`perk_highlight_nottransparent`), colored by `NewMeter.BarColor` / `NewMeter.opacity` (section 4). We draw each segment as a mask of `bar_long2` plus a mask of the highlight part under lit segments. "
+      "Over-capacity, preview-add and preview-remove keep the standing non-color cues (hatch pattern, the marker at the limit, \"+N\" / \"OVER BY n\" text and the screen-reader line).")
+    w("")
+    w("### 10.5 What the export does not contain, and what we did instead")
+    wd = json.loads((Path(__file__).resolve().parent.parent / "data" / "ripperdoc" / "widgets.json").read_text())
+    w("- Atlases missing from the export: " + ", ".join(f"`{x}`" for x in wd["absentParts"]) + ". The tile's hatch texture (`texture_1slot`) is a CSS gradient at the game's opacity (0.03); the equipped corner marks (`corners_equipped`) and the iconic texture are left out; "
+      "the cyberware empty socket (`fullscreen_elements/socket`) is replaced by the `icon_add` plus part.")
+    w("- `tooltip_style.inkstyle` is not in the export: tooltip colors are the widgets' own default tints (background `#0E0E17`, stroke `MainColors.MildRed`, separator `#451715`). Nine-slice margins are not in the atlas files: the tile parts are stretched (as in the game's `Fill` setting); the tooltip uses a 9-slice mask (`-webkit-mask-box-image`, corner 29 px) where the browser supports it, and stretches otherwise.")
+    w("- `Operating System` decks have no `iconPart`; their `iconName` (`militech_paraline`) is not a part of any exported atlas, so the 15 records show the generic cyberdeck icon (`item_icons/icon_cyberdeck`). Reported by `tools/cyberware_icons.py`.")
+    return out
+
+
 
 def main():
     lib, seqs = load()
@@ -493,6 +617,7 @@ def main():
     w("3. **Wipe angle and softness** are not in the data (only progress 0 -> 1); our mask wipe is left-to-right.")
     w("4. **Layout engine details.** The simplified rules in section 1 reproduce the idle screen (`incoming/screens/ripperdoc-reference.png`), but panel sizing for `fitToContent` panels and uniform grids is approximate; inventory cell sizes (224x202 / 216x194) are known, cell counts and wrapping are ours.")
     w("5. **Slot ordering and counts** per zone panel are not in the widget tree (panels are empty); they come from our game data (`docs/GAME-DATA.md`).")
+    L += sec_widgets()
     (DOCS / "RIPPERDOC-SPEC.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
     # ---- animations document

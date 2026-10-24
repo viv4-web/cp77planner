@@ -13,6 +13,11 @@ Raw game content stays in ~/work/cyber-art; nothing here is committed. Re-runnab
 and encoder settings match the manifest is skipped unless --force; the manifest holds no timestamps. ffmpeg cannot decode Bink 2,
 so the .bk2 -> PNG step is done on Windows first (tools/windows/convert_paperdoll.bat).
 
+Disk hygiene: the raw PNG frames are temporary. After a clip's encode and its alpha / frame-count checks pass, its frames are deleted
+(--keep-frames opts out); a clip that fails a check keeps them. The manifest entry of a deleted clip stays valid, so a later run keeps
+it ("up to date"); re-encoding it (--force) needs the frames re-exported on Windows first. Before encoding the tool checks free disk space
+and stops under 20 GB.
+
 Every output is verified: the alpha plane is decoded back with libvpx-vp9 (ffmpeg's native vp9 decoder ignores alpha) and must not
 be all 255; the frame count is read back with ffprobe.
 """
@@ -167,12 +172,25 @@ def process(key, info, out_root: Path):
     return entry
 
 
+MIN_FREE_GB = 20
+
+
+def delete_frames(files):
+    """Delete a clip's raw PNG frames (only call after its checks passed); returns the freed size in MB."""
+    freed = 0
+    for f in files:
+        freed += f.stat().st_size
+        f.unlink()
+    return round(freed / 2**20)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--raw", default=str(HOME / "raw" / "paperdoll"))
     ap.add_argument("--out", default=str(HOME / "out" / "paperdoll"))
     ap.add_argument("--clip", nargs="*", help="only these clips (name or man/name)")
     ap.add_argument("--force", action="store_true", help="re-encode even when the manifest says the clip is up to date")
+    ap.add_argument("--keep-frames", action="store_true", help="do not delete a clip's raw PNG frames after its encode and checks pass")
     ap.add_argument("--dry-run", action="store_true", help="list clips, frame counts and problems; encode nothing")
     a = ap.parse_args(argv)
     raw, out = Path(a.raw), Path(a.out)
@@ -191,6 +209,9 @@ def main(argv=None):
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             sys.exit(f"{tool} not found: install ffmpeg (with libvpx-vp9) first")
+    free_gb = shutil.disk_usage(out if out.exists() else out.parent if out.parent.exists() else Path.home()).free / 2**30
+    if free_gb < MIN_FREE_GB:
+        sys.exit(f"only {free_gb:.1f} GB free, stopping (the rule is {MIN_FREE_GB} GB): free some disk first")
     mpath = out / "manifest.json"
     old = json.loads(mpath.read_text())["clips"] if mpath.is_file() else {}
     manifest, failed = {}, []
@@ -210,6 +231,8 @@ def main(argv=None):
         try:
             manifest[k] = {**process(k, v, out), "inputSha": fp}
             print(f"{k}: full {manifest[k]['full']['bytes'] // 1024} KB, small {manifest[k]['small']['bytes'] // 1024} KB")
+            if not a.keep_frames:
+                print(f"{k}: deleted {delete_frames(v['files'])} MB of raw frames")
         except (subprocess.CalledProcessError, RuntimeError, ValueError) as e:
             detail = getattr(e, "stderr", "") or str(e)
             failed.append((k, str(detail).strip().splitlines()[-1] if str(detail).strip() else repr(e)))

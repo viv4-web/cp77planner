@@ -57,7 +57,7 @@ Capacity at level 2: **27**.
   Records that share name, slot and quality (a "Common" and a "Common2" record) are kept as `#1 / #2`; the picker shows what differs.
   A group with `pendingData` has no items because of a dump gap; the UI says so.
 - Icons: **114 distinct `iconPart` names** in the dump, plus 15 Operating System records (the energy decks) that have an `iconName`
-  only and no `iconPart`. The art export list is in the import report. (The 117 in the brief was the count of `iconRec`.)
+  only and no `iconPart`. The art export list is in the import report. Those 15 records keep the name as `iconName` in `data/cyberware.json` (the art key when there is no `icon`); `tools/cyberware_icons.py` maps both to the cut item icons (`militech_paraline` is not in any exported atlas: generic cyberdeck icon). (The 117 in the brief was the count of `iconRec`.)
 - Repeated stats (for example several Armor values) are listed as the dump has them, never summed: what each value means (for example
   attunement tiers) is not decoded yet.
 

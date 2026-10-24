@@ -67,3 +67,39 @@ class FontTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+WIDGETS = json.loads((ROOT / "data" / "ripperdoc" / "widgets.json").read_text())
+ICONS = json.loads((ROOT / "data" / "ripperdoc" / "icons.json").read_text())
+
+
+class WidgetTests(unittest.TestCase):
+    def test_every_cyberware_record_has_an_icon_key_that_maps_to_a_cut_part(self):
+        for i in CYBER["implants"]:
+            key = i.get("icon") or i.get("iconName")
+            self.assertTrue(key, f"{i['id']} has neither icon nor iconName")
+            self.assertIn(key, ICONS["map"], f"{i['id']}: icon {key} not mapped")
+        self.assertEqual(ICONS["missing"], [])
+        self.assertEqual(ICONS["noKey"], [])
+        for part in ICONS["map"].values():
+            self.assertRegex(part, r"^(item_icons\d*|inventory4_atlas)/[A-Za-z0-9_.\-]+$")
+
+    def test_the_fifteen_operating_system_decks_use_the_documented_fallback(self):
+        decks = [i for i in CYBER["implants"] if not i.get("icon")]
+        self.assertEqual(len(decks), 15)
+        self.assertEqual({i["iconName"] for i in decks}, {"militech_paraline"})
+        self.assertEqual(ICONS["approximated"], {"militech_paraline": "item_icons/icon_cyberdeck"})
+
+    def test_css_only_uses_parts_the_build_copies(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "tools"))
+        import build
+        wanted = {"/".join(m.split("-", 1)) for m in re.findall(r"--p-([A-Za-z0-9_]+-[A-Za-z0-9_]+)", (ROOT / "src" / "styles" / "ripperdoc-widgets.css").read_text())}
+        have = set(WIDGETS["parts"]) | set(build.UI_EXTRA_PARTS)
+        self.assertEqual(sorted(wanted - have), [], "a CSS mask part that build.py would not copy")
+
+    def test_widget_numbers_are_the_game_grid_halved(self):
+        self.assertEqual(WIDGETS["cell"]["size"], [108.0, 97.0])
+        self.assertEqual(WIDGETS["tooltip"]["width"], 355.0)
+        self.assertEqual(WIDGETS["hover"]["flicker"]["count"], 8)
+        self.assertEqual(WIDGETS["absentParts"], ["atlas_inventory/corners_equipped", "atlas_inventory/texture_1slot", "atlas_inventory/texture_1slot_iconic", "hub_atlas/ico_cafting_crafting"])

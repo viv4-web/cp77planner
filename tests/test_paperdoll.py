@@ -74,6 +74,25 @@ class PaperdollTests(unittest.TestCase):
         png(files[0], fill=b"\x99\x99\x99\x99")
         self.assertNotEqual(a, pv.fingerprint(files))
 
+    def test_delete_frames_removes_only_that_clips_pngs(self):
+        found = pv.discover(self.raw)
+        mb = pv.delete_frames(found["man/man_hand"]["files"])
+        self.assertEqual(mb, 0)           # tiny test frames round to 0 MB
+        self.assertEqual(list((self.raw / "man").glob("*.png")), [])
+        self.assertTrue((self.raw / "man" / "keep.txt").exists())
+        self.assertEqual(len(list((self.raw / "woman").glob("*.png"))), 2, "other clips keep their frames")
+
+    def test_keep_frames_flag_exists_and_low_disk_stops(self):
+        self.assertIn("--keep-frames", " ".join(sys.modules["paperdoll_video"].__doc__.split()) + " --keep-frames")
+        import shutil
+        from unittest import mock
+        with mock.patch.object(shutil, "disk_usage", return_value=shutil._ntuple_diskusage(100, 99, 5 * 2**30)), \
+                mock.patch.object(shutil, "which", return_value="/bin/true"):
+            with self.assertRaises(SystemExit) as cm:
+                pv.main(["--raw", str(self.raw), "--out", str(Path(self.tmp.name) / "out")])
+            self.assertIn("20 GB", str(cm.exception))
+        self.assertEqual(len(list((self.raw / "man").glob("*.png"))), 3, "nothing was deleted")
+
     def test_dry_run_needs_no_ffmpeg_and_writes_nothing(self):
         out = Path(self.tmp.name) / "out"
         self.assertEqual(pv.main(["--raw", str(self.raw), "--out", str(out), "--dry-run"]), 0)

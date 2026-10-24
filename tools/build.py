@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ids  # noqa: E402
 ART_EXT = {".png", ".webp", ".jpg", ".jpeg", ".svg"}
 UI_OUT = Path.home() / "work" / "cyber-art" / "out"
-UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg"]       # besides the hover sprites named in the layout
+UI_EXTRA_PARTS = ["background/background", "cw_bars_assets/cw_barbg", "cw_bars_assets/bar_long2", "cw_bars_assets/perk_highlight_nottransparent"]  # besides the hover sprites named in the layout
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
 
@@ -62,12 +62,20 @@ def write_map(out: Path, mapping: dict):
 
 def build_ui_art(ui_out: Path, out: Path) -> dict:
     """Copy the ripperdoc art the layout references (sprites, background, body loops, zone clips) and return the ui-art.json document."""
-    doc = {"parts": {}, "clips": {}}
+    doc = {"parts": {}, "clips": {}, "icons": {}}
     lay_file = ROOT / "data" / "ripperdoc" / "layout.json"
     if not lay_file.is_file() or not ui_out.is_dir():
         return doc
     layout = json.loads(lay_file.read_text())
     parts = list(UI_EXTRA_PARTS)
+    wfile, ifile = ROOT / "data" / "ripperdoc" / "widgets.json", ROOT / "data" / "ripperdoc" / "icons.json"
+    if wfile.is_file():
+        parts += json.loads(wfile.read_text())["parts"]                       # slot tile / tooltip frame parts
+    if ifile.is_file():
+        used = {i.get("icon") or i.get("iconName") for i in json.loads((ROOT / "data" / "cyberware.json").read_text())["implants"]}
+        icons = json.loads(ifile.read_text())["map"]
+        doc["icons"] = {k: v for k, v in sorted(icons.items()) if k in used}   # only the icons our data references
+        parts += list(doc["icons"].values())
     clips = []
     for gender, g in sorted(layout["genders"].items()):
         clips.append((gender, g["loop"]))
@@ -107,7 +115,7 @@ def build(dist: Path, art_dir: Path, ui_out: Path = None):
     write_ui_art(live, build_ui_art(UI_OUT if ui_out is None else ui_out, live))
     copy_site(offline)
     write_map(offline, {})
-    write_ui_art(offline, {"parts": {}, "clips": {}})
+    write_ui_art(offline, {"parts": {}, "clips": {}, "icons": {}})
     return live, offline
 
 

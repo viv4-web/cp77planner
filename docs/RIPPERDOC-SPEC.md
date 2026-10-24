@@ -600,67 +600,67 @@ Atlas part -> exported PNG (paths relative to `~/work/cyber-art/raw/ui/`; `2160p
 
 | Atlas | Part | Exported PNG | Used by |
 |---|---|---|---|
-| atlas_cash.inkatlas | `cash_symbol_normal` | not exported | 2: purchase_popup/icon_es, slots.inkwidget:itemDisplay/money |
-| atlas_cash.inkatlas | `cash_symbol_small` | not exported | 1: purchase_popup/icon_es |
-| atlas_common.inkatlas | `fluff_code1` | not exported | 5: cyberwareInventoryMiniGrid/model, cyberwareInventoryModifications/inkImageWidget4, inventoryHeader/fluf1, inventorySpacer/fluf1 ... |
-| atlas_common.inkatlas | `fluff_code2` | not exported | 1: cyberwareInventoryMiniGrid/model_image_name |
-| atlas_common.inkatlas | `fluff_code3` | not exported | 1: purchase_popup/trn |
-| atlas_common.inkatlas | `fluff_code5` | not exported | 1: purchase_popup/trn |
-| atlas_common.inkatlas | `fluff_protocol1` | not exported | 1: purchase_popup/inkImageWidget6 |
-| atlas_common.inkatlas | `fluff_store2` | not exported | 1: purchase_popup/trn |
-| atlas_common.inkatlas | `ico_lock` | not exported | 3: Root/lock, slots.inkwidget:itemDisplay/ico_lock, slots.inkwidget:itemDisplay/lockedIcon |
-| atlas_common.inkatlas | `ico_locked` | not exported | 1: slots.inkwidget:itemDisplay/blocked |
-| atlas_common.inkatlas | `ico_monowire` | not exported | 1: itemtooltip.inkwidget:itemHeader/evo_ico |
-| atlas_common.inkatlas | `ico_tech` | not exported | 1: itemtooltip.inkwidget:itemHeader/ico_category |
-| atlas_common.inkatlas | `icon_ammo` | not exported | 1: slots.inkwidget:itemDisplay/icon |
-| atlas_common.inkatlas | `icon_compare` | not exported | 3: itemtooltip.inkwidget:itemHeader/compare_better, itemtooltip.inkwidget:itemHeader/compare_worse, slots.inkwidget:itemDisplay/comparisionIcon |
-| atlas_common.inkatlas | `icon_compare_small` | not exported | 1: itemtooltip.inkwidget:itemCapacityStat/arrow |
-| atlas_common.inkatlas | `req` | not exported | 1: slots.inkwidget:itemDisplay/requirements |
-| atlas_common.inkatlas | `ripper_ico_bg` | not exported | 1: purchase_popup/ico_bg |
-| atlas_common.inkatlas | `ripper_ico_fg` | not exported | 1: purchase_popup/ico_fg |
-| atlas_common.inkatlas | `sc` | not exported | 1: slots.inkwidget:itemDisplay/streetcred |
-| atlas_common.inkatlas | `tmp_icon_missing` | not exported | 2: purchase_popup/inkImageWidget8, slots.inkwidget:itemDisplay/itemIcon |
-| atlas_inventory_fallback.inkatlas | `undefined` | set at runtime (no part named in the data) | 1: slots.inkwidget:itemDisplay/itemFallbackIcon |
+| atlas_cash.inkatlas | `cash_symbol_normal` | base/gameplay/gui/common/icons/atlas_cash.inkatlas/2160p/cash_symbol_normal.png<br>base/gameplay/gui/common/icons/atlas_cash.inkatlas/1080p/cash_symbol_normal.png | 2: purchase_popup/icon_es, slots.inkwidget:itemDisplay/money |
+| atlas_cash.inkatlas | `cash_symbol_small` | base/gameplay/gui/common/icons/atlas_cash.inkatlas/2160p/cash_symbol_small.png<br>base/gameplay/gui/common/icons/atlas_cash.inkatlas/1080p/cash_symbol_small.png | 1: purchase_popup/icon_es |
+| atlas_common.inkatlas | `fluff_code1` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_code1.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_code1.png | 5: cyberwareInventoryMiniGrid/model, cyberwareInventoryModifications/inkImageWidget4, inventoryHeader/fluf1, inventorySpacer/fluf1 ... |
+| atlas_common.inkatlas | `fluff_code2` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_code2.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_code2.png | 1: cyberwareInventoryMiniGrid/model_image_name |
+| atlas_common.inkatlas | `fluff_code3` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_code3.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_code3.png | 1: purchase_popup/trn |
+| atlas_common.inkatlas | `fluff_code5` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_code5.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_code5.png | 1: purchase_popup/trn |
+| atlas_common.inkatlas | `fluff_protocol1` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_protocol1.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_protocol1.png | 1: purchase_popup/inkImageWidget6 |
+| atlas_common.inkatlas | `fluff_store2` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/fluff_store2.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/fluff_store2.png | 1: purchase_popup/trn |
+| atlas_common.inkatlas | `ico_lock` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ico_lock.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ico_lock.png | 3: Root/lock, slots.inkwidget:itemDisplay/ico_lock, slots.inkwidget:itemDisplay/lockedIcon |
+| atlas_common.inkatlas | `ico_locked` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ico_locked.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ico_locked.png | 1: slots.inkwidget:itemDisplay/blocked |
+| atlas_common.inkatlas | `ico_monowire` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ico_monowire.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ico_monowire.png | 1: itemtooltip.inkwidget:itemHeader/evo_ico |
+| atlas_common.inkatlas | `ico_tech` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ico_tech.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ico_tech.png | 1: itemtooltip.inkwidget:itemHeader/ico_category |
+| atlas_common.inkatlas | `icon_ammo` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/icon_ammo.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/icon_ammo.png | 1: slots.inkwidget:itemDisplay/icon |
+| atlas_common.inkatlas | `icon_compare` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/icon_compare.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/icon_compare.png | 3: itemtooltip.inkwidget:itemHeader/compare_better, itemtooltip.inkwidget:itemHeader/compare_worse, slots.inkwidget:itemDisplay/comparisionIcon |
+| atlas_common.inkatlas | `icon_compare_small` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/icon_compare_small.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/icon_compare_small.png | 1: itemtooltip.inkwidget:itemCapacityStat/arrow |
+| atlas_common.inkatlas | `req` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/req.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/req.png | 1: slots.inkwidget:itemDisplay/requirements |
+| atlas_common.inkatlas | `ripper_ico_bg` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ripper_ico_bg.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ripper_ico_bg.png | 1: purchase_popup/ico_bg |
+| atlas_common.inkatlas | `ripper_ico_fg` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/ripper_ico_fg.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/ripper_ico_fg.png | 1: purchase_popup/ico_fg |
+| atlas_common.inkatlas | `sc` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/sc.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/sc.png | 1: slots.inkwidget:itemDisplay/streetcred |
+| atlas_common.inkatlas | `tmp_icon_missing` | base/gameplay/gui/common/icons/atlas_common.inkatlas/2160p/tmp_icon_missing.png<br>base/gameplay/gui/common/icons/atlas_common.inkatlas/1080p/tmp_icon_missing.png | 2: purchase_popup/inkImageWidget8, slots.inkwidget:itemDisplay/itemIcon |
+| atlas_inventory_fallback.inkatlas | `undefined` | base/gameplay/gui/common/icons/atlas_inventory_fallback.inkatlas/2160p/undefined.png<br>base/gameplay/gui/common/icons/atlas_inventory_fallback.inkatlas/1080p/undefined.png | 1: slots.inkwidget:itemDisplay/itemFallbackIcon |
 | attributes_icons.inkatlas | `None` | set at runtime (no part named in the data) | 1: inventoryHeader/icon |
-| attributes_icons.inkatlas | `ico_cool` | not exported | 1: attributeSkillController/attributeIcon |
-| mappin_icons.inkatlas | `armor` | not exported | 1: Root/icon |
-| mappin_icons.inkatlas | `asterix` | not exported | 3: CWInventoryMiniGridLeft/NEW, CWInventoryMiniGridRight/NEW, slots.inkwidget:itemDisplay/isNew |
-| mappin_icons.inkatlas | `metaquest` | not exported | 1: shardSlot/Icon |
-| mappin_icons.inkatlas | `quest` | not exported | 1: slots.inkwidget:itemDisplay/mappin |
-| mappin_icons.inkatlas | `ripperdoc` | not exported | 3: Root/icon, itemtooltip.inkwidget:itemCapacityStat/ripperdocIcon, slots.inkwidget:itemDisplay/capacity |
+| attributes_icons.inkatlas | `ico_cool` | base/gameplay/gui/common/icons/attributes_icons.inkatlas/2160p/ico_cool.png<br>base/gameplay/gui/common/icons/attributes_icons.inkatlas/1080p/ico_cool.png | 1: attributeSkillController/attributeIcon |
+| mappin_icons.inkatlas | `armor` | base/gameplay/gui/common/icons/mappin_icons.inkatlas/2160p/armor.png<br>base/gameplay/gui/common/icons/mappin_icons.inkatlas/1080p/armor.png | 1: Root/icon |
+| mappin_icons.inkatlas | `asterix` | base/gameplay/gui/common/icons/mappin_icons.inkatlas/2160p/asterix.png<br>base/gameplay/gui/common/icons/mappin_icons.inkatlas/1080p/asterix.png | 3: CWInventoryMiniGridLeft/NEW, CWInventoryMiniGridRight/NEW, slots.inkwidget:itemDisplay/isNew |
+| mappin_icons.inkatlas | `metaquest` | base/gameplay/gui/common/icons/mappin_icons.inkatlas/2160p/metaquest.png<br>base/gameplay/gui/common/icons/mappin_icons.inkatlas/1080p/metaquest.png | 1: shardSlot/Icon |
+| mappin_icons.inkatlas | `quest` | base/gameplay/gui/common/icons/mappin_icons.inkatlas/2160p/quest.png<br>base/gameplay/gui/common/icons/mappin_icons.inkatlas/1080p/quest.png | 1: slots.inkwidget:itemDisplay/mappin |
+| mappin_icons.inkatlas | `ripperdoc` | base/gameplay/gui/common/icons/mappin_icons.inkatlas/2160p/ripperdoc.png<br>base/gameplay/gui/common/icons/mappin_icons.inkatlas/1080p/ripperdoc.png | 3: Root/icon, itemtooltip.inkwidget:itemCapacityStat/ripperdocIcon, slots.inkwidget:itemDisplay/capacity |
 | perks_icons.inkatlas | `assassination_area_02_perk1` | not exported | 1: slots.inkwidget:itemDisplay/icon |
-| quickhacks_icons.inkatlas | `MemoryWipe` | not exported | 1: attributeSkillController/humanity |
+| quickhacks_icons.inkatlas | `MemoryWipe` | base/gameplay/gui/common/icons/quickhacks_icons.inkatlas/2160p/MemoryWipe.png<br>base/gameplay/gui/common/icons/quickhacks_icons.inkatlas/1080p/MemoryWipe.png | 1: attributeSkillController/humanity |
 | masks.inkatlas | `gradMask_ripper` | not exported | 1: Root/gradient_mask |
-| masks_slots.inkatlas | `shadow_cell` | not exported | 1: Root/gridFrame |
-| shadow_blobs.inkatlas | `shadowBlobSquare_small` | not exported | 2: tutorial_popup_armor/shadowblobSpeaker, tutorial_popup_capacity/shadowblobSpeaker |
-| shadow_blobs.inkatlas | `shadowBlobText` | not exported | 1: Root/shadow |
-| atlas_shapes_sync.inkatlas | `arrow_rect_bg` | not exported | 1: Root/arrowFilled |
-| atlas_shapes_sync.inkatlas | `arrow_rect_fg` | not exported | 1: Root/arrow |
-| atlas_shapes_sync.inkatlas | `cell_bg` | not exported | 8: Root/bkFill, craftingMaterialItem/bg, craftingMaterialItem/bg2, purchase_popup/bg ... |
-| atlas_shapes_sync.inkatlas | `cell_fg` | not exported | 7: Root/bk, craftingMaterialItem/frame, purchase_popup/bg, purchase_popup/inkImageWidget4 ... |
-| atlas_shapes_sync.inkatlas | `color_flip_bg` | not exported | 1: itemtooltip.inkwidget:itemTooltip/background |
-| atlas_shapes_sync.inkatlas | `color_flip_fg` | not exported | 1: itemtooltip.inkwidget:itemTooltip/frame |
-| atlas_shapes_sync.inkatlas | `equipped_accent` | not exported | 2: itemtooltip.inkwidget:itemTooltip/corner, slots.inkwidget:itemDisplay/equippedMarker |
-| atlas_shapes_sync.inkatlas | `item_accent` | not exported | 4: purchase_popup/side_fg_accent, slots.inkwidget:itemDisplay/accent, tutorial_popup_armor/accent, tutorial_popup_capacity/accent |
-| atlas_shapes_sync.inkatlas | `item_bg` | not exported | 6: Root/Booting_Panel_Booting, purchase_popup/bg, slots.inkwidget:itemDisplay/background, slots.inkwidget:itemDisplay/backgroundEquipped ... |
-| atlas_shapes_sync.inkatlas | `item_fg` | not exported | 6: Root/Booting_Panel_Booting_Border, purchase_popup/bg, slots.inkwidget:itemDisplay/frame, slots.inkwidget:itemDisplay/frameEquipped ... |
-| atlas_shapes_sync.inkatlas | `item_side_bg` | not exported | 4: purchase_popup/side, slots.inkwidget:itemDisplay/background, tutorial_popup_armor/cellside_bg, tutorial_popup_capacity/cellside_bg |
-| atlas_shapes_sync.inkatlas | `item_side_fg` | not exported | 1: slots.inkwidget:itemDisplay/frame |
-| atlas_shapes_sync.inkatlas | `label_frame` | not exported | 4: CWInventoryMiniGridLeftBACKUP/bg, CWInventoryMiniGridRightBACKUP/bg, Root/bg, slots.inkwidget:itemDisplay/background |
-| atlas_shapes_sync.inkatlas | `label_frame_line` | not exported | 1: slots.inkwidget:itemDisplay/border |
-| atlas_shapes_sync.inkatlas | `label_frame_line_thic` | not exported | 1: slots.inkwidget:itemDisplay/background |
-| atlas_shapes_sync.inkatlas | `notification_bracket_bg` | not exported | 1: purchase_popup/side_bg |
-| atlas_shapes_sync.inkatlas | `notification_bracket_fg` | not exported | 1: purchase_popup/side_fg |
-| atlas_shapes_sync.inkatlas | `notification_bracket_simple_bg` | not exported | 1: Root/bg |
-| atlas_shapes_sync.inkatlas | `notification_bracket_simple_fg` | not exported | 1: Root/Booting_L_Element_Border |
-| atlas_shapes_sync.inkatlas | `rect_shape_bg` | not exported | 2: Root/line, slots.inkwidget:itemDisplay/upgradable_bg |
-| atlas_shapes_sync.inkatlas | `tooltip_b_accent` | not exported | 1: Root/Booting_Central_Element |
-| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_decent_fg` | not exported | 2: tutorial_popup_armor/cellside_fg, tutorial_popup_capacity/cellside_fg |
-| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_light_bg` | not exported | 1: Root/Booting_R_Element |
-| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_light_fg` | not exported | 1: Root/Booting_R_Element_Border |
-| atlas_shapes_sync.inkatlas | `unified_tooltip_fill` | not exported | 1: itemtooltip.inkwidget:itemTooltip/background |
-| atlas_shapes_sync.inkatlas | `unified_tooltip_outline` | not exported | 1: itemtooltip.inkwidget:itemTooltip/frame |
-| atlas_shapes_sync.inkatlas | `unified_tooltip_stroke` | not exported | 1: itemtooltip.inkwidget:itemTooltip/frame |
+| masks_slots.inkatlas | `shadow_cell` | base/gameplay/gui/common/masks_slots.inkatlas/2160p/shadow_cell.png<br>base/gameplay/gui/common/masks_slots.inkatlas/1080p/shadow_cell.png | 1: Root/gridFrame |
+| shadow_blobs.inkatlas | `shadowBlobSquare_small` | base/gameplay/gui/common/shadow_blobs.inkatlas/2160p/shadowBlobSquare_small.png<br>base/gameplay/gui/common/shadow_blobs.inkatlas/1080p/shadowBlobSquare_small.png | 2: tutorial_popup_armor/shadowblobSpeaker, tutorial_popup_capacity/shadowblobSpeaker |
+| shadow_blobs.inkatlas | `shadowBlobText` | base/gameplay/gui/common/shadow_blobs.inkatlas/2160p/shadowBlobText.png<br>base/gameplay/gui/common/shadow_blobs.inkatlas/1080p/shadowBlobText.png | 1: Root/shadow |
+| atlas_shapes_sync.inkatlas | `arrow_rect_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/arrow_rect_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/arrow_rect_bg.png | 1: Root/arrowFilled |
+| atlas_shapes_sync.inkatlas | `arrow_rect_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/arrow_rect_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/arrow_rect_fg.png | 1: Root/arrow |
+| atlas_shapes_sync.inkatlas | `cell_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/cell_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/cell_bg.png | 8: Root/bkFill, craftingMaterialItem/bg, craftingMaterialItem/bg2, purchase_popup/bg ... |
+| atlas_shapes_sync.inkatlas | `cell_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/cell_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/cell_fg.png | 7: Root/bk, craftingMaterialItem/frame, purchase_popup/bg, purchase_popup/inkImageWidget4 ... |
+| atlas_shapes_sync.inkatlas | `color_flip_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/color_flip_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/color_flip_bg.png | 1: itemtooltip.inkwidget:itemTooltip/background |
+| atlas_shapes_sync.inkatlas | `color_flip_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/color_flip_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/color_flip_fg.png | 1: itemtooltip.inkwidget:itemTooltip/frame |
+| atlas_shapes_sync.inkatlas | `equipped_accent` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/equipped_accent.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/equipped_accent.png | 2: itemtooltip.inkwidget:itemTooltip/corner, slots.inkwidget:itemDisplay/equippedMarker |
+| atlas_shapes_sync.inkatlas | `item_accent` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/item_accent.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/item_accent.png | 4: purchase_popup/side_fg_accent, slots.inkwidget:itemDisplay/accent, tutorial_popup_armor/accent, tutorial_popup_capacity/accent |
+| atlas_shapes_sync.inkatlas | `item_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/item_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/item_bg.png | 6: Root/Booting_Panel_Booting, purchase_popup/bg, slots.inkwidget:itemDisplay/background, slots.inkwidget:itemDisplay/backgroundEquipped ... |
+| atlas_shapes_sync.inkatlas | `item_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/item_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/item_fg.png | 6: Root/Booting_Panel_Booting_Border, purchase_popup/bg, slots.inkwidget:itemDisplay/frame, slots.inkwidget:itemDisplay/frameEquipped ... |
+| atlas_shapes_sync.inkatlas | `item_side_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/item_side_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/item_side_bg.png | 4: purchase_popup/side, slots.inkwidget:itemDisplay/background, tutorial_popup_armor/cellside_bg, tutorial_popup_capacity/cellside_bg |
+| atlas_shapes_sync.inkatlas | `item_side_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/item_side_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/item_side_fg.png | 1: slots.inkwidget:itemDisplay/frame |
+| atlas_shapes_sync.inkatlas | `label_frame` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/label_frame.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/label_frame.png | 4: CWInventoryMiniGridLeftBACKUP/bg, CWInventoryMiniGridRightBACKUP/bg, Root/bg, slots.inkwidget:itemDisplay/background |
+| atlas_shapes_sync.inkatlas | `label_frame_line` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/label_frame_line.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/label_frame_line.png | 1: slots.inkwidget:itemDisplay/border |
+| atlas_shapes_sync.inkatlas | `label_frame_line_thic` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/label_frame_line_thic.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/label_frame_line_thic.png | 1: slots.inkwidget:itemDisplay/background |
+| atlas_shapes_sync.inkatlas | `notification_bracket_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/notification_bracket_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/notification_bracket_bg.png | 1: purchase_popup/side_bg |
+| atlas_shapes_sync.inkatlas | `notification_bracket_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/notification_bracket_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/notification_bracket_fg.png | 1: purchase_popup/side_fg |
+| atlas_shapes_sync.inkatlas | `notification_bracket_simple_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/notification_bracket_simple_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/notification_bracket_simple_bg.png | 1: Root/bg |
+| atlas_shapes_sync.inkatlas | `notification_bracket_simple_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/notification_bracket_simple_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/notification_bracket_simple_fg.png | 1: Root/Booting_L_Element_Border |
+| atlas_shapes_sync.inkatlas | `rect_shape_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/rect_shape_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/rect_shape_bg.png | 2: Root/line, slots.inkwidget:itemDisplay/upgradable_bg |
+| atlas_shapes_sync.inkatlas | `tooltip_b_accent` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/tooltip_b_accent.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/tooltip_b_accent.png | 1: Root/Booting_Central_Element |
+| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_decent_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/tooltip_b_bracket_decent_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/tooltip_b_bracket_decent_fg.png | 2: tutorial_popup_armor/cellside_fg, tutorial_popup_capacity/cellside_fg |
+| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_light_bg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/tooltip_b_bracket_light_bg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/tooltip_b_bracket_light_bg.png | 1: Root/Booting_R_Element |
+| atlas_shapes_sync.inkatlas | `tooltip_b_bracket_light_fg` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/tooltip_b_bracket_light_fg.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/tooltip_b_bracket_light_fg.png | 1: Root/Booting_R_Element_Border |
+| atlas_shapes_sync.inkatlas | `unified_tooltip_fill` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/unified_tooltip_fill.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/unified_tooltip_fill.png | 1: itemtooltip.inkwidget:itemTooltip/background |
+| atlas_shapes_sync.inkatlas | `unified_tooltip_outline` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/unified_tooltip_outline.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/unified_tooltip_outline.png | 1: itemtooltip.inkwidget:itemTooltip/frame |
+| atlas_shapes_sync.inkatlas | `unified_tooltip_stroke` | base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/2160p/unified_tooltip_stroke.png<br>base/gameplay/gui/common/shapes/atlas_shapes_sync.inkatlas/1080p/unified_tooltip_stroke.png | 1: itemtooltip.inkwidget:itemTooltip/frame |
 | fullscreen_elements.inkatlas | `socket` | not exported | 1: slots.inkwidget:itemDisplay/cyberwareEmptyIcon |
 | hub_atlas.inkatlas | `ico_cafting_crafting` | not exported | 1: slots.inkwidget:itemDisplay/background |
 | atlas_inventory.inkatlas | `BLUEPRINT_1slot` | not exported | 1: slots.inkwidget:itemDisplay/backgroundBlueprint |
@@ -674,8 +674,8 @@ Atlas part -> exported PNG (paths relative to `~/work/cyber-art/raw/ui/`; `2160p
 | atlas_inventory.inkatlas | `texture_iconic_tooltip2` | not exported | 1: itemtooltip.inkwidget:itemTooltip/iconic |
 | atlas_inventory.inkatlas | `transmog_cell` | not exported | 1: slots.inkwidget:itemDisplay/transmog |
 | atlas_inventory.inkatlas | `wardrobe_icon` | not exported | 1: slots.inkwidget:itemDisplay/wardrobeIcon |
-| inventory4_atlas.inkatlas | `icon_add` | not exported | 1: slots.inkwidget:itemDisplay/itemEmptyIcon |
-| inventory4_atlas.inkatlas | `item_grid_frame3` | not exported | 1: Root/gridFrame2 |
+| inventory4_atlas.inkatlas | `icon_add` | base/gameplay/gui/fullscreen/inventory/inventory4_atlas.inkatlas/2160p/icon_add.png<br>base/gameplay/gui/fullscreen/inventory/inventory4_atlas.inkatlas/1080p/icon_add.png | 1: slots.inkwidget:itemDisplay/itemEmptyIcon |
+| inventory4_atlas.inkatlas | `item_grid_frame3` | base/gameplay/gui/fullscreen/inventory/inventory4_atlas.inkatlas/2160p/item_grid_frame3.png<br>base/gameplay/gui/fullscreen/inventory/inventory4_atlas.inkatlas/1080p/item_grid_frame3.png | 1: Root/gridFrame2 |
 | cw_bars_assets.inkatlas | `armorLimiter` | base/gameplay/gui/fullscreen/ripperdoc/assets/cw_bars_assets.inkatlas/2160p/armorLimiter.png<br>base/gameplay/gui/fullscreen/ripperdoc/assets/cw_bars_assets.inkatlas/1080p/armorLimiter.png | 1: Root/line |
 | cw_bars_assets.inkatlas | `armor_barbg` | base/gameplay/gui/fullscreen/ripperdoc/assets/cw_bars_assets.inkatlas/2160p/armor_barbg.png<br>base/gameplay/gui/fullscreen/ripperdoc/assets/cw_bars_assets.inkatlas/1080p/armor_barbg.png | 1: Root/background |
 | cw_bars_assets.inkatlas | `armor_mask` | not exported | 1: Root/mask |
@@ -758,3 +758,137 @@ What the data proves, then what is inferred (the controller scripts are not part
 3. **Wipe angle and softness** are not in the data (only progress 0 -> 1); our mask wipe is left-to-right.
 4. **Layout engine details.** The simplified rules in section 1 reproduce the idle screen (`incoming/screens/ripperdoc-reference.png`), but panel sizing for `fitToContent` panels and uniform grids is approximate; inventory cell sizes (224x202 / 216x194) are known, cell counts and wrapping are ours.
 5. **Slot ordering and counts** per zone panel are not in the widget tree (panels are empty); they come from our game data (`docs/GAME-DATA.md`).
+
+## 10. Slot tile, item tooltip and capacity segment (second pass)
+Source: `common/components/slots.inkwidget` (library item `itemDisplay`), `slots_style.inkstyle`, `slots_animations.inkanim`, `common/rarity_menus.inkstyle`, `common/tooltip/itemtooltip.inkwidget`, and the atlases they use, cut from the full PNGs with `tools/atlas_cut.py` (UV rectangle x PNG size). Numbers on the 3840x2160 design grid unless marked *stage* (1920x1080 = grid / 2). Generated numbers for the code: `data/ripperdoc/widgets.json` (`tools/ripperdoc_widgets.py`); the `itemDisplay` and tooltip names below are the game's.
+
+### 10.1 `itemDisplay` (the slot tile)
+Root `container` is 216x194 (stage 108 x 97): the cell of the side grids and of the slot panels. `itemWrapper` is a horizontal panel: `rarityContainer` (23 x 195: the rarity strip), a 2 px spacer, then the flex `container` with the layers below. Every image layer is `contentHAlign/VAlign = Fill` with `useNineSliceScale = 1` and zero slice margins: the part is **stretched to the layer** (the slice data is not in the export, so our CSS stretches the part with a mask too). Colors are set through style bindings: the tint in the widget is only the state the file was saved in.
+
+| Layer | Path | Type | Anchor | Size | Margin | Part / note | Opacity | Style bindings (property <- token) |
+|---|---|---|---|---|---|---|---|---|
+|   `backgroundEquippedFrame` | 1 | Image | Fill | 32x32 | L0 T-1 R0 B1 | `corners_equipped` @ atlas_inventory.inkatlas | 1 | tintColor <- `ItemDisplay.equippedColor` |
+|       `accent` | 2.0.0 | Image | CenterRight | 32x32 | L0 T0 R3 B0 | `item_accent` @ atlas_shapes_sync.inkatlas | 0.07 | tintColor <- `ItemDisplay.borderColor` |
+|       `rarity` | 2.0.1 | Flex | Fill | 100x100 | - | state Epic | 1 | - |
+|       `background` | 2.0.1.0 | Image | LeftFillVerticaly | 32x32 | - | `item_side_bg` @ atlas_shapes_sync.inkatlas | 1 | tintColor <- `Rarity.mainColor` |
+|       `rarityEmpty` | 2.0.2 | Flex | Fill | 100x100 | - | state Default | 1 | - |
+|       `background` | 2.0.2.0 | Image | LeftFillVerticaly | 32x32 | - | `item_side_bg` @ atlas_shapes_sync.inkatlas | 0.89 | tintColor <- `ItemDisplay.background`, opacity <- `ItemDisplay.backgroundOpacity` |
+|       `frame` | 2.0.2.1 | Image | LeftFillVerticaly | 32x32 | - | `item_side_fg` @ atlas_shapes_sync.inkatlas | 0.07 | tintColor <- `ItemDisplay.borderColor` |
+|       `background` | 2.2.0 | Image | LeftFillVerticaly | 32x32 | - | `item_bg` @ atlas_shapes_sync.inkatlas | 0.89 | tintColor <- `ItemDisplay.background`, opacity <- `ItemDisplay.backgroundOpacity` |
+|       `emptyItemLines` | 2.2.1 | Image | LeftFillVerticaly | 32x32 | - | `texture_1slot` @ atlas_inventory.inkatlas | 0.03 | tintColor <- `ItemDisplay.emptyLinesColor`, opacity <- `ItemDisplay.emptyLinesOpacity` |
+|       `backgroundEquipped` | 2.2.2 | Image | LeftFillVerticaly | 32x32 | - | `item_bg` @ atlas_shapes_sync.inkatlas | 0 | tintColor <- `ItemDisplay.equippedColor`, opacity <- `ItemDisplay.backgroundEquippedOpacity` |
+|       `backgroundEquippedLines` | 2.2.3 | Image | LeftFillVerticaly | 32x32 | - | `texture_1slot` @ atlas_inventory.inkatlas | 0.03 | tintColor <- `ItemDisplay.equippedLinesColor`, opacity <- `ItemDisplay.equippedLinesOpacity` |
+|       `backgroundHover` | 2.2.4 | Image | LeftFillVerticaly | 32x32 | - | `item_bg` @ atlas_shapes_sync.inkatlas | 0 | tintColor <- `ItemDisplay.hoverBackgroundColor`, opacity <- `ItemDisplay.hoverBackgroundOpacity` |
+|       `backgroundEquippedHover` | 2.2.5 | Image | LeftFillVerticaly | 32x32 | - | `item_bg` @ atlas_shapes_sync.inkatlas | 0 | tintColor <- `ItemDisplay.equippedColor`, opacity <- `ItemDisplay.hoverEquippedBackgroundOpacity` |
+|       `backgroundIconic` | 2.2.6 | Image | LeftFillVerticaly | 32x32 | - | `texture_1slot_iconic` @ atlas_inventory.inkatlas | 1 | tintColor <- `ItemDisplay.iconicColor`, opacity <- `ItemDisplay.iconicOpacity` |
+|       `frame` | 2.2.9 | Image | LeftFillVerticaly | 32x32 | - | `item_fg` @ atlas_shapes_sync.inkatlas | 0.13 | tintColor <- `ItemDisplay.borderColor`, opacity <- `ItemDisplay.borderOpacity` |
+|       `frameEquipped` | 2.2.10 | Image | LeftFillVerticaly | 32x32 | - | `item_fg` @ atlas_shapes_sync.inkatlas | 0.13 | tintColor <- `ItemDisplay.equippedColor`, opacity <- `ItemDisplay.borderOpacity` |
+|       `itemEmptyIcon` | 2.2.11.0 | Image | Centered | 400x188 | L0 T-0.4545 R0 B0 | `icon_add` @ inventory4_atlas.inkatlas | 0.25 | tintColor <- `ItemDisplay.emptyIconColor`, opacity <- `ItemDisplay.emptyIconOpacity` |
+|       `itemIcon` | 2.2.11.2 | Image | CenterLeft | 400x188 | L0 T-0.7879 R0 B0 | `tmp_icon_missing` @ atlas_common.inkatlas | 1 | tintColor <- `Rarity.mainColor` |
+|       `itemFallbackIcon` | 2.2.11.3 | Image | Centered | 400x188 | L0 T-0.4545 R0 B0 | `undefined` @ atlas_inventory_fallback.inkatlas | 1 | - |
+|       `background` | 2.2.15.0.0 | Image | TopLeft | 32x32 | L-10 T0 R-10 B0 | `label_frame_line_thic` @ atlas_shapes_sync.inkatlas | 1 | tintColor <- `MainColors.Blue` |
+|       `background` | 2.2.17.0 | Image | TopRight | 44x44 | L8 T8 R8.5 B4 | `ico_cafting_crafting` @ hub_atlas.inkatlas | 1 (hidden) | tintColor <- `MainColors.Red` |
+|       `background` | 2.2.18.0 | Image | LeftFillVerticaly | 32x32 | - | `item_bg` @ atlas_shapes_sync.inkatlas | 0.04 | tintColor <- `ItemDisplayRequirements.slotBackgroundColor`, opacity <- `ItemDisplayRequirements.slotBackgroundOpacity` |
+|       `background` | 2.2.18.1.2 | Image | TopLeft | 32x32 | L-5 T-5 R-5 B-5 | `label_frame` @ atlas_shapes_sync.inkatlas | 0.1 | tintColor <- `ItemDisplayRequirements.backgroundColor`, opacity <- `ItemDisplayRequirements.backgroundOpacity` |
+|       `selectedFrame` | 2.2.19 | Image | LeftFillVerticaly | 32x32 | - | `item_fg` @ atlas_shapes_sync.inkatlas | 0.8 (hidden) | tintColor <- `MainColors.ActiveBlue` |
+|       `selectedFrame2` | 2.2.20 | Image | LeftFillVerticaly | 32x32 | - | `item_fg` @ atlas_shapes_sync.inkatlas | 0.5 (hidden) | tintColor <- `MainColors.ActiveBlue` |
+|       `lockedIcon` | 2.2.21 | Image | TopLeft | 32x32 | L12 T0 R0 B12 | `ico_lock` @ atlas_common.inkatlas | 1 | tintColor <- `MainColors.Grey` |
+|       `equippedMarker` | 2.2.22 | Image | BottomRight | 32x32 | L0 T0 R2 B2 | `equipped_accent` @ atlas_shapes_sync.inkatlas | 1 | tintColor <- `ItemDisplay.equippedColor` |
+|       `equipped_feedback` | 2.2.25 | Image | LeftFillVerticaly | 32x32 | - | `texture_1slot_iconic` @ atlas_inventory.inkatlas | 0 | tintColor <- `MainColors.Blue` |
+
+**States** (`slots_style.inkstyle`, state names as in the file; all colors link to `MainColors.*`, see section 5): 
+| Token | Values |
+|---|---|
+| ItemDisplay.borderColor / borderOpacity | Default red @ 0.13; Hover opacity 1; ReadOnly 0.05; Locked color DarkGrey |
+| ItemDisplay.background / backgroundOpacity | Default `Fullscreen_PrimaryBackgroundDarkest` @ 0.89; Locked DarkGrey @ 0; Unavailable @ 0.4 |
+| ItemDisplay.equippedColor | Default Blue; Locked DarkGrey; ReadOnly PanelRed |
+| ItemDisplay.emptyIconColor / emptyIconOpacity | Default Blue @ 0.25; Hover 0.4; Selected ActiveBlue @ 1; Locked DarkGrey |
+| ItemDisplay.hoverBackgroundOpacity | Default 0, Hover 0.006 (equipped: 0.01): practically invisible; the visible hover is the border opacity 0.13 -> 1 |
+| ItemDisplay.emptyLinesOpacity / equippedLinesOpacity | 0.03 (Hover 0.05): the hatch texture is almost invisible |
+| selectedFrame / selectedFrame2 | `item_fg` tinted `MainColors.ActiveBlue`, opacity 0.8 and 0.5 (shown when selected) |
+| lockedIcon | `ico_lock` tinted `MainColors.Grey`, TopLeft margin L12 B12 |
+
+**Rarity** (`rarity_menus.inkstyle`, state per quality; linear HDR, clamped here): the strip `rarityContainer/rarity/background` is `item_side_bg` tinted `Rarity.mainColor`; `rarityLabel` in the tooltip uses the same token. `Rarity.decalsOpacity` is 0 for Common and 1 for the rest. The empty strip (`rarityEmpty`) is `item_side_bg` + `item_side_fg` in the empty-slot colors.
+
+| Quality | mainColor (r, g, b) |
+|---|---|
+| Rarity.Common | (0.84, 0.82, 0.82) |
+| Rarity.Uncommon | (0.11, 0.93, 0.51) |
+| Rarity.Rare | (0.15, 0.44, 0.83) |
+| Rarity.Epic | (0.62, 0.17, 0.96) |
+| Rarity.Legendary | (0.98, 0.58, 0.18) |
+| Rarity.Iconic | (0.94, 0.71, 0.22) |
+
+**Animations** (`slots_animations.inkanim`). Paths are indexes inside `container` (`[2,2,n]` = child n of the flex `container`, e.g. 11 `itemWrapper` (the icon), 13 `itemMods`, 14 `ammoContainer`, 22 `equippedMarker`, 25 `equipped_feedback`).
+
+| Sequence | Target | Interpolator | From -> to | Dur | Delay | Easing |
+|---|---|---|---|---|---|---|
+| Item_Hover_In | 2.2.14 | Transparency | 8 alternating keys 1 <-> 0 | 0.03 | every 0.0305s, total 0.247s | Linear EasyIn |
+| Item_Hover_In | 2.2.13 | Transparency | 8 alternating keys 1 <-> 0 | 0.03 | every 0.0305s, total 0.247s | Linear EasyIn |
+| Item_Hover_In | 2.2.11 | Transparency | 8 alternating keys 1 <-> 0 | 0.03 | every 0.0305s, total 0.247s | Linear EasyIn |
+| Item_Hover_Out | 2.2.11 | Transparency | 1 -> 1 | 0.03 | 0 | Linear EasyIn |
+| Item_Hover_Out | 2.2.14 | Transparency | 1 -> 1 | 0.03 | 0 | Linear EasyIn |
+| Item_Hover_Out | 2.2.13 | Transparency | 1 -> 1 | 0.03 | 0 | Linear EasyIn |
+| CW_selected_slot | 2.2.22 | Transparency | 0 -> 1 | 0.9157 | 0 | Quadratic EasyIn |
+| CW_selected_slot | 2.2.22 | Transparency | 1 -> 0 | 0.551 | 0.9455 | Quadratic EasyOut |
+| CW_selected_slot | 2.2.22 | Translation | (10, 10) -> (0, 0) | 0.6229 | 0 | Quadratic EasyInOut |
+| Equip_Item_Display | 2.2.25 | Transparency | 0 -> 1 | 0.1466 | 0 | Linear EasyIn |
+| Equip_Item_Display | 2.2.25 | Transparency | 1 -> 0 | 0.3028 | 0.1466 | Quadratic EasyOut |
+| Equip_Item_Display | 2.2.25 | Translation | (0, 0) -> (0, 0) | 0.4494 | 0 | Linear EasyIn |
+| Equip_Item_Display | 2.2.25 | Scale | (1, 1) -> (1.2, 1.2) | 0.4505 | 0 | Linear EasyOut |
+| Equip_Item_Display | 2.2.22 | Transparency | 0 -> 1 | 0.4381 | 0 | Quadratic EasyIn |
+| Equip_Item_Display | 2.2.22 | Translation | (10, 10) -> (0, 0) | 0.4079 | 0 | Quadratic EasyInOut |
+| itemDisplay_upgrade | 0.1 | Transparency | 0 -> 1 | 0.9157 | 0 | Quadratic EasyIn |
+| itemDisplay_upgrade | 0.1 | Transparency | 1 -> 0 | 0.551 | 0.9455 | Quadratic EasyOut |
+| itemDisplay_upgrade | 0.1 | Translation | (0, 8) -> (0, 0) | 0.6229 | 0 | Quadratic EasyInOut |
+| itemDisplay_upgrade | 0.2 | Transparency | 0 -> 1 | 0.8189 | 0 | Linear EasyIn |
+| itemDisplay_upgrade | 0.2 | Transparency | 1 -> 0 | 0.5306 | 0.9479 | Linear EasyIn |
+| itemDisplay_upgrade | 0.0 | Transparency | 0 -> 1 | 0.9157 | 0 | Quadratic EasyIn |
+| itemDisplay_upgrade | 0.0 | Transparency | 1 -> 0 | 0.551 | 0.9455 | Quadratic EasyOut |
+| itemDisplay_upgrade | 0.3 | Transparency | 0 -> 0.8 | 0.422 | 0 | Quadratic EasyInOut |
+| itemDisplay_upgrade | 0.3 | Transparency | 0.8 -> 0 | 0.4541 | 1.0254 | Quadratic EasyIn |
+| itemDisplayRequirements_OnClick | root | Transparency | 4 alternating keys 1 <-> 0 | 0.04 | every 0.0424s, total 0.1663s | Quadratic EasyIn |
+
+Our mapping: **hover** = border opacity 0.13 -> 1 (state `Hover`) and the 4-pulse flicker of the icon (`Item_Hover_In`, 0.247 s; Calm x0.5; Off none). **Select** = `CW_selected_slot` on the equipped-marker shape (fade in 0.9157 s with a 10-unit slide, then 0.551 s out) plus the selected frames. **Equip** = `Equip_Item_Display`: `equipped_feedback` flash (opacity 0 -> 1 -> 0, scale 1 -> 1.2 over 0.45 s) and the marker sliding in over 0.41 s. Upgrade sequences are not used (no upgrades in the planner).
+
+### 10.2 Picker grid tile
+The side grid cell is the same `itemDisplay` (`inventoryItem` 224 x 202, margin R8 B8: stage 112 x 101 cell, 108 x 97 tile). We draw: rarity strip (colour = quality), the item icon, the capacity chip (the `ripperdoc` mappin icon + the number: the game's `requirementsWrapper/capacity` look) and, because a planner must show names, the item name. Variants of one item are the small quality pips under the name (our own control). Over-capacity tiles use the game's `Unavailable` background tokens, dim, and a text mark (x) on the chip.
+
+### 10.3 Item tooltip (`itemTooltip`)
+| Widget | Type | Size | Margin | Font (design px) | Part | Style bindings |
+|---|---|---|---|---|---|---|
+| `itemTooltip/tooltip` | Flex | 100x100 | L0 T0 R10 B0 | - | - | - |
+| `itemTooltip/background` | Image | 32x10 | - | - | `color_flip_bg` | tintColor <- `Tooltip.frameBG` |
+| `itemTooltip/frame` | Image | 32x10 | - | - | `color_flip_fg` | tintColor <- `Tooltip.frameColor` |
+| `itemTooltip/background` | Image | 32x32 | L-2 T0 R0 B0 | - | `unified_tooltip_fill` | tintColor <- `Tooltip.backgroundColor` |
+| `itemTooltip/frame` | Image | 32x32 | - | - | `unified_tooltip_stroke` | tintColor <- `Tooltip.frameColor` |
+| `itemTooltip/frame` | Image | 32x32 | - | - | `unified_tooltip_outline` | tintColor <- `Tooltip.frameEquippedColor` |
+| `itemTooltip/contentWrapper` | VerticalPanel | 300x0 | L15 T6 R6 B6 | - | - | - |
+| `itemTooltip/minWidth` | Canvas | 710x0 | - | - | - | - |
+| `itemTooltip/categoriesWrapper` | VerticalPanel | - | L20 T0 R16 B0 | - | - | - |
+| `itemTooltip/itemHeaderContainer` | Flex | 100x100 | - | - | - | - |
+| `itemTooltip/itemItemInfoContainer` | VerticalPanel | - | - | - | - | - |
+| `itemTooltip/itemDetailsContainer` | Flex | 100x100 | - | - | - | opacity <- `TooltipReq.detailsOpacity` |
+| `itemTooltip/itemBottomContainer` | Flex | 100x100 | L0 T20 R0 B-6 | - | - | - |
+| `itemHeader/nameLabel` | Text | 654x64 | L20 T20 R20 B15 | 50 Medium | - | tintColor <- `MainColors.Blue`, fontSize <- `MainColors.ReadableFontSize` |
+| `itemHeader/separator` | Rectangle | 64x2 | L20 T0 R0 B0 | - | - | tintColor <- `Tooltip.separatorLineColor` |
+| `itemHeader/rarityLabel` | Text | 644x53 | L0 T0 R0 B10 | 42 Medium | - | tintColor <- `Rarity.mainColor`, fontSize <- `MainColors.Bumped_ReadableMedium` |
+| `itemHeader/itemTypeLabel` | Text | 585x63 | L0 T0 R0 B10 | 42 Medium | - | tintColor <- `MainColors.Red`, fontSize <- `MainColors.Bumped_ReadableMedium` |
+| `itemCapacityStat/value` | Text | 100x32 | L0 T0 R10 B0 | 70 Medium | - | tintColor <- `TooltipReq.capacityColor`, fontSize <- `MainColors.TitleHeader` |
+| `itemCapacityStat/ripperdocIcon` | Image | 32x32 | L0 T0 R10 B0 | - | `ripperdoc` | tintColor <- `TooltipReq.capacityColor` |
+| `itemCapacityStat/arrow` | Image | 30x20 | L0 T0 R5 B0 | - | `icon_compare_small` | tintColor <- `TooltipStat.comparisionColor` |
+| `itemCapacityStat/comparedValue` | Text | 100x32 | - | 70 Medium | - | tintColor <- `TooltipStat.comparisionColor`, fontSize <- `MainColors.TitleHeader` |
+| `itemDetailsStat/value` | Text | 100x32 | L5 T5 R5 B0 | 36 Medium | - | fontSize <- `MainColors.Bumped_Tooltip_Stat`, tintColor <- `Tooltip.quickhackCostColor` |
+| `itemDetailsStat/name` | Text | 360x0 | L3 T5 R3 B0 | 36 Medium | - | tintColor <- `Tooltip.quickhackCostColor`, fontSize <- `MainColors.Bumped_Tooltip_Stat` |
+| `itemDetailsStat/arrow` | Image | 30x20 | L3 T17 R0 B0 | - | `icon_compare_small` | tintColor <- `TooltipStat.comparisionColor` |
+| `itemDetailsStat/comparedValue` | Text | 100x32 | L4 T10 R0 B0 | 28 Medium | - | tintColor <- `TooltipStat.comparisionColor`, fontSize <- `MainColors.Bumped_Tooltip_ComparedValue` |
+
+Frame: `unified_tooltip_fill` (tint `Tooltip.backgroundColor`), `unified_tooltip_stroke` (`Tooltip.frameColor`) and `unified_tooltip_outline` (`Tooltip.frameEquippedColor`, the comparison outline, not used) are all Fill-stretched with a cut bottom-right corner. **Body order** (stage): name 25 px (`MainColors.Blue`), a 32 x 1 separator, rarity 21 px (`Rarity.mainColor`), type 21 px (`MainColors.Red`), capacity row (value 35 px `MainColors.Yellow` + the 16 px `ripperdoc` icon; the comparison arrow `icon_compare_small` when a variant differs), the stat lines 18 px (`MainColors.Blue`), then bottom (price/weight: not used). Everything sits in `contentWrapper` (margins L15 T6 R6 B6, min width 710 = stage 355).
+
+### 10.4 Capacity segment
+`CapacityMeterBar` = `bar` (`bar_long2`) + `highlight` (`perk_highlight_nottransparent`), colored by `NewMeter.BarColor` / `NewMeter.opacity` (section 4). We draw each segment as a mask of `bar_long2` plus a mask of the highlight part under lit segments. Over-capacity, preview-add and preview-remove keep the standing non-color cues (hatch pattern, the marker at the limit, "+N" / "OVER BY n" text and the screen-reader line).
+
+### 10.5 What the export does not contain, and what we did instead
+- Atlases missing from the export: `atlas_inventory/corners_equipped`, `atlas_inventory/texture_1slot`, `atlas_inventory/texture_1slot_iconic`, `hub_atlas/ico_cafting_crafting`. The tile's hatch texture (`texture_1slot`) is a CSS gradient at the game's opacity (0.03); the equipped corner marks (`corners_equipped`) and the iconic texture are left out; the cyberware empty socket (`fullscreen_elements/socket`) is replaced by the `icon_add` plus part.
+- `tooltip_style.inkstyle` is not in the export: tooltip colors are the widgets' own default tints (background `#0E0E17`, stroke `MainColors.MildRed`, separator `#451715`). Nine-slice margins are not in the atlas files: the tile parts are stretched (as in the game's `Fill` setting); the tooltip uses a 9-slice mask (`-webkit-mask-box-image`, corner 29 px) where the browser supports it, and stretches otherwise.
+- `Operating System` decks have no `iconPart`; their `iconName` (`militech_paraline`) is not a part of any exported atlas, so the 15 records show the generic cyberdeck icon (`item_icons/icon_cyberdeck`). Reported by `tools/cyberware_icons.py`.

@@ -1,7 +1,7 @@
 // Ripperdoc-style Cyberware screen: a 1920x1080 stage scaled to fit, positions and timings from data/ripperdoc/layout.json
 // (numbers taken from the game's ripperdoc UI, see docs/RIPPERDOC-SPEC.md). Engine, data and URL format are untouched:
 // this module only reads/writes the shared store through cyber.js (evaluate / canEquip / equip / unequip).
-import { ICON_LOCK, ICON_PLUS, ICON_WARN } from './icons.js';
+import { ICON_WARN } from './icons.js';
 import { evaluate, canEquip, equip, unequip, slotKey, statLines, variantDiff } from './cyber.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -32,7 +32,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const urls = ui || { parts: {}, clips: {} };
   const grpKey = (g) => g.id.replace(/^Slot\./, '');
   const zones = L.zones.map((z) => ({ ...z, g: C.groups.find((g) => grpKey(g) === z.group) })).filter((z) => z.g);
-  const S = { gender: safe.get('cp77.gender') === 'man' ? 'man' : 'woman', open: null, hover: null, slot: 0, pick: new Map(), tip: null };
+  const S = { gender: safe.get('cp77.gender') === 'man' ? 'man' : 'woman', open: null, hover: null, slot: 0, pick: new Map(), tip: null, prev: null, fresh: new Set() };
   const hitData = new Map();                              // `${gender}/${zone}` -> {w,h,data} alpha of the hover sprite
 
   root.innerHTML = `
@@ -49,6 +49,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     </div></div>`;
   const $ = (id) => root.querySelector(id);
   const stage = $('#rd');
+  for (const [k, v] of Object.entries(urls.parts)) stage.style.setProperty(`--p-${k.replace('/', '-')}`, `url("${new URL(v, document.baseURI).href}")`);      // atlas parts as mask images (absolute: a url() in a custom property resolves against the stylesheet)
   const bgPart = urls.parts['background/background'];
   if (bgPart) $('#rd-bg').style.backgroundImage = `url(${bgPart})`;
 
@@ -278,17 +279,28 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     }).join('');
   }
 
+  // game item icon (cut from the item atlases) for a record; the legacy per-record art / placeholder glyph when there is none
+  function iconHtml(imp) {
+    const key = imp.icon || imp.iconName;
+    const part = urls.icons && urls.icons[key];
+    const src = part && urls.parts[part];
+    return src ? `<img alt="" src="${src}" draggable="false" loading="lazy" decoding="async">` : art.html(imp.icon || imp.id);
+  }
+  // the slot tile layers of slots.inkwidget itemDisplay: background, lines, hover, frames, rarity strip, selected frames, equipped marker
+  const TILE = '<i class="rd-m bg"></i><i class="rd-m ln"></i><i class="rd-m hv"></i><i class="rd-m fr"></i><i class="rd-m fe"></i><i class="rd-m side"></i><i class="rd-m sidefr"></i><i class="rd-m fl"></i><i class="rd-m sel"></i><i class="rd-m sel2"></i>';
+  const cost = (n) => `<b class="rd-cost">${n}</b>`;
+
   function cellHtml(s, ev, sel) {
     const e = ev.slots.get(s.key);
     const imp = e && e.implant;
     const flag = e && e.req.kind === 'unmet';
-    const art1 = imp ? art.html(imp.icon || imp.id) : ICON_PLUS;
-    return `<button type="button" class="rd-cell${imp ? ' full' : ''}${flag ? ' flag' : ''}" data-slot="${s.p}" aria-pressed="${sel}" ${imp ? `data-imp="${imp.n}"` : ''}
-      style="--q:${imp ? qColor(imp.quality) : 'transparent'}" aria-label="${esc(`${imp ? imp.name : 'Empty slot'}, slot ${s.p + 1}`)}">
-      <i class="rd-q"></i><span class="rd-ico">${art1}</span>${imp ? `<b class="rd-cost">${imp.cost}</b><span class="rd-cname">${esc(imp.name)}</span>` : ''}</button>`;
+    const just = imp && S.fresh.has(s.key) ? ' just' : '';
+    return `<button type="button" class="rd-tile rd-cell${imp ? ' full' : ''}${flag ? ' flag' : ''}${just}" data-slot="${s.p}" aria-pressed="${sel}" ${imp ? `data-imp="${imp.n}"` : ''}
+      style="--q:${imp ? qColor(imp.quality) : 'transparent'}" aria-label="${esc(`${imp ? imp.name : 'Empty slot'}, slot ${s.p + 1}`)}">${TILE}<i class="rd-m eqm"></i>
+      ${imp ? `<span class="rd-ico">${iconHtml(imp)}</span>${cost(imp.cost)}<span class="rd-cname">${esc(imp.name)}</span>` : '<i class="rd-m rd-add"></i>'}</button>`;
   }
-  function lockedHtml(g, n) {
-    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${ICON_LOCK}</span>`).join('');
+  function lockedHtml(g) {
+    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span>`).join('');
   }
 
   function panelHtml(z, ev) {
@@ -305,8 +317,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const pips = fam.variants.length > 1
       ? `<span class="rd-pips">${fam.variants.map((v) => `<i role="button" tabindex="0" class="rd-pip${v.n === chosen.n ? ' on' : ''}" data-pip="${v.n}" style="--q:${qColor(v.quality)}" aria-label="${esc(`${fam.name}, ${v.quality}${v.variant > 1 ? ` #${v.variant}` : ''}`)}"></i>`).join('')}</span>` : '';
     return `<div class="rd-gcell${isEq ? ' eq' : ''}${blocked ? ' blocked' : ''}" style="--q:${qColor(chosen.quality)}">
-      <button type="button" class="rd-gbtn" data-imp="${chosen.n}" ${blocked ? 'aria-disabled="true"' : ''} ${isEq ? 'aria-pressed="true"' : ''} aria-label="${esc(`${fam.name}, ${chosen.quality}, capacity ${chosen.cost}${blocked ? ', over capacity' : ''}`)}">
-        <i class="rd-q"></i><span class="rd-ico">${art.html(chosen.icon || chosen.id)}</span><b class="rd-cost">${chosen.cost}</b><span class="rd-cname">${esc(fam.name)}</span></button>${pips}</div>`;
+      <button type="button" class="rd-tile rd-gbtn${isEq ? ' full' : ''}" data-imp="${chosen.n}" ${blocked ? 'aria-disabled="true"' : ''} ${isEq ? 'aria-pressed="true"' : ''} aria-label="${esc(`${fam.name}, ${chosen.quality}, capacity ${chosen.cost}${blocked ? ', over capacity' : ''}`)}">${TILE}<i class="rd-m eqm"></i><span class="rd-ico">${iconHtml(chosen)}</span>${cost(chosen.cost)}<span class="rd-cname">${esc(fam.name)}</span></button>${pips}</div>`;
   }
   function pickerHtml(z, state, ev) {
     const key = slotKey(z.g.n, S.slot);
@@ -341,7 +352,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
       let cls = 'e';
       if (i < ev.used) cls = i >= max ? 'unsafe' : 'safe';
       else if (preview > 0 && i < ev.used + preview) cls = (ev.used + preview > max) ? 'unsafe-add' : 'safe-add';
-      segs.push(`<i class="rd-seg ${cls}" style="top:${y}px;left:${left}px"></i>`);
+      segs.push(`${cls === 'e' ? '' : `<i class="rd-seghl ${cls}" style="top:${y}px;left:${left}px"></i>`}<i class="rd-seg ${cls}" style="top:${y}px;left:${left}px"></i>`);
     }
     const labelY = bottom - Math.min(ev.used, max) * SEG_H - 17;
     const over = ev.used > max;
@@ -361,23 +372,28 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   }
 
   // ---------- tooltip (per spec: name, rarity color, capacity row, stats)
-  function tipHtml(imp, extra) {
+  function tipHtml(imp, extra, groupName) {
     const lines = statLines(imp);
     const sibs = C.familyOf.get(imp.family || imp.id).variants.filter((o) => o.tier === imp.tier && o.n !== imp.n);
     const diff = sibs.map((o) => `vs #${o.variant}: ${variantDiff(imp, o).join(' · ') || 'same stats'}`);
-    return `<div class="rd-tip-head" style="--q:${qColor(imp.quality)}"><b>${esc(imp.name)}</b><span class="rd-tip-q">${esc(rarityOf(imp.quality))}<em>${esc(plusOf(imp.quality))}</em></span></div>
-      <div class="rd-tip-cap"><span>Capacity</span><b>${imp.cost}</b></div>
+    return `<i class="rd-tipfill"></i><i class="rd-tipstroke"></i><div class="rd-tipc" style="--q:${qColor(imp.quality)}">
+      <div class="rd-tip-head"><div class="rd-tip-name">${esc(imp.name)}</div><i class="rd-tip-sep"></i>
+        <div class="rd-tip-rar"><span>${esc(rarityOf(imp.quality))}</span><em>${esc(plusOf(imp.quality))}</em>${imp.variant > 1 || diff.length ? `<small>#${imp.variant}</small>` : ''}</div>
+        <div class="rd-tip-type">${esc(groupName || 'Cyberware')}</div></div>
+      <div class="rd-tip-cap"><b>${imp.cost}</b><i class="ric"></i><span class="lbl">Capacity</span></div>
       ${lines.length ? `<ul class="rd-tip-stats">${lines.slice(0, 10).map((l) => `<li>${esc(l)}</li>`).join('')}${lines.length > 10 ? `<li class="more">+${lines.length - 10} more</li>` : ''}</ul>` : '<p class="rd-tip-none">No stat modifiers in the data.</p>'}
-      ${diff.length ? `<p class="rd-tip-diff">${esc(diff.join(' | '))}</p>` : ''}
-      ${extra ? `<p class="rd-tip-warn">${esc(extra)}</p>` : ''}`;
+      ${diff.length ? `<p class="rd-tip-diff"><i class="cmp"></i><span>${esc(diff.join(' | '))}</span></p>` : ''}
+      ${extra ? `<p class="rd-tip-warn">${ICON_WARN}<span>${esc(extra)}</span></p>` : ''}</div>`;
   }
   function showTip(target, imp, extra) {
     const tip = $('#rd-tip');
-    tip.innerHTML = tipHtml(imp, extra);
+    const zg = zones.find((x) => x.key === S.open);
+    tip.innerHTML = tipHtml(imp, extra, zg && zg.g.name);
+    tip.classList.toggle('over', !!extra);
     tip.hidden = false;
     const b = stage.getBoundingClientRect(), t = target.getBoundingClientRect(), s = stage._s || 1;
     const x = (t.right - b.left) / s, y = (t.top - b.top) / s;
-    const w = 354;
+    const w = 355;
     tip.style.left = `${x + 12 + w > 1900 ? (t.left - b.left) / s - 12 - w : x + 12}px`;
     tip.style.top = `${Math.max(20, Math.min(y, 1080 - tip.offsetHeight - 20))}px`;
   }
@@ -387,6 +403,9 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   function render() {
     const state = store.get();
     const ev = evaluate(C, D, state);
+    const cur = new Map([...ev.slots].filter(([, e]) => e.implant).map(([k, e]) => [k, e.implant.n]));
+    S.fresh = new Set(S.prev ? [...cur].filter(([k, n]) => S.prev.get(k) !== n).map(([k]) => k) : []);      // slots filled since the last render: the equip flash
+    S.prev = cur;
     $('#rd-tags').innerHTML = S.open ? '' : tagsHtml(ev);
     $('#rd-cap').innerHTML = capHtml(ev, S.preview || 0);
     const panel = $('#rd-panel'), picker = $('#rd-picker');

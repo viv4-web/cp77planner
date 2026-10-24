@@ -11,11 +11,12 @@ It is a UI layer only: the engine (`src/js/cyber.js`), the data, the URL format 
 | `src/styles/ripperdoc-tokens.css` | generated: the game's style tokens as `--t-*` custom properties (HDR colors clamped, excess as `--t-*-glow`) |
 | `data/ripperdoc/layout.json` | generated: positions on the 1920x1080 stage, zone zoom/fade timings, hover sprite and clip rects |
 | `tools/ripperdoc_layout.py` | generates the two files above from the UI export (`~/work/cyber-art/raw/ui`, read only) |
-| `tools/art.py` | atlas parts -> WebP in `~/work/cyber-art/out/ui/` (the only writer of that folder) |
+| `tools/art.py` | the ripperdoc atlas parts (WolvenKit per-part exports) -> WebP in `~/work/cyber-art/out/ui/{man_body,woman_body,cw_bars_assets,background}` |
+| `tools/atlas_cut.py` | any other atlas, cut from the full PNG + `inkatlas.json` -> `out/ui/<atlas>/<part>.webp` + `atlas-index.json` (item icons, shapes, common icons) |
 | `tools/paperdoll_video.py` | frame sequences -> `out/paperdoll/{man,woman}/<clip>.webm`, `_sm.webm`, `.webp` poster |
 | `tools/build.py` | copies only the files the layout references into `dist/live/img/ui` and `dist/live/media`, and writes `ui-art.json`; `dist/offline` gets an empty `ui-art.json` and no game art |
 
-Regenerate after a game patch: `python3 tools/paperdoll_video.py`, `python3 tools/art.py`, `python3 tools/ripperdoc_layout.py`, `python3 tools/ripperdoc_spec.py`.
+Regenerate after a game patch: `python3 tools/paperdoll_video.py`, `python3 tools/art.py`, `python3 tools/atlas_cut.py`, `python3 tools/cyberware_icons.py`, `python3 tools/ripperdoc_layout.py`, `python3 tools/ripperdoc_widgets.py`, `python3 tools/ripperdoc_spec.py`.
 
 ## Behaviour (ours; the controller scripts are not in the data)
 - **Stage.** 1920x1080, scaled to fit the window (letterbox). Below 900 px wide the older stacked layout is shown instead (`.cw-legacy`).
@@ -33,10 +34,19 @@ Regenerate after a game patch: `python3 tools/paperdoll_video.py`, `python3 tool
 - Safari gets posters only (it ignores WebM alpha); widths up to 1100 px or Save-Data get the `_sm.webm` clips.
 - Without art (offline build or no `out/` folder) the screen uses a silhouette placeholder and the glyph icons; everything still works.
 
+## Game widgets (second pass)
+Slot tiles, picker tiles, capacity segments and the item tooltip are built from the game's own widgets and atlas parts (spec section 10):
+- `tools/atlas_cut.py` cuts atlas parts from the full PNGs (`inkatlas.json` UVs x PNG size) into `~/work/cyber-art/out/ui/<atlas>/<part>.webp` plus `atlas-index.json`.
+- `tools/cyberware_icons.py` maps each record's `iconPart` (or `iconName`) to a cut item icon: `data/ripperdoc/icons.json`. 1065 of 1065 records are covered; the 15 Operating System decks use the generic cyberdeck icon.
+- `tools/ripperdoc_widgets.py` writes `data/ripperdoc/widgets.json` (tile, tooltip and segment numbers, and the part names they use). `tools/build.py` copies only those parts and the icons our data references.
+- `src/styles/ripperdoc-widgets.css` draws the layers as masks of the game parts (`--p-<atlas>-<part>` custom properties set by `js/ripperdoc.js`); the offline build draws the same layers as plain cut-corner shapes.
+- Not color alone: empty = plus shape, filled = marker shape + written name, locked = lock icon + the word, selected = frames, over capacity = hatch + marker + "OVER BY n" text + warning icon.
+
 ## What is approximated
-- Capacity meter: CSS bars instead of the atlas bar images (`bar_long2`), no animated counter, no lock/glow box of the overcharge state, no hover areas.
-- Slot cell and picker cell are simplified `itemDisplay` / `inventoryItem` (rarity strip, cost badge, name, placeholder icon: item icons are not exported yet).
-- Tooltip is placed beside the hovered cell, not at the spec's Left/Right anchors, and has no equipped-item comparison.
+- Capacity meter: no animated counter, no lock/glow box of the overcharge state, no hover areas. Segments are the `bar_long2` part; the highlight is `perk_highlight_nottransparent` at a size of our choosing.
+- Tiles lack the game's `atlas_inventory` parts (not in the export): the hatch texture is a CSS gradient, the equipped corner marks and iconic texture are left out. Nine-slice margins are not in the data, so tile parts are stretched like the game's Fill setting.
+- Tooltip colors are the widgets' default tints (`tooltip_style.inkstyle` is not exported); it is placed beside the hovered tile, not at the spec's Left/Right anchors, and has no equipped-item comparison.
+- The capacity chip and the written item name are ours (the planner has to show names and costs on every tile).
 - Video interpolators are replaced by "play once from 0, hold"; the LinearWipe sequences belong to list rows and popups and are not used here.
 - The legacy Immune zone is left out (no slot group in our data).
 - Hover sprites use `mix-blend-mode: screen`; the exact blend of the game is not in the data.

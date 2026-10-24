@@ -189,6 +189,7 @@ await t('390px: no horizontal scroll, picker opens as a sheet, compact bar visib
 // ---- ripperdoc stage (desktop, >= 900px) ----
 const hasArt = (page) => page.evaluate(() => document.getElementById('rd')?.dataset.art === 'on');
 const rdCap = async (page) => (await page.locator('#rd-cap .rd-lab.cur').innerText()).trim();
+const openRdZone = async (page, zone, picker) => { await page.goto(`${BASE}?tab=cyberware&zone=${zone}${picker ? '&picker=1' : ''}`); await page.waitForSelector('#rd-panel:not([hidden])'); };
 const openRd = async (page, query = '') => { await page.goto(`${BASE}?tab=cyberware${query}`); await page.waitForSelector('#rd .rd-tag'); };
 
 await t('ripperdoc: the stage is 16:9, scaled to fit, and fully inside the viewport', async (page) => {
@@ -331,6 +332,88 @@ await t('ripperdoc: the man/woman switch swaps the body and keeps the build', as
   assert.equal(await page.locator('#rd-gender [data-g=man]').getAttribute('aria-pressed'), 'true');
   assert.equal(await rdCap(page), cap);
   if (await hasArt(page)) assert.match(await page.locator('#rd-body .rd-poster').getAttribute('src'), /male_body_loop/);
+});
+
+await t('ripperdoc: picker tiles are the game slot tile with the real item icon in every zone (no placeholder glyphs)', async (page) => {
+  const keys = ['frontal_cortex', 'ocular', 'circulatory', 'hands', 'arms', 'legs', 'nervous', 'integumentary', 'operating', 'skeleton'];
+  for (const k of keys) {
+    await openRdZone(page, k, true);
+    await page.waitForSelector('#rd-picker:not([hidden])');
+    const tiles = await page.locator('#rd-picker .rd-gbtn').count();
+    if (!tiles) continue;                                   // Arms: pending data, no implants yet
+    assert.equal(await page.locator('#rd-picker .rd-gbtn .rd-ico img').count(), tiles, `${k}: every tile has a game icon`);
+    assert.equal(await page.locator('#rd-picker .rd-gbtn .rd-ico .glyph').count(), 0, `${k}: no placeholder glyph`);
+  }
+  await openRdZone(page, 'frontal_cortex', true);
+  await page.waitForSelector('#rd-picker .rd-gbtn');
+  const src = await page.locator('#rd-picker .rd-gbtn .rd-ico img').first().getAttribute('src');
+  assert.match(src, /^img\/ui\/item_icons\d*\/.+\.webp$/);
+  assert.ok(await page.locator('#rd-picker .rd-gbtn .rd-ico img').first().evaluate((i) => i.complete && i.naturalWidth > 0), 'icon loaded');
+  assert.ok(await page.evaluate(() => document.getElementById('rd').style.getPropertyValue('--p-atlas_shapes_sync-item_bg').includes('item_bg.webp')), 'game shape part available');
+  const mask = await page.locator('#rd-picker .rd-tile .bg').first().evaluate((e) => getComputedStyle(e).webkitMaskImage || getComputedStyle(e).maskImage);
+  assert.match(mask, /item_bg\.webp/, 'tile background is the game item_bg part');
+  assert.match(await page.locator('#rd-picker .rd-gbtn .rd-cost').first().innerText(), /^\d+$/, 'capacity chip is the number only (icon is a mask)');
+});
+
+await t('ripperdoc: slot cell states are shapes and words, not color alone (empty plus, filled marker, locked icon + text, selected frame)', async (page) => {
+  await openRdZone(page, 'skeleton', false);
+  await page.waitForSelector('#rd-panel:not([hidden]) .rd-cell');
+  assert.equal(await page.locator('#rd-panel .rd-cell.locked .rd-lock').count(), 1);
+  assert.equal((await page.locator('#rd-panel .rd-cell.locked .rd-locktxt').innerText()).trim().toLowerCase(), 'locked');
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="0"] .rd-add').count(), 1, 'empty slot shows the plus part');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('aria-pressed'), 'true');
+  const o = await page.locator('#rd-panel .rd-cell[data-slot="0"] .sel').evaluate((e) => getComputedStyle(e).getPropertyValue('opacity'));
+  assert.equal(Number(o), 0.8, 'selected frame at the game opacity');
+  await page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first().click();
+  const full = page.locator('#rd-panel .rd-cell[data-slot="0"]');
+  assert.ok((await full.getAttribute('class')).includes('full'));
+  assert.ok((await full.locator('.rd-cname').innerText()).trim().length > 0, 'the name is written out');
+  assert.equal(await full.locator('.eqm').count(), 1, 'equipped marker shape');
+});
+
+await t('ripperdoc: item tooltip follows the game layout: name, rarity, type, capacity row, stats; over capacity has an icon and words', async (page) => {
+  await openRdZone(page, 'frontal_cortex', true);
+  const g = page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first();
+  await g.waitFor();
+  await g.hover();
+  const tip = page.locator('#rd-tip');
+  await tip.waitFor({ state: 'visible' });
+  assert.ok((await tip.locator('.rd-tip-name').innerText()).trim().length > 0);
+  assert.match(await tip.locator('.rd-tip-rar').innerText(), /Common|Uncommon|Rare|Epic|Legendary|Iconic/);
+  assert.match(await tip.locator('.rd-tip-type').innerText(), /frontal cortex/i);
+  const cost = (await g.locator('.rd-cost').innerText()).trim();
+  assert.equal((await tip.locator('.rd-tip-cap b').innerText()).trim(), cost, 'capacity row equals the tile chip');
+  assert.equal(await tip.locator('.rd-tipfill').count(), 1);
+  assert.equal(await tip.evaluate((e) => e.offsetWidth), 355, 'width is 710 / 2 on the stage grid');
+  assert.equal(await tip.locator('.rd-tip-warn').count(), 0, 'no warning when it fits');
+  await openRdZone(page, 'skeleton', true);
+  const blocked = page.locator('#rd-picker .rd-gcell.blocked .rd-gbtn').first();
+  await blocked.waitFor();
+  await blocked.hover();
+  assert.equal(await page.locator('#rd-tip .rd-tip-warn svg').count(), 1, 'warning icon');
+  assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over capacity by \d+/i);
+});
+
+await t('ripperdoc: capacity segments are the cw_bars_assets parts and keep the text and shape cues', async (page) => {
+  await openRdZone(page, 'frontal_cortex', true);
+  await page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first().click();
+  const seg = page.locator('#rd-cap .rd-seg.safe').first();
+  await seg.waitFor();
+  assert.match(await seg.evaluate((e) => getComputedStyle(e).webkitMaskImage || getComputedStyle(e).maskImage), /bar_long2\.webp/);
+  assert.ok(await page.locator('#rd-cap .rd-seghl.safe').count() > 0, 'highlight glow part under lit segments');
+  assert.equal(await page.locator('#rd-cap .rd-capbg img').getAttribute('src'), 'img/ui/cw_bars_assets/cw_barbg.webp');
+});
+
+await t('ripperdoc: tile hover plays the game flicker in Full, nothing in Off', async (page) => {
+  await openRdZone(page, 'frontal_cortex', true);
+  const g = page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first();
+  await g.hover();
+  assert.equal(await g.locator('.rd-ico').evaluate((e) => getComputedStyle(e).animationName), 'rdflick');
+  await page.click('#motion [data-m=off]');
+  await page.mouse.move(5, 5);
+  await g.hover();
+  assert.equal(await g.locator('.rd-ico').evaluate((e) => getComputedStyle(e).animationName), 'none');
 });
 
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {

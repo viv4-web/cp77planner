@@ -83,15 +83,31 @@ class BuildTests(unittest.TestCase):
             self.assertTrue((self.live / rel).is_file(), rel)
         self.assertFalse((self.live / "img" / "ui" / "woman_body" / "not_referenced.webp").exists())
 
+    def test_icons_are_copied_only_when_our_data_references_them(self):
+        icons = json.loads((ROOT / "data" / "ripperdoc" / "icons.json").read_text())["map"]
+        used = {i.get("icon") or i.get("iconName") for i in json.loads((ROOT / "data" / "cyberware.json").read_text())["implants"]}
+        key = sorted(used & set(icons))[0]
+        with tempfile.TemporaryDirectory() as t:
+            ui = Path(t) / "ui"
+            for part in (icons[key], "item_icons9/not_in_our_data"):
+                f = ui / "ui" / f"{part}.webp"
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_bytes(b"RIFF....WEBP")
+            live, _ = build.build(Path(t) / "dist", Path(t) / "no-art", ui)
+            doc = json.loads((live / "ui-art.json").read_text())
+            self.assertEqual(doc["icons"][key], icons[key])
+            self.assertTrue((live / doc["parts"][icons[key]]).is_file())
+            self.assertFalse((live / "img" / "ui" / "item_icons9" / "not_in_our_data.webp").exists())
+
     def test_offline_has_no_ripperdoc_game_art(self):
-        self.assertEqual(json.loads((self.offline / "ui-art.json").read_text()), {"clips": {}, "parts": {}})
+        self.assertEqual(json.loads((self.offline / "ui-art.json").read_text()), {"clips": {}, "icons": {}, "parts": {}})
         self.assertFalse((self.offline / "img" / "ui").exists())
         self.assertFalse((self.offline / "media").exists())
 
     def test_missing_ui_art_folder_gives_placeholders(self):
         with tempfile.TemporaryDirectory() as t:
             live, _ = build.build(Path(t) / "dist", Path(t) / "nope", Path(t) / "nope-ui")
-            self.assertEqual(json.loads((live / "ui-art.json").read_text()), {"clips": {}, "parts": {}})
+            self.assertEqual(json.loads((live / "ui-art.json").read_text()), {"clips": {}, "icons": {}, "parts": {}})
 
     def test_offline_never_references_art_dir(self):
         pat = re.compile(rb"(^|[^A-Za-z0-9_])art/")
