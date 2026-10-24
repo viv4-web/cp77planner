@@ -66,3 +66,11 @@
 html[data-motion=calm] .rd-panel:not([hidden]),html[data-motion=calm] .rd-picker:not([hidden]){animation-duration:.18s;animation-delay:.2s}
 
 /* below 900px wide the older stacked layout is shown instead (.cw-legacy), see main.js */
+
+/* idle float of the woman's body: OUR approximation (the source video female_body_loop is static and the game data has no float animation).
+   Uses the individual `translate` / `scale` properties so it composes with the zone zoom transform; Calm, Off and reduced motion: none. */
+.rd{--rd-float-y:4px;--rd-float-s:1.004}
+.rd:not([data-open]) .rd-tab.float{animation:rdfloat 5s ease-in-out infinite}
+@keyframes rdfloat{0%,100%{translate:0 0;scale:1}50%{translate:0 calc(var(--rd-float-y) * -1);scale:var(--rd-float-s)}}
+html[data-motion=calm] .rd-tab.float,html[data-motion=off] .rd-tab.float{animation:none!important}
+@media (prefers-reduced-motion:reduce){.rd-tab.float{animation:none!important}}

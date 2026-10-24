@@ -119,6 +119,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const G = L.genders[S.gender];
     const piv = L.tabPivot;
     const tab = $('#rd-tab');
+    tab.classList.toggle('float', S.gender === 'woman');      // our idle float (the source video is static); see docs/RIPPERDOC-UI.md
     tab.style.transformOrigin = `${piv[0]}px ${piv[1]}px`;
     tab.innerHTML = `<div class="rd-media rd-body" id="rd-body" style="${rect(G.body.rect)}"></div>` +
       zones.map((z) => {

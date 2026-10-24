@@ -558,6 +558,22 @@ await t('ripperdoc: the zone clip keeps looping while the zone is open in Full; 
   assert.equal(await page.evaluate(() => document.querySelector('.rd-clip[data-zone=ocular] video').loop), false, 'Calm: once and hold');
 });
 
+await t('ripperdoc: the woman floats gently at idle in Full (our approximation); not in Calm, with a zone open, or for the man', async (page) => {
+  await openRd(page);
+  const name = () => page.evaluate(() => getComputedStyle(document.getElementById('rd-tab')).animationName);
+  assert.equal(await name(), 'rdfloat');
+  await page.click('.rd-grp[data-zone=legs] .rd-tag');
+  await page.waitForSelector('#rd-panel:not([hidden])');
+  assert.equal(await name(), 'none', 'no float while a zone is open');
+  await page.click('#rd-panel .rd-back');
+  await page.click('#rd-gender [data-g=man]');
+  assert.equal(await name(), 'none', 'the man does not float (no float in the data)');
+  await page.click('#rd-gender [data-g=woman]');
+  assert.equal(await name(), 'rdfloat');
+  await page.click('#motion [data-m=calm]');
+  assert.equal(await name(), 'none', 'Calm: no float');
+});
+
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
   await openRd(page);
   assert.equal(await noHScroll(page), true);
