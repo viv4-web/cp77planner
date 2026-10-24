@@ -36,10 +36,18 @@ main{padding:24px var(--gutter) 64px;max-width:1280px;margin:0 auto}
 .pt small{display:block;font:500 10.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
 .pt b{font:500 22px/1.2 var(--f-mono);color:var(--text)}
 .pt.attr b{color:var(--c-intelligence)} .pt.perk b{color:var(--yellow)} .pt.relic b{color:var(--magenta)}
-.lvl{display:flex;align-items:center;gap:14px;width:100%;max-width:520px}
-.lvl label{font:600 12px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.lvl input[type=range]{flex:1;accent-color:var(--yellow);height:44px;margin:0;background:none}
-.lvl output{font:500 18px var(--f-mono);min-width:2.5ch;text-align:right}
+.lvl{display:grid;grid-template-columns:auto auto minmax(120px,1fr);grid-template-areas:"lab ctl sl" ". hint hint";align-items:center;gap:6px 16px;width:100%;max-width:720px}
+.lvl-label{grid-area:lab;font:600 12px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lvl-ctl{grid-area:ctl;display:flex;align-items:center;gap:8px}
+.lvl-slider{grid-area:sl;width:100%;accent-color:var(--yellow);height:44px;margin:0;background:none}
+.lvl-hint{grid-area:hint;font-size:11.5px;color:var(--dim);margin:0;letter-spacing:.08em}
+.btn.stp{width:44px;height:44px;padding:0;font-size:22px;font-family:var(--f-mono);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.lbox-wrap{display:block}
+.lbox{--tl:6px;--br:6px;--fill:#0b0e2c;--edge:var(--line);display:block;width:76px;height:44px}
+.lbox input{width:100%;height:100%;border:0;background:transparent;color:var(--text);font:500 20px var(--f-mono);text-align:center;padding:0;outline:none;-moz-appearance:textfield}
+/* focus ring lives on the wrapper: the clip-path on .lbox would cut off a shadow */
+.lbox-wrap:focus-within{filter:drop-shadow(0 0 7px rgba(77,243,255,.95))}
+.lbox-wrap:focus-within .lbox{--edge:var(--cyan);--stroke:2px}
 
 /* ---- attribute rail ---- */
 .rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
@@ -170,7 +178,8 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
   .nodes{gap:10px}
   .nodewrap{min-height:56px}
   .panel{padding:18px 16px 22px}
-  .lvl input[type=range]{height:44px}
+  .lvl{grid-template-columns:auto 1fr;grid-template-areas:"sl sl" "lab ctl" ". hint";gap:2px 14px}
+  .lvl-ctl{justify-content:flex-start}
   .pt{min-width:0;flex:1}
 }
 .acard .sel{position:absolute;inset:0;width:100%;height:100%;border:0;background:none;padding:0;z-index:1}

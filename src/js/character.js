@@ -1,3 +1,4 @@
+import { commitLevel, stepLevel, canStep } from './level.js';
 import {
   pools, perkStatus, canInstall, canRefund, install, refund, setAttr, setLevel, minLevel,
 } from './rules.js';
@@ -27,9 +28,14 @@ export function initCharacter({ root, store, D, art }) {
         <div class="pts" id="c-pts"></div>
       </div>
       <div class="lvl boot" style="--i:1">
-        <label for="c-level">Level</label>
-        <input id="c-level" type="range" min="1" max="${D.rules.maxLevel}" step="1" value="1">
-        <output id="c-level-out" class="mono">1</output>
+        <label for="c-level-box" class="lvl-label">Level</label>
+        <div class="lvl-ctl">
+          <button type="button" class="btn ghost cutline chrome stp" id="c-level-dec" aria-label="Decrease level">−</button>
+          <span class="lbox-wrap"><span class="lbox cutline"><input id="c-level-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" value="1" aria-describedby="c-level-hint"></span></span>
+          <button type="button" class="btn ghost cutline chrome stp" id="c-level-inc" aria-label="Increase level">+</button>
+        </div>
+        <input id="c-level" class="lvl-slider" type="range" min="1" max="${D.rules.maxLevel}" step="1" value="1" aria-label="Level slider" aria-describedby="c-level-hint">
+        <p class="lvl-hint mono" id="c-level-hint">1–${D.rules.maxLevel}</p>
       </div>
       <div class="rail" id="c-rail" aria-label="Attributes"></div>
       <div class="work">
@@ -39,13 +45,21 @@ export function initCharacter({ root, store, D, art }) {
     </div>`;
   const $ = (id) => root.querySelector(id);
   const slider = $('#c-level');
+  const box = $('#c-level-box');
+  const decBtn = $('#c-level-dec');
+  const incBtn = $('#c-level-inc');
 
   const treeOf = (key) => D.trees.find((t) => t.key === key);
 
   function renderHead(state) {
     const p = pools(D, state);
     $('#c-title').textContent = `V · Level ${state.level}`;
-    $('#c-level-out').textContent = state.level;
+    if (!(document.activeElement === box && box.dataset.dirty)) box.value = state.level;   // never jump while typing
+    const cs = canStep(D, state);
+    for (const [btn, ok] of [[decBtn, cs.dec], [incBtn, cs.inc]]) {
+      btn.disabled = !ok;
+      if (ok) btn.removeAttribute('aria-disabled'); else btn.setAttribute('aria-disabled', 'true');
+    }
     slider.value = state.level;
     slider.setAttribute('aria-valuetext', `Level ${state.level}`);
     $('#c-pts').innerHTML = `
@@ -163,6 +177,51 @@ export function initCharacter({ root, store, D, art }) {
   slider.addEventListener('input', () => {
     store.set(setLevel(D, store.get(), Number(slider.value)));
   });
+
+  // ---- typed level box + steppers ----
+  const setLv = (next) => { store.set(next); };
+  function applyBox() {
+    delete box.dataset.dirty;
+    setLv(commitLevel(D, store.get(), box.value));
+    box.value = store.get().level;                       // empty/invalid reverts; out-of-range shows the clamped value
+  }
+  box.addEventListener('input', () => {
+    const digits = box.value.replace(/\D/g, '');
+    if (digits !== box.value) box.value = digits;        // digits only
+    box.dataset.dirty = '1';
+  });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); applyBox(); return; }
+    const step = { ArrowUp: 1, ArrowDown: -1 }[e.key];
+    if (step || e.key === 'Home' || e.key === 'End') {
+      e.preventDefault();                                // only while the box has focus: no global handlers
+      delete box.dataset.dirty;
+      const st = store.get();
+      const typed = commitLevel(D, st, box.value);       // start from what is typed, if valid
+      if (e.key === 'Home') setLv(commitLevel(D, st, '1'));
+      else if (e.key === 'End') setLv(commitLevel(D, st, String(D.rules.maxLevel)));
+      else setLv(stepLevel(D, typed, step * (e.shiftKey ? 5 : 1)));
+      box.value = store.get().level;
+    }
+  });
+  box.addEventListener('blur', () => { if (box.dataset.dirty || box.value === '') applyBox(); });
+
+  // Press-and-hold: one step on press, repeat after 400 ms.
+  function bindStepper(btn, delta) {
+    let t1 = 0, t2 = 0;
+    const once = () => { const before = store.get().level; setLv(stepLevel(D, store.get(), delta)); return store.get().level !== before; };
+    const stop = () => { clearTimeout(t1); clearInterval(t2); };
+    btn.addEventListener('pointerdown', (e) => {
+      if (btn.disabled || e.button > 0) return;
+      once();
+      t1 = setTimeout(() => { t2 = setInterval(() => { if (!once()) stop(); }, 70); }, 400);
+    });
+    for (const ev of ['pointerup', 'pointerleave', 'pointercancel', 'blur']) btn.addEventListener(ev, stop);
+    btn.addEventListener('click', (e) => { if (e.detail === 0 && !btn.disabled) once(); });   // keyboard activation
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+  bindStepper(decBtn, -1);
+  bindStepper(incBtn, 1);
 
   function selectTree(key) {
     sel.tree = key;
