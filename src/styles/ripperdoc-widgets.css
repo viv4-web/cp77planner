@@ -173,3 +173,25 @@ html[data-motion=off] .rd-tile *,html[data-motion=off] .rd-tile{animation:none!i
 .rd[data-art=on] .rd-mico.arm{-webkit-mask:var(--p-mappin_icons-armor) center/contain no-repeat;mask:var(--p-mappin_icons-armor) center/contain no-repeat}
 .rd:not([data-art=on]) .rd-mico{display:none}
 
+
+/* ---- overview groups: label in the game's red caps above a row of the same tiles ---- */
+.rd-grp{position:absolute;pointer-events:none;animation:rdtag .5s cubic-bezier(.33,1,.68,1) backwards}
+.rd-grp.l{transform:translateX(-100%)}
+@keyframes rdtag{from{opacity:0}to{opacity:1}}
+.rd-grp .rd-tag{pointer-events:auto;display:block;height:28px;margin:0 2px;padding:0;white-space:nowrap;font-size:20px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t-MainColors-Red,#FF6159);text-shadow:var(--t-MainColors-Red-glow,none)}
+.rd-grp.l .rd-tag{margin-left:auto;display:block;text-align:right}
+.rd-grp.hot .rd-tag,.rd-grp .rd-tag:hover,.rd-grp .rd-tag:focus-visible{color:var(--t-MainColors-ActiveRed,#FF3E34);text-shadow:0 0 8px rgba(255,83,75,.55)}
+.rd-row{display:flex;gap:4px;pointer-events:none}
+.rd-row .rd-tile{pointer-events:auto}
+.rd-grp.hot .rd-tile{--bo:var(--t-ItemDisplay-borderOpacity-Hover)}
+.rd-grp .rd-tile.ov:hover .rd-ico{animation:none}
+/* empty socket: the game's small square socket mark (atlas_common socket_empty), centered */
+.rd-add{width:24px;height:24px;margin:-12px 0 0 -12px;--m:var(--p-atlas_common-socket_empty)}
+.rd:not([data-art=on]) .rd-add{background:none;clip-path:none;border:2px solid var(--t-ItemDisplay-emptyIconColor);border-radius:4px;box-sizing:border-box;opacity:var(--t-ItemDisplay-emptyIconOpacity);font-size:0}
+.rd:not([data-art=on]) .rd-add::before{content:none}
+/* the small yellow upgrade / marker corner, top right of an equipped tile */
+.rd-tile .upc{inset:1px 1px auto auto;width:30px;height:30px;--m:var(--p-cw_bars_assets-upgrade_corner);--c:var(--t-MainColors-ActiveYellow,#FFD741);--o:0}
+.rd-tile.full .upc{--o:1}
+.rd:not([data-art=on]) .rd-tile .upc{clip-path:polygon(0 0,100% 0,100% 100%)}
+.rd-sil{position:absolute;left:12px;top:6px;width:84px;height:62px;object-fit:contain;opacity:.22;filter:grayscale(1);pointer-events:none}
+.rd-tile.locked{--bo:.13}

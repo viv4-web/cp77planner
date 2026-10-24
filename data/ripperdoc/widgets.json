@@ -128,6 +128,7 @@
  "parts": [
   "atlas_common/ico_lock",
   "atlas_common/icon_compare_small",
+  "atlas_common/socket_empty",
   "atlas_shapes_sync/equipped_accent",
   "atlas_shapes_sync/item_accent",
   "atlas_shapes_sync/item_bg",
@@ -137,6 +138,7 @@
   "atlas_shapes_sync/label_frame",
   "atlas_shapes_sync/label_frame_line",
   "atlas_shapes_sync/label_frame_line_thic",
+  "cw_bars_assets/upgrade_corner",
   "inventory4_atlas/icon_add",
   "mappin_icons/ripperdoc"
  ],

@@ -89,7 +89,7 @@ def build():
         "background", "frame", "accent", "emptyItemLines", "itemEmptyIcon", "lockedIcon", "equippedMarker", "selectedFrame", "selectedFrame2",
         "backgroundHover", "backgroundEquipped", "frameEquipped", "backgroundEquippedFrame", "backgroundIconic")} | {
         "atlas_shapes_sync/label_frame", "atlas_shapes_sync/label_frame_line", "atlas_common/icon_compare_small", "mappin_icons/ripperdoc",
-        "atlas_common/ico_lock", "inventory4_atlas/icon_add"})
+        "atlas_common/ico_lock", "atlas_common/socket_empty", "cw_bars_assets/upgrade_corner"})
     # parts the game uses that this export does not contain (atlas_inventory.inkatlas, fullscreen_elements.inkatlas): reported, not guessed
     absent = sorted(p for p in parts if p.startswith(("atlas_inventory/", "fullscreen_elements/", "cyberware_pop_up_temp/", "new_phone_assets/", "hub_atlas/")))
     parts = [p for p in parts if p not in absent]

@@ -103,3 +103,20 @@ class WidgetTests(unittest.TestCase):
         self.assertEqual(WIDGETS["tooltip"]["width"], 355.0)  # the game's width; our tooltip is 380 (docs/RIPPERDOC-SPEC.md 10.3)
         self.assertEqual(WIDGETS["hover"]["flicker"]["count"], 8)
         self.assertEqual(WIDGETS["absentParts"], ["atlas_inventory/corners_equipped", "atlas_inventory/texture_1slot", "atlas_inventory/texture_1slot_iconic", "hub_atlas/ico_cafting_crafting"])
+
+
+LOOPS = json.loads((ROOT / "data" / "ripperdoc" / "loops.json").read_text())["clips"]
+
+
+class LoopTests(unittest.TestCase):
+    def test_every_zone_clip_has_a_loop_point_inside_the_clip(self):
+        for gender, g in LAYOUT["genders"].items():
+            for key, z in g["zones"].items():
+                e = LOOPS.get(f"{gender}/{z['clip']['name']}")
+                self.assertIsNotNone(e, f"{gender}/{key}")
+                self.assertTrue(0 <= e["loopStart"] < e["frames"] - 8)
+                self.assertEqual(e["fps"], 30)
+
+    def test_overview_anchors_split_into_left_and_right_columns(self):
+        left = sorted(z["key"] for z in LAYOUT["zones"] if z["anchor"][0] <= 600)
+        self.assertEqual(left, ["arms", "frontal_cortex", "integumentary", "nervous", "skeleton"])

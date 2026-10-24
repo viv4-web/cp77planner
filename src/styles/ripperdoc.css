@@ -30,16 +30,10 @@
 .rd[data-art=off] .rd-sprite{display:none}
 .rd.over-zone{cursor:pointer}
 
-/* zone tags at the slot panel anchors */
+/* overview: zone groups (label + slot tiles) around the body, see ripperdoc-widgets.css */
 .rd-tags{position:absolute;inset:0;pointer-events:none}
-.rd-tag{position:absolute;pointer-events:auto;display:flex;align-items:center;gap:10px;height:34px;padding:0 14px 0 12px;white-space:nowrap;
   text-transform:uppercase;letter-spacing:.06em;background:rgba(5,9,22,.62);border:1px solid rgba(94,246,255,.28);border-left:3px solid var(--t-MainColors-Blue);
   clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,0 100%);transition:background-color .2s,border-color .2s}
-.rd-tag-name{font-size:19px;font-weight:600}
-.rd-tag-n{font-size:17px;font-weight:600;color:var(--t-MainColors-Yellow,#FFD741);text-shadow:var(--t-MainColors-Yellow-glow,none)}
-.rd-tag-line{display:none}
-.rd-tag.hot,.rd-tag:focus-visible{background:rgba(10,30,44,.85);border-color:var(--t-MainColors-ActiveBlue);color:var(--t-MainColors-ActiveBlue);text-shadow:var(--t-MainColors-ActiveBlue-glow,none)}
-.rd-tag[data-pending]{border-left-style:dashed}
 
 /* zone panel: see ripperdoc-widgets.css (left column, no box) */
 .rd-panel[hidden],.rd-picker[hidden],.rd-tip[hidden]{display:none}
@@ -70,7 +64,5 @@
 .rd-panel:not([hidden]),.rd-picker:not([hidden]){animation:rdfade .35s .45s backwards cubic-bezier(.33,1,.68,1)}
 @keyframes rdfade{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
 html[data-motion=calm] .rd-panel:not([hidden]),html[data-motion=calm] .rd-picker:not([hidden]){animation-duration:.18s;animation-delay:.2s}
-.rd-tag{animation:rdtag .5s cubic-bezier(.33,1,.68,1) backwards}
-@keyframes rdtag{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
 
 /* below 900px wide the older stacked layout is shown instead (.cw-legacy), see main.js */

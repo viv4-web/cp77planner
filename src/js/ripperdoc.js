@@ -30,6 +30,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const C = D.cyber;
   const L = await fetch('data/ripperdoc/layout.json').then((r) => r.json());
   const urls = ui || { parts: {}, clips: {} };
+  const LP = await fetch('data/ripperdoc/loops.json').then((r) => (r.ok ? r.json() : { clips: {} })).catch(() => ({ clips: {} }));
   const grpKey = (g) => g.id.replace(/^Slot\./, '');
   const zones = L.zones.map((z) => ({ ...z, g: C.groups.find((g) => grpKey(g) === z.group) })).filter((z) => z.g);
   const S = { gender: safe.get('cp77.gender') === 'man' ? 'man' : 'woman', open: null, hover: null, slot: 0, pick: new Map(), tip: null, pinned: false, prev: null, fresh: new Set() };
@@ -90,7 +91,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     v.dataset.src = m.src; v.loop = loop; v.disablePictureInPicture = true;
     v.addEventListener('playing', () => el.classList.add('live'));
     el.appendChild(v);
-    el._v = v; el._autoplay = autoplay;
+    el._v = v; el._autoplay = autoplay; el._ls = (LP.clips[`${gender}/${clip}`] || {}).loopStart || 0;
     return v;
   }
   function play(el, restart) {
@@ -98,7 +99,9 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     if (!v || usePoster()) { el && el.classList.remove('live'); return; }
     if (!v.src) { v.src = v.dataset.src; }
     if (restart) { try { v.currentTime = 0; } catch (e) { /* not seekable yet */ } }
-    v.loop = el._loop && motion() === 'full';
+    const looping = el._loop && motion() === 'full';
+    v.loop = looping && !el._ls;                       // whole-clip loop: native; a clip with a loop start jumps back by hand
+    if (el._ls && !v._lh) { v._lh = true; v.addEventListener('ended', () => { if (el._loop && motion() === 'full') { v.currentTime = el._ls / 30; v.play().catch(() => {}); } }); }
     const p = v.play(); if (p && p.catch) p.catch(() => el.classList.remove('live'));
   }
   function stop(el) { if (el && el._v) { el._v.pause(); } }
@@ -134,7 +137,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     for (const z of zones) {
       const el = root.querySelector(`.rd-clip[data-zone="${z.key}"]`);
       mount(el, S.gender, G.zones[z.key].clip.name, { loop: false, autoplay: false });
-      if (el) el._loop = false;
+      if (el) el._loop = true;                      // the zone clip keeps playing while the zone is open (Calm: once and hold)
       resetCanvas(z.key);
     }
     loadHit();
@@ -168,11 +171,11 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     el.style.pointerEvents = 'none';
     el.classList.remove('on');
   }
-  function openZone(key, instant) {
-    if (S.open === key) return;
+  function openZone(key, instant, slot = 0) {
+    if (S.open === key) { if (slot !== S.slot) { S.slot = slot; render(); } return; }
     if (S.open) closeNow();
     const z = L.genders[S.gender].zones[key];
-    S.open = key; S.slot = 0;
+    S.open = key; S.slot = slot;
     const tab = $('#rd-tab');
     const cv = root.querySelector(`.rd-canvas[data-zone="${key}"]`);
     void cv.offsetWidth;
@@ -254,15 +257,15 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     if (S.hover === key) return;
     S.hover = key;
     root.querySelectorAll('.rd-sprite').forEach((e) => e.classList.toggle('hot', e.dataset.zone === key));
-    root.querySelectorAll('.rd-tag').forEach((e) => e.classList.toggle('hot', e.dataset.zone === key));
+    root.querySelectorAll('.rd-grp').forEach((e) => e.classList.toggle('hot', e.dataset.zone === key));
     stage.classList.toggle('over-zone', !!key);
   }
   const stagePoint = (e) => { const b = stage.getBoundingClientRect(); return [(e.clientX - b.left) / (stage._s || 1), (e.clientY - b.top) / (stage._s || 1)]; };
   stage.addEventListener('pointermove', (e) => {
     if (S.open) return;
     const [x, y] = stagePoint(e);
-    const tag = e.target.closest('.rd-tag');
-    setHover(tag ? tag.dataset.zone : zoneAt(x, y));
+    const grp = e.target.closest('.rd-grp');
+    setHover(grp ? grp.dataset.zone : zoneAt(x, y));
   });
   stage.addEventListener('pointerleave', () => { if (!S.open) setHover(null); });
 
@@ -271,14 +274,21 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const qColor = (q) => `var(--t-Rarity-${rarityOf(q)},var(--t-MainColors-Grey,#A09A96))`;
   const glow = (name) => `var(--t-${name}-glow,none)`;
 
-  function tagsHtml(ev) {
-    return zones.map((z) => {
-      const filled = slotsOf(z.g).filter((s) => ev.slots.has(s.key)).length;
-      const pend = z.g.pendingData ? ' data-pending="1"' : '';
-      return `<button type="button" class="rd-tag" data-zone="${z.key}"${pend} style="left:${z.anchor[0]}px;top:${z.anchor[1]}px" aria-label="${esc(z.g.name)}, ${filled} of ${z.g.slots} slots filled${z.g.pendingData ? ', pending data' : ''}">
-        <i class="rd-tag-line"></i><span class="rd-tag-name">${esc(z.g.name)}</span><b class="rd-tag-n">${filled}/${z.g.slots}</b></button>`;
-    }).join('');
+  // overview (like the game's Cyberware screen): each zone's label with its slot tiles; left-side zones grow their tiles to the left, right-side zones to the right
+  function groupHtml(z, ev) {
+    const left = z.anchor[0] <= 600;
+    const edge = left ? Math.min(z.anchor[0] + 250, 800) : z.anchor[0] + 45;
+    const slots = slotsOf(z.g);
+    const filled = slots.filter((s) => ev.slots.has(s.key)).length;
+    const tiles = slots.map((s) => cellHtml(s, ev, false, z.key));
+    const locks = lockedTiles(z);
+    const row = left ? [...locks, ...tiles.reverse()] : [...tiles, ...locks];
+    const pend = z.g.pendingData ? ' data-pending="1"' : '';
+    return `<div class="rd-grp ${left ? 'l' : 'r'}" data-zone="${z.key}" style="left:${edge}px;top:${z.anchor[1]}px">
+      <button type="button" class="rd-tag" data-zone="${z.key}"${pend} aria-label="${esc(z.g.name)}, ${filled} of ${z.g.slots} slots filled${z.g.locked ? `, ${z.g.locked} locked` : ''}${z.g.pendingData ? ', pending data' : ''}">${esc(z.g.name)}</button>
+      <div class="rd-row">${row.join('')}</div></div>`;
   }
+  const tagsHtml = (ev) => zones.map((z) => groupHtml(z, ev)).join('');
 
   // game item icon (cut from the item atlases) for a record; the legacy per-record art / placeholder glyph when there is none
   function iconHtml(imp) {
@@ -295,19 +305,24 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   const rlabel = (imp) => `<i class="rd-rl" aria-hidden="true">${RL[rarityOf(imp.quality)] || ''}</i>`;
   const tileLabel = (imp, extra = '') => esc(`${imp.name}, ${imp.quality}${imp.variant > 1 ? ` #${imp.variant}` : ''}, capacity ${imp.cost}${extra}`);
 
-  function cellHtml(s, ev, sel) {
+  function cellHtml(s, ev, sel, ovZone) {
     const e = ev.slots.get(s.key);
     const imp = e && e.implant;
     const flag = e && e.req.kind === 'unmet';
     const just = imp && S.fresh.has(s.key) ? ' just' : '';
     const fam = imp && C.familyOf.get(imp.family || imp.id);
-    return `<button type="button" class="rd-tile rd-cell${imp ? ' full' : ''}${flag ? ' flag' : ''}${just}" data-slot="${s.p}" aria-pressed="${sel}" ${imp ? `data-imp="${imp.n}" data-fam="${esc(fam.key)}" data-cost="${imp.cost}"` : ''}
+    return `<button type="button" class="rd-tile rd-cell${ovZone ? ' ov' : ''}${imp ? ' full' : ''}${flag ? ' flag' : ''}${just}" data-slot="${s.p}" ${ovZone ? '' : `aria-pressed="${sel}"`} ${imp ? `data-imp="${imp.n}" data-fam="${esc(fam.key)}" data-cost="${imp.cost}"` : ''}
       style="--q:${imp ? qColor(imp.quality) : 'transparent'}" aria-label="${imp ? tileLabel(imp, `, slot ${s.p + 1}`) : esc(`Empty slot ${s.p + 1}`)}">${TILE}<i class="rd-m eqm"></i>
-      ${imp ? `<span class="rd-ico">${iconHtml(imp)}</span>${rlabel(imp)}` : '<i class="rd-m rd-add"></i>'}</button>`;
+      ${imp ? `<span class="rd-ico">${iconHtml(imp)}</span>${rlabel(imp)}<i class="rd-m upc"></i>` : '<i class="rd-m rd-add"></i>'}</button>`;
   }
-  function lockedHtml(g) {
-    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span>`).join('');
+  // locked slot: the body part's silhouette (the zone's hover sprite, ghosted) with the lock icon and the word
+  function lockedTiles(z) {
+    const g = z.g;
+    const sp = L.genders[S.gender].zones[z.key].sprite.part;
+    const src = urls.parts[`${S.gender}_body/${sp}`];
+    return Array.from({ length: g.locked || 0 }, (_, i) => `<span class="rd-tile rd-cell locked" role="img" aria-label="${esc(g.name)} slot ${g.slots + i + 1}, locked">${TILE}${src ? `<img class="rd-sil" alt="" src="${src}" draggable="false">` : ''}<i class="rd-lock"></i><span class="rd-locktxt">Locked</span></span>`);
   }
+  const lockedHtml = (g) => lockedTiles(zones.find((x) => x.g === g)).join('');
 
   // left column: header "< ZONE >", one dash per body zone, the zone's slot tiles in a row
   function panelHtml(z, ev) {
@@ -492,6 +507,8 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     if (!e.target.closest('#rd-tip,.rd-gbtn,.rd-cell')) { S.pinned = false; if (!$('#rd-tip').hidden) hideTip(); }
     const g = e.target.closest('#rd-gender button');
     if (g) { if (g.dataset.g !== S.gender) { closeNow(); S.gender = g.dataset.g; safe.set('cp77.gender', S.gender); S.open = null; delete stage.dataset.open; hideTip(); buildDoll(); render(); } return; }
+    const ov = e.target.closest('.rd-grp .rd-tile');
+    if (ov) { const gz = ov.closest('.rd-grp').dataset.zone; openZone(gz, false, ov.dataset.slot ? Number(ov.dataset.slot) : 0); return; }
     const tag = e.target.closest('.rd-tag');
     if (tag) { openZone(tag.dataset.zone); return; }
     const back = e.target.closest('[data-act=back]');
@@ -542,7 +559,7 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
   });
   // sprite click (alpha hit test) and tooltips / capacity preview
   stage.addEventListener('click', (e) => {
-    if (S.open || e.target.closest('button,.rd-tag')) return;
+    if (S.open || e.target.closest('button,.rd-grp')) return;
     const [x, y] = stagePoint(e);
     const k = zoneAt(x, y);
     if (k) openZone(k);

@@ -24,7 +24,7 @@ SOURCES = [
     ("woman_body.inkatlas", "1080p", None, {"wo_ocular_mask"}),
     ("assets/cw_bars_assets.inkatlas", "1080p",
      {"cw_barbg", "armor_barbg", "bar", "bar_long1", "bar_long2", "perk_glow", "perk_highlight", "perk_highlight_nottransparent", "armorLimiter",
-      "counterLabel", "counterLabel_stroke"}, set()),
+      "counterLabel", "counterLabel_stroke", "upgrade_corner"}, set()),
     ("background.inkatlas", "2160p", {"background"}, set()),
 ]
 

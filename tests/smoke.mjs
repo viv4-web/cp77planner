@@ -244,7 +244,8 @@ await t('ripperdoc: picking an implant fills the slot and updates the capacity m
   assert.equal(await rdCap(page), '0');
   await page.click('#rd-panel .rd-back');
   await page.waitForSelector('.rd-tag');
-  assert.match(await page.locator('.rd-tag[data-zone=frontal_cortex] .rd-tag-n').innerText(), /^0\//);
+  assert.equal(await page.locator('.rd-grp[data-zone=frontal_cortex] .rd-tile:not(.full)').count(), 3, 'the overview shows the slot tiles, all empty again');
+  assert.equal(await page.locator('.rd-tag-n').count(), 0, 'no n/m counter on the label');
 });
 
 await t('ripperdoc: over capacity is refused with a tooltip warning, never over 27 without a perk', async (page) => {
@@ -491,6 +492,70 @@ await t('ripperdoc: the armor meter is built like the capacity meter and says pe
   assert.equal(await page.locator('#rd-cap .rd-mico.cap').count(), 1, 'body icon on top of the capacity meter');
   const cap = await page.locator('#rd-cap .rd-capbg').boundingBox(), arm = await page.locator('#rd-arm .rd-capbg').boundingBox();
   assert.ok(arm.x > cap.x + 800, 'armor is on the right');
+});
+
+await t('ripperdoc: the overview is the game layout: each zone label has its slot tiles, left zones grow left, right zones grow right', async (page) => {
+  await openRd(page);
+  const counts = { frontal_cortex: [3, 0], arms: [1, 0], skeleton: [2, 1], nervous: [3, 0], integumentary: [3, 0], operating: [1, 0], ocular: [1, 0], hands: [1, 1], circulatory: [3, 0], legs: [1, 0] };
+  for (const [k, [n, locked]] of Object.entries(counts)) {
+    const g = page.locator(`.rd-grp[data-zone=${k}]`);
+    assert.equal(await g.locator('.rd-tile').count(), n + locked, `${k} tiles`);
+    assert.equal(await g.locator('.rd-tile.locked').count(), locked, `${k} locked`);
+    assert.equal(await g.locator('.rd-tag').count(), 1);
+  }
+  const sbox = await page.locator('#rd').boundingBox(), sc = sbox.width / 1920;
+  const x = async (sel) => ((await page.locator(sel).first().boundingBox()).x - sbox.x) / sc;
+  for (const k of ['frontal_cortex', 'arms', 'skeleton', 'nervous', 'integumentary']) assert.ok((await x(`.rd-grp[data-zone=${k}] .rd-tile`)) < 800, `${k} is left of the body`);
+  for (const k of ['operating', 'ocular', 'hands', 'circulatory', 'legs']) assert.ok((await x(`.rd-grp[data-zone=${k}] .rd-tile`)) > 1100, `${k} is right of the body`);
+  // locked tile leftmost on the skeleton row, rightmost on the hands row
+  const sk = await page.locator('.rd-grp[data-zone=skeleton] .rd-row > *').evaluateAll((e) => e.map((n) => n.classList.contains('locked')));
+  assert.deepEqual(sk, [true, false, false]);
+  const hd = await page.locator('.rd-grp[data-zone=hands] .rd-row > *').evaluateAll((e) => e.map((n) => n.classList.contains('locked')));
+  assert.deepEqual(hd, [false, true]);
+  assert.equal(await page.locator('.rd-grp[data-zone=skeleton] .rd-tile.locked .rd-lock').count(), 1);
+  assert.equal(await page.locator('.rd-grp[data-zone=frontal_cortex] .rd-add').count(), 3, 'empty = socket mark');
+  // the group never sits over the capacity meter
+  const cap = await page.locator('#rd-cap .rd-capbg').boundingBox();
+  for (const k of ['skeleton', 'frontal_cortex']) assert.ok((await page.locator(`.rd-grp[data-zone=${k}] .rd-tile`).first().boundingBox()).x > cap.x + cap.width + 40 * sc, `${k} clear of the meter`);
+});
+
+await t('ripperdoc: an equipped tile shows the icon, rarity strip and the upgrade corner; a tile click opens that zone with the slot selected; hover links tile and body zone', async (page) => {
+  await openRdZone(page, 'frontal_cortex', false);
+  await page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').first().click();
+  await page.keyboard.press('Escape');
+  await page.click('#rd-panel .rd-cell[data-slot="1"]');
+  await page.locator('#rd-picker .rd-gcell:not(.blocked) .rd-gbtn').nth(2).click();
+  await page.keyboard.press('Escape');
+  await page.click('#rd-panel .rd-back');
+  await page.waitForSelector('.rd-grp[data-zone=frontal_cortex]');
+  const eq = page.locator('.rd-grp[data-zone=frontal_cortex] .rd-tile.full');
+  assert.equal(await eq.count(), 2);
+  assert.equal(await eq.first().locator('.rd-ico img, .rd-ico svg').count(), 1, 'item icon');
+  assert.equal(await eq.first().locator('.upc').evaluate((e) => getComputedStyle(e).opacity), '1', 'upgrade corner on an equipped tile');
+  assert.equal(await page.locator('.rd-grp[data-zone=frontal_cortex] .rd-tile:not(.full) .upc').count(), 0, 'no corner on an empty tile');
+  // hover a tile: its body zone lights up
+  await page.locator('.rd-grp[data-zone=circulatory] .rd-tile').first().hover();
+  await page.waitForFunction(() => document.querySelector('.rd-sprite[data-zone=circulatory].hot') && document.querySelector('.rd-grp[data-zone=circulatory].hot'));
+  // click the third tile: the zone opens with that slot selected (frontal cortex row is reversed: slot 1 is the right-most)
+  await page.locator('.rd-grp[data-zone=frontal_cortex] .rd-tile[data-slot="2"]').click();
+  await page.waitForSelector('#rd-panel:not([hidden])');
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="2"]').getAttribute('aria-pressed'), 'true');
+  assert.match(await page.locator('#rd-panel h2').innerText(), /frontal/i);
+});
+
+await t('ripperdoc: the zone clip keeps looping while the zone is open in Full; Calm plays once and holds', async (page) => {
+  await openRd(page, '');
+  if (!(await hasArt(page))) return;
+  await page.click('.rd-grp[data-zone=ocular] .rd-tag');
+  await page.waitForFunction(() => { const v = document.querySelector('.rd-clip[data-zone=ocular] video'); return v && v.src && !v.paused; });
+  assert.equal(await page.evaluate(() => document.querySelector('.rd-clip[data-zone=ocular] video').loop), true, 'zone clip loops in Full');
+  const loops = await page.evaluate(() => fetch('data/ripperdoc/loops.json').then((r) => r.json()));
+  assert.ok(loops.clips['woman/woman_ocular'] && Number.isInteger(loops.clips['woman/woman_ocular'].loopStart));
+  await page.click('#rd-panel .rd-back');
+  await page.click('#motion [data-m=calm]');
+  await page.click('.rd-grp[data-zone=ocular] .rd-tag');
+  await page.waitForFunction(() => { const v = document.querySelector('.rd-clip[data-zone=ocular] video'); return v && v.src; });
+  assert.equal(await page.evaluate(() => document.querySelector('.rd-clip[data-zone=ocular] video').loop), false, 'Calm: once and hold');
 });
 
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
