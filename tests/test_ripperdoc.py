@@ -23,7 +23,7 @@ class RipperdocToolTests(unittest.TestCase):
         self.assertEqual(rr.place(node(margin=[10, 20, 0, 0]), parent, None), (10, 20, 100, 50))
         self.assertEqual(rr.place(node(anchor="TopRight", anchorPoint=[1, 0], margin=[0, 0, 40, 0]), parent, None), (3700, 0, 100, 50))        # inset from the right
         self.assertEqual(rr.place(node(anchor="BottomCenter", anchorPoint=[.5, 1], margin=[0, 0, 0, 50]), parent, None), (1870, 2060, 100, 50))
-        self.assertEqual(rr.place(node(anchor="Centered", anchorPoint=[.5, .5], margin=[10, -20, 0, 0]), parent, None), (1880, 1055, 100, 50))
+        self.assertEqual(rr.place(node(anchor="Centered", anchorPoint=[.5, .5], margin=[10, -20, 0, 0]), parent, None), (1880, 1035, 100, 50))
         self.assertEqual(rr.place(node(anchor="Fill", margin=[5, 6, 7, 8]), parent, None), (5, 6, 3828, 2146))
 
     def test_fit_to_content_uses_natural_size(self):
