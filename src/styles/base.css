@@ -1,0 +1,53 @@
+*{box-sizing:border-box}
+html{color-scheme:dark;background:var(--bg)}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:400 15px/1.5 var(--f-body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-family:var(--f-mono);font-weight:500}
+.head{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.08em}
+
+/* ---- background ---- */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--bg)}
+.bg .sun{position:absolute;left:50%;top:-30vmax;width:90vmax;height:70vmax;margin-left:-45vmax;
+  background:radial-gradient(closest-side,rgba(255,225,74,.28),rgba(255,79,216,.18) 45%,transparent 72%);will-change:transform,opacity}
+.bg .floor{position:absolute;left:-50%;right:-50%;bottom:0;height:46vh;perspective:420px;
+  -webkit-mask-image:linear-gradient(to top,#000 5%,transparent 92%);mask-image:linear-gradient(to top,#000 5%,transparent 92%)}
+.bg .grid{position:absolute;inset:0;transform:rotateX(62deg);transform-origin:50% 100%;
+  background-image:linear-gradient(rgba(77,243,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,79,216,.4) 1px,transparent 1px);
+  background-size:64px 64px}
+.bg .mote{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--yellow);box-shadow:0 0 10px var(--yellow);opacity:.0}
+.bg .mote:nth-of-type(odd){background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+
+/* ---- cut-corner glass panels ---- */
+.cut{position:relative;--cut:var(--cut-panel);
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  --edge:var(--panel-border);
+  background:
+    linear-gradient(to bottom right,transparent calc(50% - .5px),var(--panel-border) calc(50% - .5px),var(--panel-border) calc(50% + .5px),transparent calc(50% + .5px)) 0 0/var(--cut) var(--cut) no-repeat,
+    linear-gradient(to bottom right,transparent calc(50% - .5px),var(--panel-border) calc(50% - .5px),var(--panel-border) calc(50% + .5px),transparent calc(50% + .5px)) 100% 100%/var(--cut) var(--cut) no-repeat,
+    var(--panel);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.cut::after{content:"";position:absolute;inset:0;padding:1px;pointer-events:none;background:var(--edge);background-size:300% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.cut.sm{--cut:var(--cut-btn)}
+.chrome-edge{--edge:var(--chrome)}
+
+.chrome-text{background:var(--chrome);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+
+.label{font:500 12px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--yellow)}
+
+/* ---- .cutline: ONE shared utility for every cut-corner element WITH an outline ----
+   The element itself is clipped to the cut polygon and its background is the outline paint (solid or animated chrome).
+   ::before is the fill, inset by the stroke and clipped to the same polygon with each cut reduced by stroke*(2-sqrt2)
+   (0.586*stroke keeps the diagonal stroke the same thickness as the straight edges), so the line is unbroken on every edge.
+   Set per element: --tl --tr --br --bl (corner cuts), --edge (outline paint), --fill (OPAQUE fill). Text sits above ::before. */
+.cutline{--stroke:1.5px;--tl:0px;--tr:0px;--br:0px;--bl:0px;--k:calc(var(--stroke) * .586);
+  position:relative;isolation:isolate;border:0;
+  background:var(--edge,var(--line));background-size:300% 100%;
+  clip-path:polygon(var(--tl) 0,calc(100% - var(--tr)) 0,100% var(--tr),100% calc(100% - var(--br)),calc(100% - var(--br)) 100%,var(--bl) 100%,0 calc(100% - var(--bl)),0 var(--tl))}
+.cutline::before{content:"";position:absolute;inset:var(--stroke);z-index:-1;background:var(--fill,#0d1130);
+  --itl:max(0px,calc(var(--tl) - var(--k)));--itr:max(0px,calc(var(--tr) - var(--k)));--ibr:max(0px,calc(var(--br) - var(--k)));--ibl:max(0px,calc(var(--bl) - var(--k)));
+  clip-path:polygon(var(--itl) 0,calc(100% - var(--itr)) 0,100% var(--itr),100% calc(100% - var(--ibr)),calc(100% - var(--ibr)) 100%,var(--ibl) 100%,0 calc(100% - var(--ibl)),0 var(--itl))}
+.cutline.chrome{--edge:var(--chrome)}

@@ -1,0 +1,32 @@
+/* Design tokens: see docs/STYLE.md */
+@font-face{font-family:"Chakra Petch";font-weight:500;font-display:swap;src:url(../fonts/chakra-petch-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Chakra Petch";font-weight:600;font-display:swap;src:url(../fonts/chakra-petch-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Chakra Petch";font-weight:700;font-display:swap;src:url(../fonts/chakra-petch-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:500;font-display:swap;src:url(../fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-weight:600;font-display:swap;src:url(../fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;font-display:swap;src:url(../fonts/jetbrains-mono-latin-500-normal.woff2) format("woff2")}
+
+:root{
+  --bg:#070A1C;
+  --panel:rgba(16,20,58,.62);
+  --panel-border:rgba(160,175,230,.24);
+  --text:#EEF0FF; --muted:#B4B9E8; --dim:#8C90CC; --line:#2A2E66;
+  --yellow:#FFE14A; --cyan:#4DF3FF; --magenta:#FF4FD8;
+  --c-body:#FF6B95; --c-reflexes:#FF9F43; --c-technical:#9DFF6A; --c-intelligence:#4DF3FF; --c-cool:#B596FF;
+  --c-relic:#FFE14A;
+  --dis-text:#8C90CC; --dis-fill:#0E1130;   /* disabled buttons: text 6:1 on the fill (tests/test_style.py) */
+  --chrome:linear-gradient(115deg,#5D6488,#F5F8FF,#7F88B0,#DDF6FF,#5D6488,#FFFFFF,#7F88B0);
+
+  --chrome-dim:linear-gradient(115deg,rgba(93,100,136,.4),rgba(245,248,255,.4),rgba(127,136,176,.4),rgba(221,246,255,.4),rgba(93,100,136,.4),rgba(255,255,255,.4),rgba(127,136,176,.4));
+
+  --f-head:"Chakra Petch",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+
+  --cut-panel:20px; --cut-btn:12px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --speed:1;            /* Calm sets this to 2 (slower pulses and grid) */
+  --gutter:clamp(12px,3vw,32px);
+  --topbar-h:64px; --bottombar-h:0px;
+}
