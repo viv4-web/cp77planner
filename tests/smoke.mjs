@@ -15,6 +15,9 @@ assert.equal(build.status, 0, build.stderr);
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '-d', 'dist/live'], { cwd: ROOT, stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 800));
 
+const OFF_PORT = PORT + 1;
+const offline = spawn('python3', ['-m', 'http.server', String(OFF_PORT), '--bind', '127.0.0.1', '-d', 'dist/offline'], { cwd: ROOT, stdio: 'ignore' });
+await new Promise((r) => setTimeout(r, 300));
 const browser = await chromium.launch();
 const results = [];
 async function t(name, fn, opts = {}) {
@@ -24,7 +27,7 @@ async function t(name, fn, opts = {}) {
   const problems = [];
   page.on('pageerror', (e) => problems.push(`pageerror: ${e}`));
   page.on('console', (m) => m.type() === 'error' && problems.push(`console: ${m.text()}`));
-  page.on('request', (r) => { if (!r.url().startsWith(BASE) && !r.url().startsWith('data:')) problems.push(`external request: ${r.url()}`); });
+  page.on('request', (r) => { if (!r.url().startsWith(BASE) && !r.url().startsWith(`http://127.0.0.1:${OFF_PORT}/`) && !r.url().startsWith('data:')) problems.push(`external request: ${r.url()}`); });
   try {
     await fn(page);
     assert.deepEqual(problems, [], 'console errors or external requests');
@@ -59,7 +62,7 @@ await t('pick an implant: socket fills and capacity updates', async (page) => {
   assert.equal((await capText(page)).replace(/\s/g, ''), `${cost}/27`);
   await page.click('.cw-remove');
   assert.equal((await capText(page)).replace(/\s/g, ''), '0/27');
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('quality picker: one row per item, switching quality swaps the equipped variant', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
@@ -75,14 +78,14 @@ await t('quality picker: one row per item, switching quality swaps the equipped 
   assert.equal(await quals.nth(1).getAttribute('aria-pressed'), 'true');
   assert.equal(await page.locator(FC).getAttribute('data-s'), 'filled', 'still equipped after switching quality');
   assert.equal(await page.locator('.cw-remove').count(), 1, 'one equipped row');
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('Arms is marked pending data, with the reason in the picker', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
   await page.click('.sock[data-key="1001.0"]');
   assert.match(await page.locator('#cw-picker .cw-pending').innerText(), /pending data.*CET probe/i);
   assert.match(await page.locator('.cw-group', { hasText: 'Arms' }).locator('.cw-pend').innerText(), /pending data/i);
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('same-quality variants show what differs', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
@@ -90,7 +93,7 @@ await t('same-quality variants show what differs', async (page) => {
   const li = page.locator('.cw-li', { has: page.locator('.cw-quals .cw-q[title]') }).first();
   await li.locator('.cw-q[title]').first().click();
   assert.match(await li.locator('.cw-diff').innerText(), /^vs #\d: /);
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('locked slots are shown, not selectable', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
@@ -98,7 +101,7 @@ await t('locked slots are shown, not selectable', async (page) => {
   const locked = page.locator('.sock[data-s=locked]');
   assert.equal(await locked.count(), 2);                    // Skeleton + Hands
   assert.equal(await locked.first().isDisabled(), true);
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('over-capacity implants are disabled with a reason', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
@@ -119,7 +122,7 @@ await t('over-capacity implants are disabled with a reason', async (page) => {
   assert.equal(await seen.getAttribute('aria-disabled'), 'true');
   assert.match(await seen.locator('.cw-reason').innerText(), /over capacity/i);
   assert.equal(await page.locator('#cw-summary .capbar').getAttribute('data-state') !== 'over', true, 'refused, so never over');
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('capacity is provisional until growth is known (level changes do not move it)', async (page) => {
   await page.goto(BASE);
@@ -127,7 +130,7 @@ await t('capacity is provisional until growth is known (level changes do not mov
   await page.click('.tab[data-tab=cyberware]');
   assert.equal((await capText(page)).replace(/\s/g, ''), '0/27');
   assert.match(await page.locator('#cw-summary .cap-note').innerText(), /provisional/i);
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('copy build link includes the loadout and it restores', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
@@ -143,7 +146,7 @@ await t('copy build link includes the loadout and it restores', async (page) => 
   await page.waitForSelector('.sock');
   assert.equal(await page.locator(FC).getAttribute('data-s'), 'filled');
   assert.equal((await capText(page)).replace(/\s/g, ''), `${cost}/27`);
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('old v2 links (retired SAMPLE implants) still load, with those implants dropped', async (page) => {
   await page.goto(`${BASE}?b=2.EQkDDAQUBX0BAQQCArwFAcYFvgUAyAU&tab=cyberware`);
@@ -152,7 +155,7 @@ await t('old v2 links (retired SAMPLE implants) still load, with those implants 
   assert.equal((await capText(page)).replace(/\s/g, ''), '0/27');
   await page.click('.tab[data-tab=character]');
   assert.equal(await page.locator('.acard[data-k=cool] .val').innerText().then((x) => x.split('/')[0].trim()), '20');
-});
+}, { viewport: { width: 800, height: 1000 } });
 
 await t('old v1 links still load', async (page) => {
   await page.goto(`${BASE}?b=1.EQkDDAQUBX0BAQQC`);
@@ -183,8 +186,172 @@ await t('390px: no horizontal scroll, picker opens as a sheet, compact bar visib
   assert.equal(await noHScroll(page), true, 'character');
 }, { viewport: { width: 390, height: 844 } });
 
+// ---- ripperdoc stage (desktop, >= 900px) ----
+const hasArt = (page) => page.evaluate(() => document.getElementById('rd')?.dataset.art === 'on');
+const rdCap = async (page) => (await page.locator('#rd-cap .rd-lab.cur').innerText()).trim();
+const openRd = async (page, query = '') => { await page.goto(`${BASE}?tab=cyberware${query}`); await page.waitForSelector('#rd .rd-tag'); };
+
+await t('ripperdoc: the stage is 16:9, scaled to fit, and fully inside the viewport', async (page) => {
+  await openRd(page);
+  const b = await page.locator('#rd-fit').boundingBox();
+  assert.ok(Math.abs(b.width / b.height - 16 / 9) < 0.02, `aspect ${b.width / b.height}`);
+  assert.ok(b.x >= 0 && b.x + b.width <= 1440 + 1, 'fits the width');
+  assert.equal(await noHScroll(page), true);
+  assert.equal(await page.locator('.cw-legacy').isVisible(), false, 'older layout hidden on desktop');
+});
+
+await t('ripperdoc: selecting a zone opens that zone\'s slot panel at its anchor, with locked slots shown', async (page) => {
+  await openRd(page);
+  assert.equal(await page.locator('.rd-tag').count(), 10);
+  await page.click('.rd-tag[data-zone=skeleton]');
+  await page.waitForSelector('#rd-panel:not([hidden])');
+  assert.equal(await page.locator('#rd').getAttribute('data-open'), 'skeleton');
+  assert.match(await page.locator('#rd-panel h2').innerText(), /skeleton/i);
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot]').count(), 2);
+  assert.equal(await page.locator('#rd-panel .rd-cell.locked').count(), 1);
+  const lay = await page.evaluate(() => fetch('data/ripperdoc/layout.json').then((r) => r.json()));
+  const anchor = lay.zones.find((z) => z.key === 'skeleton').anchor;
+  await page.waitForTimeout(1000);                       // the panel fades in with a short slide
+  const st = await page.locator('#rd').boundingBox(), pb = await page.locator('#rd-panel').boundingBox();
+  const sc = st.width / 1920;
+  assert.ok(Math.abs((pb.x - st.x) / sc - anchor[0]) < 3 && Math.abs((pb.y - st.y) / sc - anchor[1]) < 3, 'panel sits at the spec anchor');
+  await page.click('#rd-panel .rd-back');
+  await page.waitForSelector('#rd-panel', { state: 'hidden' });
+  await page.click('.rd-tag[data-zone=hands]');
+  assert.match(await page.locator('#rd-panel h2').innerText(), /hands/i);
+});
+
+await t('ripperdoc: picking an implant fills the slot and updates the capacity meter', async (page) => {
+  await openRd(page);
+  assert.equal(await rdCap(page), '0');
+  await page.click('.rd-tag[data-zone=frontal_cortex]');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  await page.waitForSelector('#rd-picker:not([hidden]) .rd-gbtn');
+  const btn = page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first();
+  const cost = Number((await btn.locator('.rd-cost').innerText()).trim());
+  await btn.click();
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('class').then((c) => c.includes('full')), true);
+  assert.equal(await rdCap(page), String(cost));
+  assert.equal(await page.locator('#rd-cap .rd-seg.safe').count(), cost, 'one lit segment per capacity point');
+  await btn.hover();
+  assert.match(await page.locator('#rd-tip').innerText(), /capacity/i);       // tooltip: name, quality, capacity, stats
+  await page.click('#rd-picker [data-act=remove]');
+  assert.equal(await rdCap(page), '0');
+  await page.click('#rd-panel .rd-back');
+  await page.waitForSelector('.rd-tag');
+  assert.match(await page.locator('.rd-tag[data-zone=frontal_cortex] .rd-tag-n').innerText(), /^0\//);
+});
+
+await t('ripperdoc: over capacity is refused with a tooltip warning, never over 27 without a perk', async (page) => {
+  await openRd(page);
+  await page.click('.rd-tag[data-zone=operating]');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  const costs = await page.$$eval('.rd-gcell:not(.blocked) .rd-cost', (els) => els.map((e) => Number(e.textContent)));
+  assert.ok(costs.length > 0);
+  await page.locator('.rd-gcell:not(.blocked) .rd-gbtn', { has: page.locator(`.rd-cost:text-is("${Math.max(...costs)}")`) }).first().click();
+  const used = Number(await rdCap(page));
+  assert.ok(used > 0 && used <= 27);
+  await page.click('#rd-panel .rd-back');
+  await page.click('.rd-tag[data-zone=skeleton]');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  const blocked = page.locator('.rd-gcell.blocked .rd-gbtn').first();
+  await blocked.waitFor();
+  assert.equal(await blocked.getAttribute('aria-disabled'), 'true');
+  await blocked.hover();
+  assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over capacity/i);
+  const before = await rdCap(page);
+  await blocked.click({ force: true });
+  assert.equal(await rdCap(page), before, 'a refused pick changes nothing');
+});
+
+await t('ripperdoc: hovering a body zone shows its sprite (alpha hit test)', async (page) => {
+  await openRd(page);
+  if (!(await hasArt(page))) return;                       // placeholders only: nothing to hit-test
+  await page.waitForFunction(() => document.querySelectorAll('.rd-sprite img').length > 0);
+  await page.waitForTimeout(400);
+  const lay = await page.evaluate(() => fetch('data/ripperdoc/layout.json').then((r) => r.json()));
+  const r = lay.genders.woman.zones.legs.sprite.rect;
+  const st = await page.locator('#rd').boundingBox(), sc = st.width / 1920;
+  await page.mouse.move(st.x + (r[0] + r[2] / 2) * sc, st.y + (r[1] + r[3] * 0.6) * sc);
+  await page.waitForSelector('.rd-sprite.hot');
+  assert.ok(await page.locator('.rd-sprite.hot').count() >= 1);
+  await page.mouse.move(st.x + 5, st.y + 5);
+  await page.waitForFunction(() => document.querySelectorAll('.rd-sprite.hot').length === 0);
+});
+
+await t('ripperdoc: selecting a zone plays its clip; the body loop loops in Full, not in Calm', async (page) => {
+  await openRd(page);
+  if (!(await hasArt(page))) return;
+  await page.waitForFunction(() => document.querySelector('#rd-body video')?.src);
+  assert.equal(await page.evaluate(() => document.querySelector('#rd-body video').loop), true);
+  await page.click('.rd-tag[data-zone=ocular]');
+  await page.waitForFunction(() => { const v = document.querySelector('.rd-clip[data-zone=ocular] video'); return v && v.src && !v.paused; });
+  await page.click('#rd-panel .rd-back');
+  await page.click('#motion [data-m=calm]');
+  await page.waitForTimeout(700);
+  assert.equal(await page.evaluate(() => document.querySelector('#rd-body video').loop), false, 'Calm: no loops');
+});
+
+await t('ripperdoc: motion Off shows the posters, nothing plays, and the zone state is applied at once', async (page) => {
+  await page.goto(`${BASE}?tab=cyberware`);
+  await page.click('#motion [data-m=off]');
+  await page.waitForSelector('#rd .rd-tag');
+  if (await hasArt(page)) {
+    assert.equal(await page.locator('.rd-media.live').count(), 0, 'no live video in Off');
+    assert.ok(await page.locator('#rd-body .rd-poster').isVisible(), 'body poster shown');
+  }
+  await page.click('.rd-tag[data-zone=legs]');
+  await page.waitForSelector('#rd-panel:not([hidden])');
+  const tab = await page.evaluate(() => { const e = document.getElementById('rd-tab'); const c = getComputedStyle(e); return { opacity: c.opacity, t: c.transitionDuration }; });
+  assert.equal(tab.opacity, '0', 'the default tab is already gone (no animation)');
+  assert.ok(/^0s(, 0s)*$/.test(tab.t), `transitions off: ${tab.t}`);
+  if (await hasArt(page)) {
+    assert.equal(await page.locator('.rd-media.live').count(), 0);
+    assert.ok(await page.locator('.rd-clip[data-zone=legs] .rd-poster').isVisible(), 'zone poster shown');
+  }
+});
+
+await t('ripperdoc: the man/woman switch swaps the body and keeps the build', async (page) => {
+  await openRd(page);
+  await page.click('.rd-tag[data-zone=legs]');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  await page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first().click();
+  const cap = await rdCap(page);
+  await page.click('#rd-panel .rd-back');
+  await page.click('#rd-gender [data-g=man]');
+  assert.equal(await page.locator('#rd-gender [data-g=man]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await rdCap(page), cap);
+  if (await hasArt(page)) assert.match(await page.locator('#rd-body .rd-poster').getAttribute('src'), /male_body_loop/);
+});
+
+await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
+  await openRd(page);
+  assert.equal(await noHScroll(page), true);
+}, { viewport: { width: 1920, height: 1080 } });
+
+await t('ripperdoc: the offline build (no game art) still works with placeholders and loads no media', async (page) => {
+  const reqs = [];
+  page.on('request', (r) => reqs.push(r.url()));
+  await page.goto(`http://127.0.0.1:${OFF_PORT}/?tab=cyberware`);
+  await page.waitForSelector('#rd .rd-tag');
+  assert.equal(await page.locator('#rd').getAttribute('data-art'), 'off');
+  await page.click('.rd-tag[data-zone=legs]');
+  await page.click('#rd-panel .rd-cell[data-slot="0"]');
+  await page.locator('.rd-gcell:not(.blocked) .rd-gbtn').first().click();
+  assert.notEqual(await rdCap(page), '0');
+  assert.deepEqual(reqs.filter((u) => /\.(webm|webp)(\?|$)/.test(u)), [], 'no media or art requested');
+});
+
+await t('below 900px the stacked fallback is shown and the stage is not built into view', async (page) => {
+  await page.goto(`${BASE}?tab=cyberware`);
+  await page.waitForSelector('.sock');
+  assert.equal(await page.locator('#rd-root').isVisible(), false);
+  assert.equal(await noHScroll(page), true);
+}, { viewport: { width: 700, height: 900 } });
+
 await browser.close();
 server.kill();
+offline.kill();
 for (const [name, ok, why] of results) console.log(`${ok ? 'ok  ' : 'FAIL'} ${name}${ok ? '' : `\n     ${why}`}`);
 const failed = results.filter((r) => !r[1]).length;
 console.log(`\nsmoke: ${results.length - failed}/${results.length} passed`);

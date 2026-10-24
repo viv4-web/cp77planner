@@ -3,6 +3,7 @@ import { buildIndex, defaultState, sanitize } from './rules.js';
 import { decode } from './codec.js';
 import { initCharacter } from './character.js';
 import { initCyberware } from './cyberware.js';
+import { initRipperdoc } from './ripperdoc.js';
 import { initShell } from './shell.js';
 import { createStore, urlStateWriter } from './store.js';
 
@@ -28,7 +29,10 @@ async function boot() {
   const store = createStore(state);
   const shell = initShell({ store, D });
   initCharacter({ root: document.getElementById('screen-character'), store, D, art });
-  initCyberware({ root: document.getElementById('screen-cyberware'), store, D, art });
+  initCyberware({ root: document.getElementById('cw-legacy'), store, D, art });
+  const ui = await fetch('ui-art.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  initRipperdoc({ root: document.getElementById('rd-root'), store, D, art, ui: ui || { parts: {}, clips: {} } })
+    .catch((e) => { console.error(e); document.getElementById('rd-root').insertAdjacentHTML('afterbegin', '<p class="empty">Could not load the ripperdoc screen.</p>'); });
   store.subscribe(urlStateWriter(D, shell.currentTab));
   if (notice) shell.toast(notice);
   store.emit();

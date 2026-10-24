@@ -305,8 +305,7 @@ def main():
       "It holds layout numbers, token values, widget and sequence names, and our own descriptions. No game text is copied: captions and descriptions are not quoted, "
       "our UI gets its own strings. Companion file: `docs/RIPPERDOC-ANIMATIONS.md` (all 69 sequences). Reference render: `tools/ripperdoc_render.py`.")
     w("")
-    w("> **Source version.** The export headers report WolvenKit 9.1.0 and `GameVersion 2310`. The project targets game 2.5 + Phantom Liberty; "
-      "please confirm that the extracted archives are the 2.5 install (see Unclear).")
+    w("> **Source version.** The files are from the game 2.5 install. The export headers report WolvenKit 9.1.0 and `GameVersion 2310`, which is only WolvenKit's header value.")
     w("")
     w("## 1. Reading the numbers")
     w("- The library resolution is `UltraHD_3840_2160`: **every px value is on a 3840x2160 design grid.** At 1920x1080 multiply by 0.5. "
@@ -479,18 +478,21 @@ def main():
     w("**Planner mapping (proposal, no code yet).** Idle = `<video loop>` of the body loop + CSS-hidden hover sprites; hover = opacity transition 0.233 s linear; select = one CSS class that runs the zone zoom as `transform` transitions (0.9 s `cubic-bezier(.87,0,.13,1)`) and starts the zone `<video>` from 0; "
       "leave = reverse over 0.533 s (`cubic-bezier(.76,0,.24,1)`) and `pause()`. Motion 'Off' / reduced motion: show the `.webp` poster of the clip and cut instead of zoom. Phone: use the `_sm.webm` clips.")
     w("")
-    w("## 9. Unclear")
-    w("1. **Game version.** All exports say `GameVersion 2310`; confirm this is the 2.5 install (WolvenKit's number looks like a 2.31-style tag).")
-    w("2. **Video interpolator semantics.** `Video from -> to` over a duration looks like a playback window in seconds (0 -> 5.033 in 5.033 s = play once in real time). Some entries are odd: `frontalCortex_intro` plays the woman clip 0 -> 0.068 s in 5.033 s (looks like a leftover), and several Video definitions target `Root` (no video there). Needs a look at the running game.")
-    w("3. **Targets that are not in Root (16 definitions)** in `ripper_id`, `warnning`, popups and a few others use child paths that exist only in other library items (tutorial/purchase popups) or are resolved by script; they are listed with their raw path.")
-    w("4. **Where the background art is attached.** `background.inkatlas` (1080p/2160p) is exported but no widget in Root uses it; `BG_animation` rotates things at the root level. The background is presumably set by the screen script.")
-    w("5. **Start states.** Several widgets are stored at opacity 1 but must start hidden (hover sprites, zone canvases); `capacity_bar` and `armor_bar` are stored at 0. The actual initial state is set by script.")
-    w("6. **LinearWipe effect.** Only the progress value (0 -> 1) is in the data, not its angle or softness.")
-    w("7. **Layout engine details.** The simplified rules in section 1 reproduce the idle screen (see `incoming/screens/ripperdoc-reference.png`), but panel sizing for `fitToContent` panels and uniform grids is approximate; real inventory cell sizes (224x202 / 216x194) are known, cell counts and wrapping are script-driven.")
-    w("8. **Slot ordering and counts** per zone panel are not in the widget tree (panels are empty); they come from the game data (`docs/GAME-DATA.md`).")
-    w("9. **HDR colors.** Several tokens exceed 1.0 (emissive); CSS needs a glow substitute.")
-    w("10. **Fonts.** The family looks like Rajdhani (open-licence on Google Fonts, SIL OFL) but the exported TTFs are game assets: check the licence before using them. The planner uses the fonts in docs/STYLE.md; size and weight mapping is in section 5.")
-    w("11. **Which library item a sequence plays on.** Paths are child indexes; I resolved them against Root. Many sequences (e.g. `default_tab_intro`, 25 definitions, all path `[]`) probably play on other library items (list rows, popups), so their target names are only reliable for the paperdoll, meter and `warnning` sequences.")
+    w("## 9. Decisions and open points")
+    w("**Decided (Vivek)**")
+    w("1. **Version.** The files are from the 2.5 install; `GameVersion 2310` is only WolvenKit's header value.")
+    w("2. **Behaviour is ours.** Controller scripts are not in the data. The data gives layout, art, timings and colors; the hover / select / open / close flow (section 8) is our own design.")
+    w("3. **Background.** `background.inkatlas` is used as the screen background.")
+    w("4. **Wipe effect.** Rendered as a CSS mask-gradient wipe with the same duration and easing.")
+    w("5. **Emissive colors (> 1.0).** The base color is clamped to sRGB and the excess becomes a glow (`text-shadow` / `drop-shadow`); `tools/ripperdoc_layout.py` writes it as `--t-*-glow`.")
+    w("6. **Fonts.** Rajdhani from its open-source release (SIL OFL), self-hosted in `src/fonts/`; the game TTFs are not used. The game's digital readout font (only used for two decorative `888`/`999` ghost counters) is replaced by Share Tech Mono (OFL), used for small numeric captions.")
+    w("")
+    w("**Still open**")
+    w("1. **Video interpolator oddities.** `Video from -> to` looks like a playback window in seconds (0 -> 5.033 in 5.033 s = play once). A few entries look like leftovers (woman `frontalCortex_intro` plays 0 -> 0.068 s; several Video definitions target `Root`). We play every zone clip once from 0 and hold the last frame.")
+    w("2. **Targets that are not in Root (16 definitions)** in `ripper_id`, `warnning`, popups and a few others use child paths that exist only in other library items or are resolved by script; they are listed with their raw path. Many sequences (e.g. `default_tab_intro`, 25 definitions, all path `[]`) probably play on other library items, so their target names are only reliable for the paperdoll, meter and `warnning` sequences.")
+    w("3. **Wipe angle and softness** are not in the data (only progress 0 -> 1); our mask wipe is left-to-right.")
+    w("4. **Layout engine details.** The simplified rules in section 1 reproduce the idle screen (`incoming/screens/ripperdoc-reference.png`), but panel sizing for `fitToContent` panels and uniform grids is approximate; inventory cell sizes (224x202 / 216x194) are known, cell counts and wrapping are ours.")
+    w("5. **Slot ordering and counts** per zone panel are not in the widget tree (panels are empty); they come from our game data (`docs/GAME-DATA.md`).")
     (DOCS / "RIPPERDOC-SPEC.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
     # ---- animations document
