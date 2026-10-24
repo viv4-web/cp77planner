@@ -19,9 +19,9 @@
 .btn{--tl:var(--cut-btn);--br:var(--cut-btn);display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;
   font:700 12.5px/1 var(--f-head);letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
 .btn.primary{--edge:var(--yellow);--fill:var(--yellow);color:#14130a}
-.btn.primary:hover{--fill:#fff07f;--edge:#fff07f}
+.btn.primary:hover:not(:disabled){--fill:#fff07f;--edge:#fff07f}
 .btn.ghost{--fill:#0d1130;--dur:8s}
-.btn:disabled{opacity:.4;cursor:not-allowed}
+
 .btn.sm{height:32px;padding:0 12px;font-size:11.5px}
 
 /* ---- layout ---- */
@@ -55,7 +55,7 @@ main{padding:24px var(--gutter) 64px;max-width:1280px;margin:0 auto}
 .acard .step{position:absolute;right:10px;top:10px;display:flex;gap:4px}
 .step button{width:28px;height:28px;border:1px solid var(--line);background:rgba(7,10,28,.6);font:500 16px/1 var(--f-mono);display:grid;place-items:center;padding:0}
 .step button:hover:not(:disabled){border-color:var(--c);color:var(--c)}
-.step button:disabled{opacity:.3;cursor:not-allowed}
+.step button:disabled{color:var(--dis-text);border-style:dashed;border-color:rgba(140,144,204,.4);cursor:not-allowed}
 /* yellow HUD corner brackets on the selected card */
 .brk{position:absolute;inset:13px;pointer-events:none;opacity:0;
   --b:var(--yellow);
@@ -115,9 +115,9 @@ main{padding:24px var(--gutter) 64px;max-width:1280px;margin:0 auto}
 .detail .pname{font:700 clamp(22px,2.2vw,28px)/1.1 var(--f-head);letter-spacing:.08em;text-transform:uppercase}
 .badge-new{display:inline-block;padding:3px 8px;font:500 11px var(--f-mono);letter-spacing:.14em;background:var(--magenta);color:#1a0716;vertical-align:middle;margin-left:8px}
 .meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font:500 12px var(--f-mono);letter-spacing:.08em;color:var(--muted)}
-.meta span{padding:5px 9px;border:1px solid var(--line)}
-.meta .ok{color:var(--c-technical);border-color:rgba(157,255,106,.4)}
-.meta .no{color:var(--c-body);border-color:rgba(255,107,149,.4)}
+.meta span{--tl:6px;--br:6px;--fill:#0b0e2c;--edge:var(--line);padding:6px 10px}
+.meta .ok{color:var(--c-technical);--edge:rgba(157,255,106,.5)}
+.meta .no{color:var(--c-body);--edge:rgba(255,107,149,.5)}
 .detail .desc{color:var(--muted);max-width:34ch;min-height:3em}
 .detail .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .detail .hint{font:500 11.5px var(--f-mono);color:var(--dim);min-height:1.5em}
@@ -195,3 +195,17 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
   .top-right .btn{padding:0 10px}
   .settings button{padding:0 8px;min-height:44px}
 }
+
+/* ---- disabled buttons: one style everywhere (real disabled attribute + aria-disabled) ---- */
+.btn:disabled,.btn[aria-disabled=true]{cursor:not-allowed;color:var(--dis-text);transform:none}
+.btn.ghost:disabled,.btn.ghost[aria-disabled=true]{--edge:var(--chrome-dim);animation:none}
+/* dashed variant of .cutline: dashes run along the straight edges and along both diagonals */
+.cutline.dashed,.btn.primary:disabled,.btn.primary[aria-disabled=true]{
+  --dc:rgba(255,225,74,.45);--fill:var(--dis-fill);animation:none;
+  background:
+    repeating-linear-gradient(90deg,var(--dc) 0 6px,transparent 6px 10px) 0 0/100% var(--stroke) no-repeat,
+    repeating-linear-gradient(90deg,var(--dc) 0 6px,transparent 6px 10px) 0 100%/100% var(--stroke) no-repeat,
+    repeating-linear-gradient(0deg,var(--dc) 0 6px,transparent 6px 10px) 0 0/var(--stroke) 100% no-repeat,
+    repeating-linear-gradient(0deg,var(--dc) 0 6px,transparent 6px 10px) 100% 0/var(--stroke) 100% no-repeat,
+    repeating-linear-gradient(45deg,var(--dc) 0 5px,transparent 5px 9px) 0 0/var(--tl) var(--tl) no-repeat,
+    repeating-linear-gradient(45deg,var(--dc) 0 5px,transparent 5px 9px) 100% 100%/var(--br) var(--br) no-repeat}

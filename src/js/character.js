@@ -64,8 +64,8 @@ export function initCharacter({ root, store, D, art }) {
       const on = sel.tree === t.key;
       const step = isAttr ? `
         <span class="step">
-          <button type="button" data-attr="${idx}" data-d="-1" aria-label="Decrease ${esc(t.name)}" ${setAttrBlocked(state, idx, -1) ? 'disabled' : ''}>−</button>
-          <button type="button" data-attr="${idx}" data-d="1" aria-label="Increase ${esc(t.name)}" ${setAttrBlocked(state, idx, 1) ? 'disabled' : ''}>+</button>
+          <button type="button" data-attr="${idx}" data-d="-1" aria-label="Decrease ${esc(t.name)}" ${setAttrBlocked(state, idx, -1) ? 'disabled aria-disabled="true"' : ''}>−</button>
+          <button type="button" data-attr="${idx}" data-d="1" aria-label="Increase ${esc(t.name)}" ${setAttrBlocked(state, idx, 1) ? 'disabled aria-disabled="true"' : ''}>+</button>
         </span>` : '';
       return `
         <div class="acard ${on ? 'on cutline chrome' : 'cut'} ${first ? 'boot' : ''}" data-k="${t.key}" style="--i:${i + 2};--p:${(v / max).toFixed(3)}">
@@ -124,7 +124,7 @@ export function initCharacter({ root, store, D, art }) {
     const ins = canInstall(D, state, perk.n);
     const ref = canRefund(D, state, perk.n);
     const reqLabel = tree.gate === 'value' ? `REQ ${req} ${tree.name.toUpperCase()}` : `REQ ${req} SPENT`;
-    const hint = s === 'owned' ? (ref.ok ? '' : REASON[ref.reason] || '') : (ins.ok ? '' : REASON[ins.reason] || '');
+    const hint = s === 'owned' ? (ref.ok ? REASON.owned : REASON[ref.reason] || '') : (ins.ok ? '' : REASON[ins.reason] || '');
     $('#c-detail').innerHTML = `
       <svg class="trace det" viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 18H50L80 48H100L116 84H126"/><path class="pulse" pathLength="100" d="M0 18H50L80 48H100L116 84H126"/>
@@ -138,16 +138,16 @@ export function initCharacter({ root, store, D, art }) {
       <h2 class="pname chrome-text">${esc(perk.name)}</h2>
       ${perk.new ? '<div><span class="badge-new">NEW</span></div>' : ''}
       <div class="meta">
-        <span class="${s === 'locked' ? 'no' : 'ok'}">${reqLabel}</span>
-        <span>TIER ${perk.tier + 1}/${tree.tierReq.length}</span>
-        <span>${s.toUpperCase()}</span>
+        <span class="cutline ${s === 'locked' ? 'no' : 'ok'}">${reqLabel}</span>
+        <span class="cutline">TIER ${perk.tier + 1}/${tree.tierReq.length}</span>
+        <span class="cutline">${s.toUpperCase()}</span>
       </div>
       <p class="desc">${esc(perk.desc)}</p>
       <div class="actions">
-        <button type="button" class="btn primary cutline" data-act="install" ${ins.ok ? '' : 'disabled'}>Install</button>
-        <button type="button" class="btn ghost cutline chrome" data-act="refund" ${ref.ok ? '' : 'disabled'}>Refund</button>
+        <button type="button" class="btn primary cutline" data-act="install" aria-describedby="c-hint" ${ins.ok ? '' : 'disabled aria-disabled="true"'}>Install</button>
+        <button type="button" class="btn ghost cutline chrome" data-act="refund" aria-describedby="c-hint" ${ref.ok ? '' : 'disabled aria-disabled="true"'}>Refund</button>
       </div>
-      <p class="hint">${esc(hint)}</p>`;
+      <p class="hint" id="c-hint">${esc(hint)}</p>`;
   }
 
   function renderAll(state) {

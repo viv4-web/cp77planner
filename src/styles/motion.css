@@ -40,7 +40,7 @@ html[data-motion=calm]{--speed:2}
 .acard:hover .shine{opacity:1}
 .acard:hover .shine::before{animation:glint .9s var(--ease)}
 .node:hover{transform:translateY(-3px)}
-.btn:hover:not(:disabled){transform:translateY(-2px)}
+.btn:hover:not(:disabled):not([aria-disabled=true]){transform:translateY(-2px)}
 .tab:hover::before{animation:glitchA .24s steps(4) 1}
 .tab:hover::after{animation:glitchB .24s steps(4) 1}
 .acard .bar i{transition:transform .5s var(--ease)}

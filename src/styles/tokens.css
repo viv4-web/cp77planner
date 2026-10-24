@@ -15,7 +15,10 @@
   --yellow:#FFE14A; --cyan:#4DF3FF; --magenta:#FF4FD8;
   --c-body:#FF6B95; --c-reflexes:#FF9F43; --c-technical:#9DFF6A; --c-intelligence:#4DF3FF; --c-cool:#B596FF;
   --c-relic:#FFE14A;
+  --dis-text:#8C90CC; --dis-fill:#0E1130;   /* disabled buttons: text 6:1 on the fill (tests/test_style.py) */
   --chrome:linear-gradient(115deg,#5D6488,#F5F8FF,#7F88B0,#DDF6FF,#5D6488,#FFFFFF,#7F88B0);
+
+  --chrome-dim:linear-gradient(115deg,rgba(93,100,136,.4),rgba(245,248,255,.4),rgba(127,136,176,.4),rgba(221,246,255,.4),rgba(93,100,136,.4),rgba(255,255,255,.4),rgba(127,136,176,.4));
 
   --f-head:"Chakra Petch",system-ui,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,sans-serif;
