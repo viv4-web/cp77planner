@@ -19,6 +19,7 @@ be all 255; the frame count is read back with ffprobe.
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import struct
@@ -27,6 +28,10 @@ import sys
 from pathlib import Path
 
 HOME = Path.home() / "work" / "cyber-art"
+# ffmpeg/ffprobe: the static builds in ~/bin (no sudo) are found even when ~/bin is not on PATH.
+os.environ["PATH"] = f"{Path.home() / 'bin'}{os.pathsep}{os.environ.get('PATH', '')}"
+# Clips the ripperdoc screen does not reference (ripperdoc.inkwidget uses man/male_body_loop and woman/female_body_loop). Still encoded.
+UNUSED = {"man/man_body_loop": "not referenced by ripperdoc.inkwidget (it uses man/male_body_loop)"}
 FRAME_RE = re.compile(r"^(.+)(\d{3})\.png$")
 FPS = 30
 SETTINGS = {
@@ -197,6 +202,15 @@ def main(argv=None):
             failed.append((k, str(detail).strip().splitlines()[-1] if str(detail).strip() else repr(e)))
     for k, v in old.items():           # clips not touched this run (--clip) keep their entry
         manifest.setdefault(k, v)
+    usual = max(set(c["frames"] for c in manifest.values()), key=[c["frames"] for c in manifest.values()].count) if manifest else 0
+    for k, c in manifest.items():
+        c.pop("note", None)
+        c.pop("unused", None)
+        if c["frames"] != usual:
+            c["note"] = f"{c['frames']} frames; most clips have {usual}"
+        if k in UNUSED:
+            c["unused"] = True
+            c["unusedReason"] = UNUSED[k]
     totals = {x: sum(c[x]["bytes"] for c in manifest.values()) for x in ("full", "small", "poster")}
     out.mkdir(parents=True, exist_ok=True)
     mpath.write_text(json.dumps({"settings": SETTINGS, "clips": dict(sorted(manifest.items())), "totals": totals}, indent=1) + "\n")
