@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ids  # noqa: E402
 ART_EXT = {".png", ".webp", ".jpg", ".jpeg", ".svg"}
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.\-]+$")
 
@@ -24,7 +26,13 @@ def copy_site(out: Path):
     shutil.copytree(ROOT / "src", out)
     data = ROOT / "data"
     if data.exists():
-        shutil.copytree(data, out / "data")
+        shutil.copytree(data, out / "data", ignore=shutil.ignore_patterns("ids.json"))
+        # n comes ONLY from the append-only registry (data/ids.json), injected here, never at page load.
+        # A record without a registry entry fails the build.
+        registry = json.loads((data / "ids.json").read_text())["ids"]
+        for f in sorted((out / "data").rglob("tree.json")):
+            doc = ids.inject(json.loads(f.read_text()), registry, str(f.relative_to(out)))
+            f.write_text(json.dumps(doc, indent=1) + "\n")
 
 
 def build_art_map(art_dir: Path, out: Path) -> dict:
@@ -60,7 +68,11 @@ def main(argv=None):
     ap.add_argument("--out", default=str(ROOT / "dist"), help="output directory (default: dist/)")
     ap.add_argument("--art", default=str(ROOT / "art"), help="game art directory (default: art/)")
     a = ap.parse_args(argv)
-    live, offline = build(Path(a.out), Path(a.art))
+    try:
+        live, offline = build(Path(a.out), Path(a.art))
+    except ids.MissingIds as e:
+        print(f"BUILD FAILED, registry problem:\n{e}", file=sys.stderr)
+        return 1
     n = len(json.loads((live / "art-map.json").read_text()))
     print(f"built {live} ({n} art files) and {offline} (placeholders only)")
     return 0

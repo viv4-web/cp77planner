@@ -30,20 +30,35 @@ def add(names):
     REG.write_text(json.dumps(reg, indent=1) + "\n")
 
 
-def records(tree_file):
-    d = json.loads(tree_file.read_text())
-    for t in d["trees"]:
-        yield t["id"], t["n"]
-        for p in t["perks"]:
-            yield p["id"], p["n"]
+class MissingIds(Exception):
+    pass
+
+
+def inject(doc, ids, where="data"):
+    """Set `n` on every tree and perk from the registry. Data files must not carry their own n.
+    Raises MissingIds listing every record that has no registry entry (or that carries an inline n)."""
+    problems = []
+    for t in doc.get("trees", []):
+        for rec in [t, *t.get("perks", [])]:
+            name = rec.get("id")
+            if "n" in rec:
+                problems.append(f"{where}: {name} has an inline n; the registry (data/ids.json) is the only source")
+            if name not in ids:
+                problems.append(f"{where}: {name} has no entry in data/ids.json (python3 tools/ids.py add {name})")
+            else:
+                rec["n"] = ids[name]
+    if problems:
+        raise MissingIds("\n".join(problems))
+    return doc
 
 
 def check():
     reg, bad = load(), []
     for f in sorted((ROOT / "data").rglob("tree.json")):
-        for name, n in records(f):
-            if reg["ids"].get(name) != n:
-                bad.append(f"{f.relative_to(ROOT)}: {name} has n={n}, registry says {reg['ids'].get(name)}")
+        try:
+            inject(json.loads(f.read_text()), reg["ids"], str(f.relative_to(ROOT)))
+        except MissingIds as e:
+            bad.append(str(e))
     print("\n".join(bad) or "ok")
     return 1 if bad else 0
 

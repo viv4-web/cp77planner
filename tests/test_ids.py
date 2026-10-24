@@ -40,6 +40,33 @@ class IdRegistryTests(unittest.TestCase):
     def test_data_files_match_registry(self):
         self.assertEqual(ids.check(), 0)
 
+    def test_record_without_registry_entry_fails(self):
+        doc = {"trees": [{"id": "X.Tree", "perks": [{"id": "X.Perk"}]}]}
+        with self.assertRaises(ids.MissingIds) as cm:
+            ids.inject(doc, {"X.Tree": 1})
+        self.assertIn("X.Perk", str(cm.exception))
+
+    def test_inline_n_is_rejected(self):
+        with self.assertRaises(ids.MissingIds):
+            ids.inject({"trees": [{"id": "X.Tree", "n": 5, "perks": []}]}, {"X.Tree": 5})
+
+    def test_build_fails_on_unregistered_record(self):
+        import tempfile, shutil, build
+        with tempfile.TemporaryDirectory() as t:
+            fake = Path(t) / "root"
+            shutil.copytree(ROOT / "data", fake / "data")
+            shutil.copytree(ROOT / "src", fake / "src")
+            doc = json.loads((fake / "data/sample/tree.json").read_text())
+            doc["trees"][0]["perks"].append({"id": "SAMPLE.Perk.Unregistered", "tier": 0, "name": "SAMPLE x", "desc": "x"})
+            (fake / "data/sample/tree.json").write_text(json.dumps(doc))
+            old = build.ROOT
+            build.ROOT = fake
+            try:
+                with self.assertRaises(ids.MissingIds):
+                    build.build(Path(t) / "dist", Path(t) / "art")
+            finally:
+                build.ROOT = old
+
     def test_history_is_append_only(self):
         """Every earlier committed version of data/ids.json must be a subset of the current one."""
         if git("rev-parse", "--git-dir").returncode != 0:

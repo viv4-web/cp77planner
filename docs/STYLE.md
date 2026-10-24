@@ -16,7 +16,8 @@ Tokens live in `src/styles/tokens.css`. Do not hard-code colours elsewhere.
 
 ## Shape
 - Panels: cut corners (clip-path polygon, top-left and bottom-right), **20px**. Buttons: **12px**.
-- Borders on clipped shapes are drawn with a masked `::after` layer (so the border can carry the animated chrome gradient) plus a diagonal hairline on each cut.
+- Plain glass panels: border via a masked `::after` plus a hairline on each diagonal.
+- Anything with a real outline (ghost buttons, perk nodes, the selected attribute card) uses the one shared `.cutline` utility: the element is clipped to the cut polygon and its background is the outline paint (solid or animated chrome); `::before` is the opaque fill, inset by the 1.5px stroke and clipped to the same polygon with each cut reduced by stroke × 0.586, so the outline is unbroken along the diagonals. Text sits above `::before`. Primary and ghost buttons share the same height and cut size.
 - The selected attribute card gets **yellow HUD corner brackets** (`.brk`).
 - Perk nodes are octagons; selected node has a cyan outline.
 

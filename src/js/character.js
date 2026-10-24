@@ -68,7 +68,7 @@ export function initCharacter({ root, store, D, art }) {
           <button type="button" data-attr="${idx}" data-d="1" aria-label="Increase ${esc(t.name)}" ${setAttrBlocked(state, idx, 1) ? 'disabled' : ''}>+</button>
         </span>` : '';
       return `
-        <div class="acard cut ${on ? 'on chrome-edge' : ''} ${first ? 'boot' : ''}" data-k="${t.key}" style="--i:${i + 2};--p:${(v / max).toFixed(3)}">
+        <div class="acard ${on ? 'on cutline chrome' : 'cut'} ${first ? 'boot' : ''}" data-k="${t.key}" style="--i:${i + 2};--p:${(v / max).toFixed(3)}">
           <button type="button" class="sel" data-tree="${t.key}" aria-pressed="${on}" aria-label="${esc(t.name)} tree"></button>
           <i class="shine"></i><i class="brk"></i>
           <span class="idx">${String(i + 1).padStart(2, '0')}${t.kind === 'relic' ? ' · PL' : ''}</span>
@@ -95,7 +95,7 @@ export function initCharacter({ root, store, D, art }) {
         return `
           <div class="nodewrap" data-s="${s}">
             <i class="ping"></i>
-            <button type="button" class="node ${justInstalled === p.n ? 'installing' : ''}" data-s="${s}" data-perk="${p.n}" aria-pressed="${on}" aria-label="${esc(p.name)}, ${s}">
+            <button type="button" class="node cutline ${justInstalled === p.n ? 'installing' : ''}" data-s="${s}" data-perk="${p.n}" aria-pressed="${on}" aria-label="${esc(p.name)}, ${s}">
               ${art.html(p.id)}<i class="plate"></i>
             </button>
             <span class="pn">${esc(p.name)}${p.new ? '<span class="newb">NEW</span>' : ''}</span>
@@ -144,8 +144,8 @@ export function initCharacter({ root, store, D, art }) {
       </div>
       <p class="desc">${esc(perk.desc)}</p>
       <div class="actions">
-        <button type="button" class="btn primary" data-act="install" ${ins.ok ? '' : 'disabled'}>Install</button>
-        <button type="button" class="btn ghost" data-act="refund" ${ref.ok ? '' : 'disabled'}>Refund</button>
+        <button type="button" class="btn primary cutline" data-act="install" ${ins.ok ? '' : 'disabled'}>Install</button>
+        <button type="button" class="btn ghost cutline chrome" data-act="refund" ${ref.ok ? '' : 'disabled'}>Refund</button>
       </div>
       <p class="hint">${esc(hint)}</p>`;
   }

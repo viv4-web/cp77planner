@@ -29,9 +29,8 @@ html[data-motion=calm]{--speed:2}
 
 /* chrome text + edges */
 .chrome-text{animation:chrome calc(7s * var(--speed)) linear infinite}
-.chrome-edge::after,.btn.ghost::after,.node[data-s=owned]::after,.acard.on::after{background:var(--chrome);background-size:300% 100%;animation:chrome calc(6s * var(--speed)) linear infinite}
-.node[data-s=owned]::after{animation-duration:calc(5s * var(--speed))}
-.btn.ghost::after{animation-duration:calc(8s * var(--speed))}
+.chrome-edge::after{background:var(--chrome);background-size:300% 100%;animation:chrome calc(6s * var(--speed)) linear infinite}
+.cutline.chrome,.node[data-s=owned]{animation:chrome calc(var(--dur,5s) * var(--speed)) linear infinite}
 .socket .hex{animation:chrome calc(7s * var(--speed)) linear infinite}
 
 /* hover */
@@ -49,7 +48,7 @@ html[data-motion=calm]{--speed:2}
 /* available ping, install sweep */
 .nodewrap[data-s=available] .ping{animation:ping calc(2s * var(--speed)) var(--ease) infinite}
 .node.installing .plate{animation:plate .9s var(--ease) both}
-.node.installing::before{content:"";position:absolute;inset:0;z-index:3;background:#fff;opacity:0;animation:flash .9s var(--ease) both}
+.node.installing .plate::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;animation:flash .9s var(--ease) both}
 
 /* traces, socket */
 .trace path.pulse{animation:pulse calc(3.2s * var(--speed)) linear infinite}
@@ -70,3 +69,6 @@ html[data-motion=off] .bg .mote,html[data-motion=off] .shine{display:none}
 @media (prefers-reduced-motion:reduce){
   html:not([data-motion]) *,html:not([data-motion]) *::before,html:not([data-motion]) *::after{animation:none!important;transition:none!important}
 }
+/* an element that is both boot-revealed and chrome-animated needs both animations in one declaration */
+.boot.cutline.chrome{animation:rise .75s var(--ease) backwards,chrome calc(var(--dur,6s) * var(--speed)) linear infinite;animation-delay:calc(var(--i,0) * 70ms),0s}
+html[data-motion=off] .boot.cutline.chrome{animation:none!important}

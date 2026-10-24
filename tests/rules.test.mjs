@@ -6,7 +6,11 @@ import {
 } from '../src/js/rules.js';
 import { encode, decode } from '../src/js/codec.js';
 
-const D = buildIndex(JSON.parse(readFileSync(new URL('../data/sample/tree.json', import.meta.url))));
+// n comes only from the registry (data/ids.json); mirror what tools/build.py injects.
+const reg = JSON.parse(readFileSync(new URL('../data/ids.json', import.meta.url))).ids;
+const doc = JSON.parse(readFileSync(new URL('../data/sample/tree.json', import.meta.url)));
+for (const t of doc.trees) for (const r of [t, ...t.perks]) { assert.ok(r.id in reg, r.id); r.n = reg[r.id]; }
+const D = buildIndex(doc);
 const body = D.trees[0];
 const t1 = body.perks.find((p) => p.tier === 0).n;
 const t2 = body.perks.find((p) => p.tier === 1).n;
