@@ -266,6 +266,10 @@ dialog .cut{padding:26px 28px;display:grid;gap:14px}
 .capbar[data-state=over] i{background:repeating-linear-gradient(135deg,var(--yellow) 0 6px,#8a7712 6px 12px)}
 .cap-note{margin:0;font-size:11.5px;color:var(--dim);letter-spacing:.08em}
 .cw-fam{flex:1;min-width:0;display:grid;gap:6px}
+.cw-diff{margin:0;font-size:11.5px;color:var(--yellow);letter-spacing:.04em;overflow-wrap:anywhere}
+.cw-pend{font-style:normal;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);margin-left:auto;margin-right:10px}
+.cw-pending{display:flex;gap:8px;align-items:flex-start;color:var(--yellow);font-size:12.5px;margin:0 0 12px}
+.cw-pending .mi{flex:none;margin-top:2px;width:14px;height:14px}
 .cw-quals{display:flex;flex-wrap:wrap;gap:6px}
 .cw-q{--tl:6px;--br:6px;--fill:#0b0e2c;--edge:var(--line);padding:5px 9px;min-height:32px;font:500 11.5px var(--f-mono);letter-spacing:.06em;color:var(--muted)}
 .cw-q:hover{--edge:var(--cyan)}

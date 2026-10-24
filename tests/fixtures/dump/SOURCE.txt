@@ -1,0 +1,3 @@
+HAND-MADE fixture, not game data.
+Cyberware file: cyberware_v1.json
+Costs file: costs_v1.json

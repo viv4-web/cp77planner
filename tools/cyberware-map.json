@@ -15,7 +15,8 @@
    "name": "Arms",
    "slots": 1,
    "locked": 0,
-   "areas": []
+   "areas": [],
+   "pendingData": "Arms cyberware missing from dump - needs CET probe"
   },
   {
    "key": "Skeleton",
@@ -160,5 +161,8 @@
    "unlock of the locked Skeleton and Hands slots",
    "overcap rule"
   ]
- }
+ },
+ "legacyAreas": [
+  "ImmuneSystemCW"
+ ]
 }

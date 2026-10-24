@@ -56,6 +56,30 @@ class ImportGoldenTests(unittest.TestCase):
         self.assertEqual([(g["id"], g["slots"], g["locked"]) for g in self.doc["groups"]],
                          [("Slot.Head", 2, 1), ("Slot.Leg", 1, 0), ("Slot.Arm", 1, 0)])
 
+    def test_legacy_area_dropped_and_pending_data_carried(self):
+        self.assertEqual(self.rep["legacy"], ["T.OldThing"])
+        self.assertNotIn("T.OldThing", [i["id"] for i in self.doc["implants"]])
+        self.assertEqual([g.get("pendingData") for g in self.doc["groups"]], [None, None, "invented gap"])
+
+    def test_input_files_come_from_source_txt_not_from_the_newest_version(self):
+        with tempfile.TemporaryDirectory() as t:
+            t = Path(t)
+            for f in ("cyberware_v1.json", "costs_v1.json", "SOURCE.txt"):
+                (t / f).write_bytes((FX / f).read_bytes())
+            (t / "cyberware_v9.json").write_text("[]")     # newer decoys must be ignored
+            (t / "costs_v9.json").write_text("{}")
+            out = t / "out.json"
+            subprocess.run([sys.executable, str(ROOT / "tools" / "import_cyberware.py"), "--extract", str(t), "--map", str(FX / "map.json"),
+                            "--out", str(out)], capture_output=True, text=True)
+            self.assertEqual(json.loads(out.read_text()), load("expected.json"))
+
+    def test_missing_source_txt_or_entry_stops(self):
+        with tempfile.TemporaryDirectory() as t:
+            self.assertRaises(SystemExit, imp.source_file, Path(t), "Cyberware file")
+            (Path(t) / "SOURCE.txt").write_text("Costs file: costs_v1.json\n")
+            self.assertRaises(SystemExit, imp.source_file, Path(t), "Cyberware file")
+            self.assertRaises(SystemExit, imp.source_file, Path(t), "Costs file")   # named but absent
+
     def test_unknown_quality_fails_loudly(self):
         recs = load("cyberware_v1.json")
         recs[0]["quality"] = "Mythic"
@@ -64,7 +88,7 @@ class ImportGoldenTests(unittest.TestCase):
 
     def test_icon_key_is_icon_part_and_report_lists_them(self):
         self.assertEqual([i["icon"] for i in self.doc["implants"]], ["ico_a", "ico_a", "ico_a", None])
-        self.assertEqual(self.rep["icons"], {"ico_a"})
+        self.assertEqual(self.rep["icons"], {"ico_a", "ico_old"})   # whole dump, imported or not
         self.assertIn("ico_a", imp.render_report(self.doc, self.rep))
 
     def test_command_line_end_to_end_is_byte_identical(self):

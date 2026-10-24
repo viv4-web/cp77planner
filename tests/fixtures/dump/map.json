@@ -23,7 +23,8 @@
    "name": "Arm",
    "slots": 1,
    "locked": 0,
-   "areas": []
+   "areas": [],
+   "pendingData": "invented gap"
   }
  ],
  "qualities": [
@@ -55,5 +56,8 @@
   "capacityPerLevel": 0,
   "attrBonus": [],
   "overcapFlag": "overcap"
- }
+ },
+ "legacyAreas": [
+  "OldCW"
+ ]
 }

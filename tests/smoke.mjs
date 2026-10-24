@@ -77,6 +77,21 @@ await t('quality picker: one row per item, switching quality swaps the equipped 
   assert.equal(await page.locator('.cw-remove').count(), 1, 'one equipped row');
 });
 
+await t('Arms is marked pending data, with the reason in the picker', async (page) => {
+  await page.goto(`${BASE}?tab=cyberware`);
+  await page.click('.sock[data-key="1001.0"]');
+  assert.match(await page.locator('#cw-picker .cw-pending').innerText(), /pending data.*CET probe/i);
+  assert.match(await page.locator('.cw-group', { hasText: 'Arms' }).locator('.cw-pend').innerText(), /pending data/i);
+});
+
+await t('same-quality variants show what differs', async (page) => {
+  await page.goto(`${BASE}?tab=cyberware`);
+  await page.click('.sock[data-key="1002.0"]');
+  const li = page.locator('.cw-li', { has: page.locator('.cw-quals .cw-q[title]') }).first();
+  await li.locator('.cw-q[title]').first().click();
+  assert.match(await li.locator('.cw-diff').innerText(), /^vs #\d: /);
+});
+
 await t('locked slots are shown, not selectable', async (page) => {
   await page.goto(`${BASE}?tab=cyberware`);
   await page.waitForSelector('.sock');

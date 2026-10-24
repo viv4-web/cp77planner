@@ -1,5 +1,5 @@
 import { ICON_LOCK, ICON_CHECK, ICON_PLUS, ICON_WARN } from './icons.js';
-import { evaluate, canEquip, equip, unequip, slotKey, reqStatus, statLines } from './cyber.js';
+import { evaluate, canEquip, equip, unequip, slotKey, reqStatus, statLines, variantDiff } from './cyber.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const REASON = { 'over-capacity': 'Over capacity' };
@@ -39,7 +39,7 @@ export function initCyberware({ root, store, D, art }) {
       for (let l = 0; l < (g.locked || 0); l++) {
         socks.push(`<span class="nbox" style="--nb:56px"><button type="button" class="sock cutline dashed" data-s="locked" disabled aria-disabled="true" aria-label="${esc(g.name)} slot ${g.slots + l + 1}, locked">${ICON_LOCK}</button></span>`);
       }
-      return `<div class="cw-group"><h3><span>${esc(g.name)}</span><b class="mono">${filled}/${g.slots}</b></h3><div class="cw-socks">${socks.join('')}</div></div>`;
+      return `<div class="cw-group"><h3><span>${esc(g.name)}</span>${g.pendingData ? '<em class="cw-pend mono">pending data</em>' : ''}<b class="mono">${filled}/${g.slots}</b></h3><div class="cw-socks">${socks.join('')}</div></div>`;
     }).join('');
     return `${silHtml}<span class="label">02 // SLOTS</span><div class="cw-groups">${groups}</div>`;
   }
@@ -71,8 +71,11 @@ export function initCyberware({ root, store, D, art }) {
       const blocked = !isEq && !can.ok;
       const req = reqStatus(C, D, state, chosen);
       const reason = blocked ? `${REASON[can.reason] || 'Unavailable'}${can.need ? ` by ${can.need}` : ''}` : (isEq ? 'Equipped' : '');
+      // same-quality siblings (#1 / #2): show what differs, on each button's tooltip and for the chosen one under the picker
+      const sibs = (v) => fam.variants.filter((o) => o.tier === v.tier && o.n !== v.n);
+      const diffText = (v) => sibs(v).map((o) => `vs #${o.variant}: ${variantDiff(v, o).join(' · ') || 'same stats'}`).join(' | ');
       const quals = fam.variants.length > 1
-        ? `<div class="cw-quals" role="group" aria-label="${esc(fam.name)} quality">${fam.variants.map((v) => `<button type="button" class="cw-q cutline" data-q="${v.n}" aria-pressed="${v.n === chosen.n}">${esc(qualLabel(fam, v))}</button>`).join('')}</div>`
+        ? `<div class="cw-quals" role="group" aria-label="${esc(fam.name)} quality">${fam.variants.map((v) => `<button type="button" class="cw-q cutline" data-q="${v.n}" aria-pressed="${v.n === chosen.n}"${sibs(v).length ? ` title="${esc(diffText(v))}"` : ''}>${esc(qualLabel(fam, v))}</button>`).join('')}</div>${sibs(chosen).length ? `<p class="cw-diff mono">${esc(diffText(chosen))}</p>` : ''}`
         : '';
       return `
         <li class="cw-li">
@@ -94,6 +97,7 @@ export function initCyberware({ root, store, D, art }) {
     return `
       <div class="cw-pick-head"><span class="label">03 // IMPLANTS</span><button type="button" class="btn ghost cutline chrome sm cw-close" data-act="close">Close</button></div>
       <h2 class="tree-title chrome-text">${esc(group.name)} · slot ${pos + 1}</h2>
+      ${group.pendingData ? `<p class="cw-pending mono">${ICON_WARN}<span>Pending data: ${esc(group.pendingData)}</span></p>` : ''}
       ${rows ? `<ul class="cw-list">${rows}</ul>` : '<p class="empty">No implants for this slot in the data yet.</p>'}`;
   }
 

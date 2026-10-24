@@ -20,5 +20,8 @@
  },
  "TEST.Thing": {
   "HumanityAllocated": 1
+ },
+ "T.OldThing": {
+  "HumanityAllocated": 2
  }
 }

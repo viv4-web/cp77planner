@@ -3,7 +3,8 @@
 
   tools/import_cyberware.py [--extract DIR] [--out FILE] [--report FILE] [--register]
 
-Reads <extract>/cyberware_v*.json and <extract>/costs_v*.json (read only; newest version wins) and the mapping
+Reads the two input files named in <extract>/SOURCE.txt ("Cyberware file:" and "Costs file:" lines; read only; never
+guessed from the folder contents) and the mapping
 tables in tools/cyberware-map.json. Raw game data is never written to the repo: the output holds only normalized
 planner data (names, numbers, rules). Deterministic: same input, same output.
 
@@ -25,11 +26,18 @@ DEFAULT_EXTRACT = Path.home() / "work" / "cyber-extract" / "2.5"
 MAP = Path(__file__).resolve().parent / "cyberware-map.json"
 
 
-def newest(folder: Path, prefix: str) -> Path:
-    files = sorted(folder.glob(f"{prefix}_v*.json"), key=lambda p: int(re.search(r"_v(\d+)\.json$", p.name).group(1)))
-    if not files:
-        sys.exit(f"no {prefix}_v*.json in {folder}")
-    return files[-1]
+def source_file(folder: Path, label: str) -> Path:
+    """The input file named by a '<label>: <file name>' line of SOURCE.txt."""
+    src = folder / "SOURCE.txt"
+    if not src.is_file():
+        sys.exit(f"{src} not found: it names the input files")
+    m = re.search(rf"^{re.escape(label)}:\s*(\S+)\s*$", src.read_text(encoding="utf-8"), re.M)
+    if not m:
+        sys.exit(f"{src} has no '{label}: <file>' line")
+    path = folder / m.group(1)
+    if path.parent != folder or not path.is_file():
+        sys.exit(f"{src}: {label} {m.group(1)!r} is not a file in {folder}")
+    return path
 
 
 def clean_value(v, digits):
@@ -51,10 +59,11 @@ def build(records, costs, cfg):
     quality_label = {q["key"]: q["label"] for q in cfg["qualities"]}
     flag_re = [re.compile(p) for p in cfg["flagStatPatterns"]]
     excl_re = [re.compile(p) for p in cfg["excludeIdPatterns"]]
+    legacy = set(cfg.get("legacyAreas", []))
     stat_cost, digits = cfg["costStat"], cfg["valueDigits"]
     gid = lambda s: f"Slot.{s['key']}"  # noqa: E731
 
-    rep = {"total": len(records), "noCost": [], "excluded": [], "unmapped": defaultdict(list), "nullStats": 0,
+    rep = {"total": len(records), "noCost": [], "excluded": [], "unmapped": defaultdict(list), "legacy": [], "nullStats": 0,
            "noIcon": [], "icons": set(), "sameQuality": []}
     items = []
     # every iconPart in the dump, imported or not, so one WolvenKit export covers records Vivek may add back later
@@ -63,6 +72,9 @@ def build(records, costs, cfg):
         cost = cost_of(costs, r["id"], stat_cost)
         if any(p.search(r["id"]) for p in excl_re):
             rep["excluded"].append(r["id"])
+            continue
+        if r["area"] in legacy:
+            rep["legacy"].append(r["id"])
             continue
         if cost is None:
             rep["noCost"].append({"id": r["id"], "name": r["name"], "area": r["area"]})
@@ -103,26 +115,28 @@ def build(records, costs, cfg):
     rep["sameQuality"] = sorted({i["family"] for i in items if seen[(i["family"], i["tier"])] > 1})
     doc = {
         "rules": cfg["rules"],
-        "groups": [{"id": gid(s), "name": s["name"], "slots": s["slots"], "locked": s["locked"]} for s in cfg["slots"]],
+        "groups": [{"id": gid(s), "name": s["name"], "slots": s["slots"], "locked": s["locked"],
+                    **({"pendingData": s["pendingData"]} if s.get("pendingData") else {})} for s in cfg["slots"]],
         "implants": items,
     }
     return doc, rep
 
 
-def render_report(doc, rep):
+def render_report(doc, rep, cfg_legacy=()):
     n_fam = len({i["family"] for i in doc["implants"]})
     lines = [f"records in dump: {rep['total']}", f"imported: {len(doc['implants'])} implants in {n_fam} families",
-             f"no cost (excluded, Vivek decides): {len(rep['noCost'])}"]
+             f"no cost (excluded): {len(rep['noCost'])}"]
     by_area = Counter(x["area"] for x in rep["noCost"])
     lines += [f"  {a}: {n}" for a, n in sorted(by_area.items())]
     lines += [f"  {x['id']}  {x['name']}  [{x['area']}]" for x in rep["noCost"]]
     lines.append(f"excluded by id pattern (debug/test/tutorial): {len(rep['excluded'])}")
     lines += [f"  {i}" for i in rep["excluded"]]
+    lines.append(f"legacy areas (dropped, {', '.join(cfg_legacy)}): {len(rep['legacy'])}")
     lines.append(f"unmapped areas with a cost: {sum(len(v) for v in rep['unmapped'].values())}")
     lines += [f"  {a}: {', '.join(v)}" for a, v in sorted(rep["unmapped"].items())]
-    lines.append("slots with no source area (no items): " + ", ".join(g["name"] for g in doc["groups"] if not any(i["group"] == g["id"] for i in doc["implants"])))
+    lines += [f"pending data: {g['name']}: {g['pendingData']}" for g in doc["groups"] if g.get("pendingData")]
     lines.append(f"stats without a value (dropped): {rep['nullStats']}")
-    lines.append(f"records without iconPart: {len(rep['noIcon'])}")
+    lines.append(f"imported records without iconPart (iconName only, art key missing): {len(rep['noIcon'])}")
     lines += [f"  {i}" for i in rep["noIcon"]]
     lines.append(f"families with several records at one quality (variant 2, 3, ...): {len(rep['sameQuality'])}")
     lines += [f"  {f}" for f in rep["sameQuality"]]
@@ -140,11 +154,12 @@ def main(argv=None):
     ap.add_argument("--register", action="store_true", help="add unregistered records to data/ids.json via tools/ids.py")
     a = ap.parse_args(argv)
     ex = Path(a.extract)
-    records = json.loads(newest(ex, "cyberware").read_text(encoding="utf-8"))
-    costs = json.loads(newest(ex, "costs").read_text(encoding="utf-8"))
-    doc, rep = build(records, costs, json.loads(Path(a.map).read_text(encoding="utf-8")))
+    records = json.loads(source_file(ex, "Cyberware file").read_text(encoding="utf-8"))
+    costs = json.loads(source_file(ex, "Costs file").read_text(encoding="utf-8"))
+    cfg = json.loads(Path(a.map).read_text(encoding="utf-8"))
+    doc, rep = build(records, costs, cfg)
     Path(a.out).write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    text = render_report(doc, rep)
+    text = render_report(doc, rep, cfg.get("legacyAreas", []))
     missing = [r["id"] for r in [*doc["groups"], *sorted(doc["implants"], key=lambda i: i["id"])] if r["id"] not in ids.load()["ids"]]
     if missing and a.register:
         ids.add(missing)

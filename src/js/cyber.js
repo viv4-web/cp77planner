@@ -152,3 +152,16 @@ export function sanitizeCyber(D, state, raw) {
   }
   return { ...state, cyber };
 }
+
+// How `imp` differs from a sibling variant of the same item: stat lines and cost that are not identical.
+export function variantDiff(imp, sib) {
+  const a = new Map(statLines(imp).map((l) => [l.slice(0, l.search(/ [+\-\u00d7]/)), l]));
+  const b = new Map(statLines(sib).map((l) => [l.slice(0, l.search(/ [+\-\u00d7]/)), l]));
+  const out = [];
+  for (const k of new Set([...a.keys(), ...b.keys()])) {
+    const x = a.get(k), y = b.get(k);
+    if (x !== y) out.push(x && y ? `${x} (was ${y.slice(k.length + 1)})` : x || `${k} none (was ${y.slice(k.length + 1)})`);
+  }
+  if (imp.cost !== sib.cost) out.push(`CAP ${imp.cost} (was ${sib.cost})`);
+  return out;
+}

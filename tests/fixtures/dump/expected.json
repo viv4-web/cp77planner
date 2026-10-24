@@ -22,7 +22,8 @@
    "id": "Slot.Arm",
    "name": "Arm",
    "slots": 1,
-   "locked": 0
+   "locked": 0,
+   "pendingData": "invented gap"
   }
  ],
  "implants": [

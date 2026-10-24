@@ -195,5 +195,19 @@
   "stats": [],
   "onEquip": [],
   "iconPart": "ico_a"
+ },
+ {
+  "id": "T.OldThing",
+  "name": "Old Thing",
+  "desc": "invented",
+  "itype": "Cyberware",
+  "area": "OldCW",
+  "quality": "Common",
+  "iconName": "n",
+  "iconRec": "x",
+  "tags": [],
+  "stats": [],
+  "onEquip": [],
+  "iconPart": "ico_old"
  }
 ]

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { loadD, loadReal } from './helpers.mjs';
 import { defaultState, setLevel, setAttr, sanitize, toRaw, hasFlag } from '../src/js/rules.js';
-import { evaluate, canEquip, equip, unequip, maxCapacity, reqStatus, slotKey, statLines } from '../src/js/cyber.js';
+import { evaluate, canEquip, equip, unequip, maxCapacity, reqStatus, slotKey, statLines, variantDiff } from '../src/js/cyber.js';
 import { encode, decode } from '../src/js/codec.js';
 
 // Engine tests run on the HAND-MADE fixture (tests/fixtures/cyberware.json), not on game data.
@@ -47,6 +47,13 @@ test('stat lines: one line per stat, ops formatted, nothing summed', () => {
   assert.deepEqual(statLines(imp('Beta')), ['Headshot Damage Multiplier +20%']);
   assert.deepEqual(statLines(imp('Eps')), ['Multi ×1.5']);
   assert.deepEqual(statLines(imp('Delta')), []);
+});
+
+test('same-quality variants: the stat and cost difference is spelled out', () => {
+  assert.deepEqual(variantDiff(imp('Alpha.Rare2'), imp('Alpha.Rare')), ['Armor none (was +3 / +9)']);
+  assert.deepEqual(variantDiff(imp('Alpha.Rare'), imp('Alpha.Rare2')), ['Armor +3 / +9']);
+  assert.deepEqual(variantDiff(imp('Alpha.Rare'), imp('Alpha.Rare')), []);
+  assert.deepEqual(variantDiff(imp('Alpha.Rare'), imp('Alpha.Common')), ['Armor +3 / +9 (was +1)', 'CAP 4 (was 2)']);
 });
 
 test('over capacity is refused without the overcap perk and allowed with it', () => {

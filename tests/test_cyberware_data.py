@@ -54,6 +54,13 @@ class CyberwareDataTests(unittest.TestCase):
             by_q.setdefault(i["quality"], set()).add(i["cost"])
         self.assertTrue(any(len(v) > 1 for v in by_q.values()), "costs vary within a quality")
 
+    def test_legacy_area_dropped_and_arms_pending(self):
+        self.assertTrue(all(i["group"] != "Slot.Immune" for i in DATA["implants"]))
+        self.assertNotIn("Immune", json.dumps(DATA["groups"]))
+        arms = next(g for g in DATA["groups"] if g["id"] == "Slot.Arms")
+        self.assertIn("missing from dump", arms["pendingData"])
+        self.assertFalse(any(i["group"] == "Slot.Arms" for i in DATA["implants"]))
+
     def test_each_variant_is_unique_in_its_family(self):
         seen = set()
         for i in DATA["implants"]:
