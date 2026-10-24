@@ -489,7 +489,10 @@
      "name": "SAMPLE Cool Perk 4A",
      "tier": 3,
      "new": false,
-     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+     "desc": "SAMPLE placeholder description. Real text comes from the game files.",
+     "flags": [
+      "overcap"
+     ]
     },
     {
      "id": "SAMPLE.Perk.Cool.T4.B",

@@ -2,5 +2,12 @@
   "name": "cp77planner",
   "private": true,
   "type": "module",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  },
+  "scripts": {
+    "test": "python3 tests/run.py",
+    "smoke": "node tests/smoke.mjs"
+  }
 }

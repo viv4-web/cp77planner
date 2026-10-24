@@ -38,7 +38,7 @@ class ContrastTests(unittest.TestCase):
 class ChipContrastTests(unittest.TestCase):
     def test_req_chip_colours(self):
         css = (ROOT / "src/styles/components.css").read_text()
-        fill = re.search(r"\.meta span\{[^}]*--fill:(#[0-9A-Fa-f]{6})", css).group(1)
+        fill = re.search(r"\.meta span,\.chipx\{[^}]*--fill:(#[0-9A-Fa-f]{6})", css).group(1)
         panel = over("#101438", .62, token("bg"))
         for name in ("yellow", "cyan"):          # REQ not met (yellow) / met (cyan)
             for bg in (fill, panel):

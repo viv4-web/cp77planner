@@ -1,8 +1,9 @@
 // Build-link codec. Format: "<version>.<base64url payload>", used as ?b=...
 // APPEND-ONLY: never change or remove a decoder. Every link ever shared must keep working.
-// Raw build shape: { level: int, attrs: int[5], perks: int[] }  (perks are permanent numeric record IDs "n")
+// Raw build shape: { level: int, attrs: int[5], perks: int[], cyber: [groupN, slotPos, implantN][] }  (all IDs are permanent registry numbers "n")
 
 const MAX_PERKS = 4096;
+const MAX_CYBER = 256;
 
 function toB64url(bytes) {
   let s = '';
@@ -34,27 +35,43 @@ function readVarint(bytes, pos) {
   throw new Error('varint-too-long');
 }
 
+function readBase(bytes) {
+  if (bytes.length < 7) throw new Error('truncated');
+  const level = bytes[0];
+  const attrs = Array.from(bytes.slice(1, 6));
+  const pos = { i: 6 };
+  const count = readVarint(bytes, pos);
+  if (count > MAX_PERKS) throw new Error('too-many');
+  const perks = [];
+  let prev = 0;
+  for (let k = 0; k < count; k++) {
+    prev += readVarint(bytes, pos);
+    perks.push(prev);
+  }
+  return { level, attrs, perks, pos };
+}
+
 // v1 payload: level(1) attrs(5 x 1) count(varint) then perk n's sorted ascending, delta-coded varints.
+// v2 payload: the v1 payload, then cyberware: count(varint) and per filled slot: group n, slot position, implant n (varints),
+//   sorted by (group n, position). Decoders are frozen: v1 links keep decoding forever (no cyberware).
 const decoders = {
   1(bytes) {
-    if (bytes.length < 7) throw new Error('truncated');
-    const level = bytes[0];
-    const attrs = Array.from(bytes.slice(1, 6));
-    const pos = { i: 6 };
-    const count = readVarint(bytes, pos);
-    if (count > MAX_PERKS) throw new Error('too-many');
-    const perks = [];
-    let prev = 0;
-    for (let k = 0; k < count; k++) {
-      prev += readVarint(bytes, pos);
-      perks.push(prev);
-    }
+    const { level, attrs, perks, pos } = readBase(bytes);
     if (pos.i !== bytes.length) throw new Error('trailing-bytes');
-    return { level, attrs, perks };
+    return { level, attrs, perks, cyber: [] };
+  },
+  2(bytes) {
+    const { level, attrs, perks, pos } = readBase(bytes);
+    const count = readVarint(bytes, pos);
+    if (count > MAX_CYBER) throw new Error('too-many');
+    const cyber = [];
+    for (let k = 0; k < count; k++) cyber.push([readVarint(bytes, pos), readVarint(bytes, pos), readVarint(bytes, pos)]);
+    if (pos.i !== bytes.length) throw new Error('trailing-bytes');
+    return { level, attrs, perks, cyber };
   },
 };
 
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 
 export function encode(build) {
   const out = [build.level & 0xff, ...build.attrs.slice(0, 5).map((v) => v & 0xff)];
@@ -62,6 +79,9 @@ export function encode(build) {
   writeVarint(out, perks.length);
   let prev = 0;
   for (const n of perks) { writeVarint(out, n - prev); prev = n; }
+  const cyber = [...(build.cyber || [])].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  writeVarint(out, cyber.length);
+  for (const entry of cyber) for (const v of entry) writeVarint(out, v);
   return `${CURRENT_VERSION}.${toB64url(Uint8Array.from(out))}`;
 }
 

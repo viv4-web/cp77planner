@@ -30,7 +30,7 @@ export function initShell({ store, D }) {
     `<a class="tab" href="?tab=${k}" data-tab="${k}" data-label="${label}"><span class="t">${label}</span><i class="ul"></i></a>`).join('');
 
   for (const [k, label] of TABS) {
-    if (k === 'character') continue;
+    if (k === 'character' || k === 'cyberware') continue;
     document.getElementById(`screen-${k}`).innerHTML =
       `<div class="soon cut chrome-edge boot"><span class="label">// COMING NEXT</span><h2 class="chrome-text">${label}</h2><p>${SOON[k]} This section is on the way.</p></div>`;
   }

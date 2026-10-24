@@ -1,0 +1,4 @@
+export const ICON_LOCK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 017 0v2M3 7h10v7H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+export const ICON_CHECK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+export const ICON_PLUS = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+export const ICON_WARN = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5l6 10.5H2zM8 7v3M8 11.6v.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';

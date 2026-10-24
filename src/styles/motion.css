@@ -43,7 +43,8 @@ html[data-motion=calm]{--speed:2}
 .btn:hover:not(:disabled):not([aria-disabled=true]){transform:translateY(-2px)}
 .tab:hover::before{animation:glitchA .24s steps(4) 1}
 .tab:hover::after{animation:glitchB .24s steps(4) 1}
-.acard .bar i{transition:transform .5s var(--ease)}
+.acard .bar i,.capbar i{transition:transform .5s var(--ease)}
+.cw-picker{transition:transform .32s var(--ease)}
 
 /* available ping, install sweep */
 .nodewrap[data-s=available] .ping{animation:ping calc(2s * var(--speed)) var(--ease) infinite}
@@ -72,3 +73,7 @@ html[data-motion=off] .bg .mote,html[data-motion=off] .shine{display:none}
 /* an element that is both boot-revealed and chrome-animated needs both animations in one declaration */
 .boot.cutline.chrome{animation:rise .75s var(--ease) backwards,chrome calc(var(--dur,6s) * var(--speed)) linear infinite;animation-delay:calc(var(--i,0) * 70ms),0s}
 html[data-motion=off] .boot.cutline.chrome{animation:none!important}
+
+/* cyberware: a socket that just got filled pops its icon in; capacity bar changes ride the transform transition above */
+@keyframes sockfill{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.sock[data-s=filled] .ico,.sock[data-s=flag] .ico{animation:sockfill .4s var(--ease) backwards}

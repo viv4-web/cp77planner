@@ -16,6 +16,8 @@ FROZEN = {
     "SAMPLE.Perk.Body.T1.A": 101,
     "SAMPLE.Perk.Intelligence.T4.C": 433,
     "SAMPLE.Perk.Relic.T3.B": 622,
+    "SAMPLE.Slot.FrontalCortex": 700,
+    "SAMPLE.Implant.FrontalCortex.A": 710,
 }
 
 
@@ -35,7 +37,12 @@ class IdRegistryTests(unittest.TestCase):
         ns = list(self.reg["ids"].values())
         self.assertEqual(len(ns), len(set(ns)), "duplicate n in registry")
         self.assertTrue(all(isinstance(n, int) and n > 0 for n in ns))
-        self.assertGreater(self.reg["next"], max(ns), "'next' must be above every assigned n")
+        real = [n for name, n in self.reg["ids"].items() if not name.startswith("SAMPLE.")]
+        sample = [n for name, n in self.reg["ids"].items() if name.startswith("SAMPLE.")]
+        self.assertGreater(self.reg["next"], max(real, default=0), "'next' must be above every real n")
+        self.assertGreaterEqual(self.reg["next"], 1000, "1..999 is reserved for SAMPLE records")
+        self.assertTrue(all(n < 1000 for n in sample), "SAMPLE records live below 1000")
+        self.assertGreater(self.reg["nextSample"], max(sample), "'nextSample' must be above every sample n")
 
     def test_data_files_match_registry(self):
         self.assertEqual(ids.check(), 0)
@@ -80,6 +87,7 @@ class IdRegistryTests(unittest.TestCase):
             for name, n in old["ids"].items():
                 self.assertEqual(self.reg["ids"].get(name), n, f"{name} changed or was removed since {rev[:8]}")
             self.assertGreaterEqual(self.reg["next"], old["next"], f"'next' went backwards since {rev[:8]}")
+            self.assertGreaterEqual(self.reg.get("nextSample", 0), old.get("nextSample", 0), f"'nextSample' went backwards since {rev[:8]}")
 
 
 if __name__ == "__main__":

@@ -30,7 +30,7 @@ def copy_site(out: Path):
         # n comes ONLY from the append-only registry (data/ids.json), injected here, never at page load.
         # A record without a registry entry fails the build.
         registry = json.loads((data / "ids.json").read_text())["ids"]
-        for f in sorted((out / "data").rglob("tree.json")):
+        for f in sorted(p for p in (out / "data").rglob("*.json") if p.name != "ids.json"):
             doc = ids.inject(json.loads(f.read_text()), registry, str(f.relative_to(out)))
             f.write_text(json.dumps(doc, indent=1) + "\n")
 

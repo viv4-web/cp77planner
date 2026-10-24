@@ -2,15 +2,17 @@ import { loadResolver } from './art.js';
 import { buildIndex, defaultState, sanitize } from './rules.js';
 import { decode } from './codec.js';
 import { initCharacter } from './character.js';
+import { initCyberware } from './cyberware.js';
 import { initShell } from './shell.js';
 import { createStore, urlStateWriter } from './store.js';
 
 async function boot() {
-  const [art, data] = await Promise.all([
+  const [art, data, cyberData] = await Promise.all([
     loadResolver(),
     fetch('data/sample/tree.json').then((r) => r.json()),
+    fetch('data/sample/cyberware.json').then((r) => r.json()),
   ]);
-  const D = buildIndex(data);
+  const D = buildIndex(data, cyberData);
 
   const params = new URLSearchParams(location.search);
   let state = defaultState(D);
@@ -26,6 +28,7 @@ async function boot() {
   const store = createStore(state);
   const shell = initShell({ store, D });
   initCharacter({ root: document.getElementById('screen-character'), store, D, art });
+  initCyberware({ root: document.getElementById('screen-cyberware'), store, D, art });
   store.subscribe(urlStateWriter(D, shell.currentTab));
   if (notice) shell.toast(notice);
   store.emit();

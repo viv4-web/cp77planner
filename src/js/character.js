@@ -1,10 +1,9 @@
+import { ICON_LOCK, ICON_CHECK } from './icons.js';
 import {
   pools, perkStatus, canInstall, canRefund, install, refund, setAttr, setLevel, minLevel,
 } from './rules.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const ICON_LOCK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 017 0v2M3 7h10v7H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
-const ICON_CHECK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const REASON = {
   locked: 'Locked: requirement not met.',
   'no-points': 'No points left to spend.',
