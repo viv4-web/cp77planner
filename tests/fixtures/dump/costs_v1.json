@@ -1,0 +1,24 @@
+{
+ "T.WidgetCommon": {
+  "HumanityAllocated": 4
+ },
+ "T.WidgetRare": {
+  "HumanityAllocated": 4
+ },
+ "T.WidgetRare2": {
+  "HumanityAllocated": 6
+ },
+ "T.Gizmo": {
+  "HumanityAllocated": 9
+ },
+ "T.Free": [],
+ "T.Orphan": {
+  "HumanityAllocated": 3
+ },
+ "T.Debug_Widget": {
+  "HumanityAllocated": 1
+ },
+ "TEST.Thing": {
+  "HumanityAllocated": 1
+ }
+}

@@ -1,0 +1,164 @@
+{
+ "_note": "Import configuration for tools/import_cyberware.py. Game rules and mapping tables live here, not in code. Slot counts are for character level 2 (docs/GAME-DATA.md).",
+ "slots": [
+  {
+   "key": "FrontalCortex",
+   "name": "Frontal Cortex",
+   "slots": 3,
+   "locked": 0,
+   "areas": [
+    "FrontalCortexCW"
+   ]
+  },
+  {
+   "key": "Arms",
+   "name": "Arms",
+   "slots": 1,
+   "locked": 0,
+   "areas": []
+  },
+  {
+   "key": "Skeleton",
+   "name": "Skeleton",
+   "slots": 2,
+   "locked": 1,
+   "areas": [
+    "MusculoskeletalSystemCW"
+   ]
+  },
+  {
+   "key": "NervousSystem",
+   "name": "Nervous System",
+   "slots": 3,
+   "locked": 0,
+   "areas": [
+    "NervousSystemCW"
+   ]
+  },
+  {
+   "key": "Integumentary",
+   "name": "Integumentary",
+   "slots": 3,
+   "locked": 0,
+   "areas": [
+    "IntegumentarySystemCW"
+   ]
+  },
+  {
+   "key": "OperatingSystem",
+   "name": "Operating System",
+   "slots": 1,
+   "locked": 0,
+   "areas": [
+    "SystemReplacementCW"
+   ]
+  },
+  {
+   "key": "Face",
+   "name": "Face",
+   "slots": 1,
+   "locked": 0,
+   "areas": [
+    "EyesCW"
+   ]
+  },
+  {
+   "key": "Hands",
+   "name": "Hands",
+   "slots": 1,
+   "locked": 1,
+   "areas": [
+    "HandsCW"
+   ]
+  },
+  {
+   "key": "Circulatory",
+   "name": "Circulatory",
+   "slots": 3,
+   "locked": 0,
+   "areas": [
+    "CardiovascularSystemCW"
+   ]
+  },
+  {
+   "key": "Legs",
+   "name": "Legs",
+   "slots": 1,
+   "locked": 0,
+   "areas": [
+    "LegsCW"
+   ]
+  }
+ ],
+ "qualities": [
+  {
+   "key": "Common",
+   "label": "Common"
+  },
+  {
+   "key": "CommonPlus",
+   "label": "Common+"
+  },
+  {
+   "key": "Uncommon",
+   "label": "Uncommon"
+  },
+  {
+   "key": "UncommonPlus",
+   "label": "Uncommon+"
+  },
+  {
+   "key": "Rare",
+   "label": "Rare"
+  },
+  {
+   "key": "RarePlus",
+   "label": "Rare+"
+  },
+  {
+   "key": "Epic",
+   "label": "Epic"
+  },
+  {
+   "key": "EpicPlus",
+   "label": "Epic+"
+  },
+  {
+   "key": "Legendary",
+   "label": "Legendary"
+  },
+  {
+   "key": "LegendaryPlus",
+   "label": "Legendary+"
+  },
+  {
+   "key": "LegendaryPlusPlus",
+   "label": "Legendary++"
+  }
+ ],
+ "flagStatPatterns": [
+  "^Has[A-Z]",
+  "^IsItem",
+  "^AttunementHelper"
+ ],
+ "excludeIdPatterns": [
+  "^TEST\\.",
+  "(^|\\.)Debug_",
+  "^Items\\.(Normal|Hard|VHard)_\\d+_",
+  "Tutorial",
+  "Test$"
+ ],
+ "costStat": "HumanityAllocated",
+ "valueDigits": 4,
+ "rules": {
+  "capacityBase": 27,
+  "capacityPerLevel": 0,
+  "attrBonus": [],
+  "overcapFlag": "overcap",
+  "pending": [
+   "capacity growth by level, attributes and perks",
+   "unlock of the locked Skeleton and Hands slots",
+   "overcap rule"
+  ]
+ }
+}

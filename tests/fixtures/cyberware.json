@@ -1,0 +1,20 @@
+{
+ "_note": "HAND-MADE test fixture. Invented names and numbers, not game data. n values are test-only (the real ones come from data/ids.json).",
+ "rules": {"capacityBase": 12, "capacityPerLevel": 0.5, "attrBonus": [{"attr": "technical", "perPoint": 1}], "overcapFlag": "overcap"},
+ "groups": [
+  {"id": "T.Slot.Head", "n": 9001, "name": "Head", "slots": 3, "locked": 0},
+  {"id": "T.Slot.Bone", "n": 9002, "name": "Bone", "slots": 2, "locked": 1},
+  {"id": "T.Slot.Eye", "n": 9003, "name": "Eye", "slots": 1, "locked": 0},
+  {"id": "T.Slot.Leg", "n": 9004, "name": "Leg", "slots": 1, "locked": 0}
+ ],
+ "implants": [
+  {"id": "T.Alpha.Common", "n": 9101, "name": "Alpha", "group": "T.Slot.Head", "family": "Head/Alpha", "quality": "Common", "tier": 1, "variant": 1, "cost": 2, "stats": [{"stat": "Armor", "op": "Additive", "value": 1}], "flags": [], "icon": "ico_alpha", "req": null},
+  {"id": "T.Alpha.Rare", "n": 9102, "name": "Alpha", "group": "T.Slot.Head", "family": "Head/Alpha", "quality": "Rare", "tier": 5, "variant": 1, "cost": 4, "stats": [{"stat": "Armor", "op": "Additive", "value": 3}, {"stat": "Armor", "op": "Additive", "value": 9}], "flags": [], "icon": "ico_alpha", "req": null},
+  {"id": "T.Alpha.Rare2", "n": 9103, "name": "Alpha", "group": "T.Slot.Head", "family": "Head/Alpha", "quality": "Rare", "tier": 5, "variant": 2, "cost": 4, "stats": [], "flags": [], "icon": "ico_alpha", "req": null},
+  {"id": "T.Beta", "n": 9104, "name": "Beta", "group": "T.Slot.Head", "family": "Head/Beta", "quality": "Epic", "tier": 7, "variant": 1, "cost": 6, "stats": [{"stat": "HeadshotDamageMultiplier", "op": "AdditiveMultiplier", "value": 0.2}], "flags": ["HasThing"], "icon": null, "req": {"type": "attr", "attr": "intelligence", "value": 9}},
+  {"id": "T.Gamma", "n": 9105, "name": "Gamma", "group": "T.Slot.Bone", "family": "Bone/Gamma", "quality": "Common", "tier": 1, "variant": 1, "cost": 6, "stats": [], "flags": [], "icon": null, "req": null},
+  {"id": "T.Delta", "n": 9106, "name": "Delta", "group": "T.Slot.Eye", "family": "Eye/Delta", "quality": "Common", "tier": 1, "variant": 1, "cost": 6, "stats": [], "flags": [], "icon": null, "req": null},
+  {"id": "T.Delta.Cheap", "n": 9107, "name": "Delta Lite", "group": "T.Slot.Eye", "family": "Eye/Delta Lite", "quality": "Common", "tier": 1, "variant": 1, "cost": 3, "stats": [], "flags": [], "icon": null, "req": null},
+  {"id": "T.Eps", "n": 9108, "name": "Epsilon", "group": "T.Slot.Leg", "family": "Leg/Epsilon", "quality": "Common", "tier": 1, "variant": 1, "cost": 5, "stats": [{"stat": "Multi", "op": "Multiplier", "value": 1.5}], "flags": [], "icon": null, "req": {"type": "perk", "perk": "SAMPLE.Perk.Body.T2.A"}}
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "slots": [
+  {
+   "key": "Head",
+   "name": "Head",
+   "slots": 2,
+   "locked": 1,
+   "areas": [
+    "HeadCW"
+   ]
+  },
+  {
+   "key": "Leg",
+   "name": "Leg",
+   "slots": 1,
+   "locked": 0,
+   "areas": [
+    "LegCW"
+   ]
+  },
+  {
+   "key": "Arm",
+   "name": "Arm",
+   "slots": 1,
+   "locked": 0,
+   "areas": []
+  }
+ ],
+ "qualities": [
+  {
+   "key": "Common",
+   "label": "Common"
+  },
+  {
+   "key": "Rare",
+   "label": "Rare"
+  },
+  {
+   "key": "Epic",
+   "label": "Epic"
+  }
+ ],
+ "flagStatPatterns": [
+  "^Has[A-Z]",
+  "^AttunementHelper"
+ ],
+ "excludeIdPatterns": [
+  "^TEST\\.",
+  "(^|\\.)Debug_"
+ ],
+ "costStat": "HumanityAllocated",
+ "valueDigits": 4,
+ "rules": {
+  "capacityBase": 10,
+  "capacityPerLevel": 0,
+  "attrBonus": [],
+  "overcapFlag": "overcap"
+ }
+}
