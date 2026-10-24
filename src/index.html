@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyberpunk 2077 Build Planner · buildplanner.net</title>
+<meta name="description" content="Plan Cyberpunk 2077 builds: attributes, perks and more. Your build lives in the link.">
+<meta name="theme-color" content="#070A1C">
+<link rel="preload" href="fonts/chakra-petch-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/components.css">
+<link rel="stylesheet" href="styles/motion.css">
+<script>
+// Set the motion mode before first paint (no flash). Saved choice wins; otherwise reduced-motion => off.
+(function(){var m;try{m=localStorage.getItem('cp77.motion')}catch(e){}
+if(m!=='full'&&m!=='calm'&&m!=='off'){m=(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)?'off':'full'}
+document.documentElement.setAttribute('data-motion',m)})();
+</script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="sun"></div>
+  <div class="floor"><div class="grid"></div></div>
+  <i class="mote" style="--x:12%;--y:8%;--d:16s;--w:-3s;--dx:40px"></i>
+  <i class="mote" style="--x:30%;--y:20%;--d:19s;--w:-9s;--dx:-30px"></i>
+  <i class="mote" style="--x:52%;--y:5%;--d:13s;--w:-6s;--dx:25px"></i>
+  <i class="mote" style="--x:71%;--y:14%;--d:20s;--w:-1s;--dx:-45px"></i>
+  <i class="mote" style="--x:88%;--y:6%;--d:15s;--w:-11s;--dx:30px"></i>
+  <i class="mote" style="--x:42%;--y:30%;--d:12s;--w:-5s;--dx:-20px"></i>
+</div>
+
+<header class="topbar">
+  <a class="logo" href="./">buildplanner.net <b>/ CP77</b></a>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+  <div class="top-right">
+    <div class="settings" role="group" aria-label="Motion" id="motion">
+      <button type="button" data-m="full" aria-pressed="false">Full</button>
+      <button type="button" data-m="calm" aria-pressed="false">Calm</button>
+      <button type="button" data-m="off" aria-pressed="false">Off</button>
+    </div>
+    <span class="chip">GAME 2.5 · PL</span>
+    <button class="btn ghost" id="stats-btn" type="button"><span class="long">Player </span>stats</button>
+    <button class="btn primary" id="copy-btn" type="button">Copy <span class="long">build&nbsp;</span>link</button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="screen" id="screen-character" data-tab="character"></section>
+  <section class="screen" id="screen-cyberware" data-tab="cyberware" hidden></section>
+  <section class="screen" id="screen-inventory" data-tab="inventory" hidden></section>
+  <section class="screen" id="screen-journal" data-tab="journal" hidden></section>
+  <section class="screen" id="screen-database" data-tab="database" hidden></section>
+  <p class="foot">UNOFFICIAL FAN PROJECT · NOT AFFILIATED WITH CD PROJEKT RED · GAME DATA &amp; ART © CD PROJEKT RED · v0.1 · SAMPLE DATA</p>
+</main>
+
+<dialog id="stats-dialog">
+  <div class="cut chrome-edge">
+    <span class="label">// PLAYER STATS</span>
+    <h2 class="head" style="font-size:24px">Player stats</h2>
+    <p style="color:var(--muted)">Nothing here yet. Derived stats arrive once real game data is in.</p>
+    <form method="dialog"><button class="btn ghost" autofocus>Close</button></form>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

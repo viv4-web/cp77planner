@@ -1,0 +1,639 @@
+{
+ "_sample": true,
+ "_note": "SAMPLE DATA for layout only. Not game facts. Real data comes from TweakDB exports.",
+ "rules": {
+  "_sample": true,
+  "maxLevel": 60,
+  "attrBase": 3,
+  "attrMax": 20,
+  "attrPointsPerLevel": 1,
+  "perkPointsStart": 1,
+  "perkPointsPerLevel": 1,
+  "relicPoints": 6
+ },
+ "trees": [
+  {
+   "n": 1,
+   "id": "SAMPLE.Attr.Body",
+   "key": "body",
+   "name": "Body",
+   "kind": "attribute",
+   "gate": "value",
+   "tierReq": [
+    4,
+    9,
+    15,
+    20
+   ],
+   "perks": [
+    {
+     "n": 101,
+     "id": "SAMPLE.Perk.Body.T1.A",
+     "name": "SAMPLE Body Perk 1A",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 102,
+     "id": "SAMPLE.Perk.Body.T1.B",
+     "name": "SAMPLE Body Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 103,
+     "id": "SAMPLE.Perk.Body.T1.C",
+     "name": "SAMPLE Body Perk 1C",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 111,
+     "id": "SAMPLE.Perk.Body.T2.A",
+     "name": "SAMPLE Body Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 112,
+     "id": "SAMPLE.Perk.Body.T2.B",
+     "name": "SAMPLE Body Perk 2B",
+     "tier": 1,
+     "new": true,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 113,
+     "id": "SAMPLE.Perk.Body.T2.C",
+     "name": "SAMPLE Body Perk 2C",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 121,
+     "id": "SAMPLE.Perk.Body.T3.A",
+     "name": "SAMPLE Body Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 122,
+     "id": "SAMPLE.Perk.Body.T3.B",
+     "name": "SAMPLE Body Perk 3B",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 123,
+     "id": "SAMPLE.Perk.Body.T3.C",
+     "name": "SAMPLE Body Perk 3C",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 131,
+     "id": "SAMPLE.Perk.Body.T4.A",
+     "name": "SAMPLE Body Perk 4A",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 132,
+     "id": "SAMPLE.Perk.Body.T4.B",
+     "name": "SAMPLE Body Perk 4B",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 133,
+     "id": "SAMPLE.Perk.Body.T4.C",
+     "name": "SAMPLE Body Perk 4C",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "id": "SAMPLE.Attr.Reflexes",
+   "key": "reflexes",
+   "name": "Reflexes",
+   "kind": "attribute",
+   "gate": "value",
+   "tierReq": [
+    4,
+    9,
+    15,
+    20
+   ],
+   "perks": [
+    {
+     "n": 201,
+     "id": "SAMPLE.Perk.Reflexes.T1.A",
+     "name": "SAMPLE Reflexes Perk 1A",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 202,
+     "id": "SAMPLE.Perk.Reflexes.T1.B",
+     "name": "SAMPLE Reflexes Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 203,
+     "id": "SAMPLE.Perk.Reflexes.T1.C",
+     "name": "SAMPLE Reflexes Perk 1C",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 211,
+     "id": "SAMPLE.Perk.Reflexes.T2.A",
+     "name": "SAMPLE Reflexes Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 212,
+     "id": "SAMPLE.Perk.Reflexes.T2.B",
+     "name": "SAMPLE Reflexes Perk 2B",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 213,
+     "id": "SAMPLE.Perk.Reflexes.T2.C",
+     "name": "SAMPLE Reflexes Perk 2C",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 221,
+     "id": "SAMPLE.Perk.Reflexes.T3.A",
+     "name": "SAMPLE Reflexes Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 222,
+     "id": "SAMPLE.Perk.Reflexes.T3.B",
+     "name": "SAMPLE Reflexes Perk 3B",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 223,
+     "id": "SAMPLE.Perk.Reflexes.T3.C",
+     "name": "SAMPLE Reflexes Perk 3C",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 231,
+     "id": "SAMPLE.Perk.Reflexes.T4.A",
+     "name": "SAMPLE Reflexes Perk 4A",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 232,
+     "id": "SAMPLE.Perk.Reflexes.T4.B",
+     "name": "SAMPLE Reflexes Perk 4B",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 233,
+     "id": "SAMPLE.Perk.Reflexes.T4.C",
+     "name": "SAMPLE Reflexes Perk 4C",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "id": "SAMPLE.Attr.Technical",
+   "key": "technical",
+   "name": "Technical",
+   "kind": "attribute",
+   "gate": "value",
+   "tierReq": [
+    4,
+    9,
+    15,
+    20
+   ],
+   "perks": [
+    {
+     "n": 301,
+     "id": "SAMPLE.Perk.Technical.T1.A",
+     "name": "SAMPLE Technical Perk 1A",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 302,
+     "id": "SAMPLE.Perk.Technical.T1.B",
+     "name": "SAMPLE Technical Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 303,
+     "id": "SAMPLE.Perk.Technical.T1.C",
+     "name": "SAMPLE Technical Perk 1C",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 311,
+     "id": "SAMPLE.Perk.Technical.T2.A",
+     "name": "SAMPLE Technical Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 312,
+     "id": "SAMPLE.Perk.Technical.T2.B",
+     "name": "SAMPLE Technical Perk 2B",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 313,
+     "id": "SAMPLE.Perk.Technical.T2.C",
+     "name": "SAMPLE Technical Perk 2C",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 321,
+     "id": "SAMPLE.Perk.Technical.T3.A",
+     "name": "SAMPLE Technical Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 322,
+     "id": "SAMPLE.Perk.Technical.T3.B",
+     "name": "SAMPLE Technical Perk 3B",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 323,
+     "id": "SAMPLE.Perk.Technical.T3.C",
+     "name": "SAMPLE Technical Perk 3C",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 331,
+     "id": "SAMPLE.Perk.Technical.T4.A",
+     "name": "SAMPLE Technical Perk 4A",
+     "tier": 3,
+     "new": true,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 332,
+     "id": "SAMPLE.Perk.Technical.T4.B",
+     "name": "SAMPLE Technical Perk 4B",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 333,
+     "id": "SAMPLE.Perk.Technical.T4.C",
+     "name": "SAMPLE Technical Perk 4C",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "id": "SAMPLE.Attr.Intelligence",
+   "key": "intelligence",
+   "name": "Intelligence",
+   "kind": "attribute",
+   "gate": "value",
+   "tierReq": [
+    4,
+    9,
+    15,
+    20
+   ],
+   "perks": [
+    {
+     "n": 401,
+     "id": "SAMPLE.Perk.Intelligence.T1.A",
+     "name": "SAMPLE Intelligence Perk 1A",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 402,
+     "id": "SAMPLE.Perk.Intelligence.T1.B",
+     "name": "SAMPLE Intelligence Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 403,
+     "id": "SAMPLE.Perk.Intelligence.T1.C",
+     "name": "SAMPLE Intelligence Perk 1C",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 411,
+     "id": "SAMPLE.Perk.Intelligence.T2.A",
+     "name": "SAMPLE Intelligence Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 412,
+     "id": "SAMPLE.Perk.Intelligence.T2.B",
+     "name": "SAMPLE Intelligence Perk 2B",
+     "tier": 1,
+     "new": true,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 413,
+     "id": "SAMPLE.Perk.Intelligence.T2.C",
+     "name": "SAMPLE Intelligence Perk 2C",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 421,
+     "id": "SAMPLE.Perk.Intelligence.T3.A",
+     "name": "SAMPLE Intelligence Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 422,
+     "id": "SAMPLE.Perk.Intelligence.T3.B",
+     "name": "SAMPLE Intelligence Perk 3B",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 423,
+     "id": "SAMPLE.Perk.Intelligence.T3.C",
+     "name": "SAMPLE Intelligence Perk 3C",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 431,
+     "id": "SAMPLE.Perk.Intelligence.T4.A",
+     "name": "SAMPLE Intelligence Perk 4A",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 432,
+     "id": "SAMPLE.Perk.Intelligence.T4.B",
+     "name": "SAMPLE Intelligence Perk 4B",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 433,
+     "id": "SAMPLE.Perk.Intelligence.T4.C",
+     "name": "SAMPLE Intelligence Perk 4C",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "id": "SAMPLE.Attr.Cool",
+   "key": "cool",
+   "name": "Cool",
+   "kind": "attribute",
+   "gate": "value",
+   "tierReq": [
+    4,
+    9,
+    15,
+    20
+   ],
+   "perks": [
+    {
+     "n": 501,
+     "id": "SAMPLE.Perk.Cool.T1.A",
+     "name": "SAMPLE Cool Perk 1A",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 502,
+     "id": "SAMPLE.Perk.Cool.T1.B",
+     "name": "SAMPLE Cool Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 503,
+     "id": "SAMPLE.Perk.Cool.T1.C",
+     "name": "SAMPLE Cool Perk 1C",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 511,
+     "id": "SAMPLE.Perk.Cool.T2.A",
+     "name": "SAMPLE Cool Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 512,
+     "id": "SAMPLE.Perk.Cool.T2.B",
+     "name": "SAMPLE Cool Perk 2B",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 513,
+     "id": "SAMPLE.Perk.Cool.T2.C",
+     "name": "SAMPLE Cool Perk 2C",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 521,
+     "id": "SAMPLE.Perk.Cool.T3.A",
+     "name": "SAMPLE Cool Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 522,
+     "id": "SAMPLE.Perk.Cool.T3.B",
+     "name": "SAMPLE Cool Perk 3B",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 523,
+     "id": "SAMPLE.Perk.Cool.T3.C",
+     "name": "SAMPLE Cool Perk 3C",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 531,
+     "id": "SAMPLE.Perk.Cool.T4.A",
+     "name": "SAMPLE Cool Perk 4A",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 532,
+     "id": "SAMPLE.Perk.Cool.T4.B",
+     "name": "SAMPLE Cool Perk 4B",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 533,
+     "id": "SAMPLE.Perk.Cool.T4.C",
+     "name": "SAMPLE Cool Perk 4C",
+     "tier": 3,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "id": "SAMPLE.Tree.Relic",
+   "key": "relic",
+   "name": "Relic",
+   "kind": "relic",
+   "gate": "spent",
+   "tierReq": [
+    0,
+    2,
+    4
+   ],
+   "perks": [
+    {
+     "n": 601,
+     "id": "SAMPLE.Perk.Relic.T1.A",
+     "name": "SAMPLE Relic Perk 1A",
+     "tier": 0,
+     "new": true,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 602,
+     "id": "SAMPLE.Perk.Relic.T1.B",
+     "name": "SAMPLE Relic Perk 1B",
+     "tier": 0,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 611,
+     "id": "SAMPLE.Perk.Relic.T2.A",
+     "name": "SAMPLE Relic Perk 2A",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 612,
+     "id": "SAMPLE.Perk.Relic.T2.B",
+     "name": "SAMPLE Relic Perk 2B",
+     "tier": 1,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 621,
+     "id": "SAMPLE.Perk.Relic.T3.A",
+     "name": "SAMPLE Relic Perk 3A",
+     "tier": 2,
+     "new": false,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    },
+    {
+     "n": 622,
+     "id": "SAMPLE.Perk.Relic.T3.B",
+     "name": "SAMPLE Relic Perk 3B",
+     "tier": 2,
+     "new": true,
+     "desc": "SAMPLE placeholder description. Real text comes from the game files."
+    }
+   ]
+  }
+ ]
+}

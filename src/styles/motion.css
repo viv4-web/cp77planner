@@ -1,0 +1,72 @@
+/* Motion: CSS only. Animates transform, opacity, background-position (plus stroke-dashoffset on circuit traces
+   and one filter blur on the one-shot boot). Settings: html[data-motion=full|calm|off]. */
+@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes floor{to{background-position:0 64px}}
+@keyframes sun{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+@keyframes mote{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.8}85%{opacity:.6}100%{transform:translate3d(var(--dx,30px),-60vh,0);opacity:0}}
+@keyframes chrome{from{background-position:0 0}to{background-position:300% 0}}
+@keyframes ping{0%{transform:scale(1);opacity:.85}70%,100%{transform:scale(1.45);opacity:0}}
+@keyframes plate{0%{transform:translateY(-100%);opacity:1}100%{transform:translateY(100%);opacity:.2}}
+@keyframes flash{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+@keyframes pulse{from{stroke-dashoffset:100}to{stroke-dashoffset:-6}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scan{0%{transform:translateY(0);opacity:0}15%,85%{opacity:.8}100%{transform:translateY(60px);opacity:0}}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-60px)}}
+@keyframes glint{from{transform:translateX(0) skewX(-18deg)}to{transform:translateX(420%) skewX(-18deg)}}
+@keyframes glitchA{0%{transform:translate(0);opacity:0}25%{transform:translate(-3px,1px);opacity:.85}60%{transform:translate(2px,-1px);opacity:.7}100%{transform:translate(0);opacity:0}}
+@keyframes glitchB{0%{transform:translate(0);opacity:0}25%{transform:translate(3px,-1px);opacity:.85}60%{transform:translate(-2px,1px);opacity:.7}100%{transform:translate(0);opacity:0}}
+
+:root{--m-mote:1}
+html[data-motion=calm]{--speed:2}
+
+/* boot (staggered) */
+.boot{animation:rise .75s var(--ease) backwards;animation-delay:calc(var(--i,0) * 70ms)}
+
+/* background loops */
+.bg .sun{animation:sun calc(9s * var(--speed)) ease-in-out infinite}
+.bg .grid{animation:floor calc(2.4s * var(--speed)) linear infinite}
+.bg .mote{animation:mote var(--d,16s) linear infinite;animation-delay:var(--w,0s);left:var(--x,50%);bottom:var(--y,10%)}
+
+/* chrome text + edges */
+.chrome-text{animation:chrome calc(7s * var(--speed)) linear infinite}
+.chrome-edge::after,.btn.ghost::after,.node[data-s=owned]::after,.acard.on::after{background:var(--chrome);background-size:300% 100%;animation:chrome calc(6s * var(--speed)) linear infinite}
+.node[data-s=owned]::after{animation-duration:calc(5s * var(--speed))}
+.btn.ghost::after{animation-duration:calc(8s * var(--speed))}
+.socket .hex{animation:chrome calc(7s * var(--speed)) linear infinite}
+
+/* hover */
+.acard,.node,.btn,.tab,.shine::before{transition:transform .32s var(--ease)}
+.tab .ul{transition:transform .32s var(--ease)}
+.acard:hover{transform:translateY(-4px)}
+.acard:hover .shine{opacity:1}
+.acard:hover .shine::before{animation:glint .9s var(--ease)}
+.node:hover{transform:translateY(-3px)}
+.btn:hover:not(:disabled){transform:translateY(-2px)}
+.tab:hover::before{animation:glitchA .24s steps(4) 1}
+.tab:hover::after{animation:glitchB .24s steps(4) 1}
+.acard .bar i{transition:transform .5s var(--ease)}
+
+/* available ping, install sweep */
+.nodewrap[data-s=available] .ping{animation:ping calc(2s * var(--speed)) var(--ease) infinite}
+.node.installing .plate{animation:plate .9s var(--ease) both}
+.node.installing::before{content:"";position:absolute;inset:0;z-index:3;background:#fff;opacity:0;animation:flash .9s var(--ease) both}
+
+/* traces, socket */
+.trace path.pulse{animation:pulse calc(3.2s * var(--speed)) linear infinite}
+.trace path.pulse.p2{animation-delay:-1.6s}
+.socket .ring{animation:spin calc(20s * var(--speed)) linear infinite}
+.socket .ring.r2{animation:spin calc(12s * var(--speed)) linear infinite reverse}
+.socket .scan{animation:scan calc(3s * var(--speed)) linear infinite}
+.tree-name{animation:drift calc(24s * var(--speed)) ease-in-out infinite alternate}
+
+.toast{transition:opacity .3s var(--ease),transform .3s var(--ease)}
+
+/* Calm: no motes, no shine (grid/pulses already slower via --speed) */
+html[data-motion=calm] .bg .mote,html[data-motion=calm] .shine{display:none}
+
+/* Off: nothing moves */
+html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important}
+html[data-motion=off] .bg .mote,html[data-motion=off] .shine{display:none}
+@media (prefers-reduced-motion:reduce){
+  html:not([data-motion]) *,html:not([data-motion]) *::before,html:not([data-motion]) *::after{animation:none!important;transition:none!important}
+}
