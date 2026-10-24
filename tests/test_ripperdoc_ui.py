@@ -100,6 +100,6 @@ class WidgetTests(unittest.TestCase):
 
     def test_widget_numbers_are_the_game_grid_halved(self):
         self.assertEqual(WIDGETS["cell"]["size"], [108.0, 97.0])
-        self.assertEqual(WIDGETS["tooltip"]["width"], 355.0)
+        self.assertEqual(WIDGETS["tooltip"]["width"], 355.0)  # the game's width; our tooltip is 380 (docs/RIPPERDOC-SPEC.md 10.3)
         self.assertEqual(WIDGETS["hover"]["flicker"]["count"], 8)
         self.assertEqual(WIDGETS["absentParts"], ["atlas_inventory/corners_equipped", "atlas_inventory/texture_1slot", "atlas_inventory/texture_1slot_iconic", "hub_atlas/ico_cafting_crafting"])

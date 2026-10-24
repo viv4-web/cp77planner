@@ -355,11 +355,14 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const bottom = top + max * SEG_H;
     const capLeft = m.origin[0] + m.bgOffset[0];
     const segs = [];
-    const total = Math.max(max, ev.used + (preview > 0 ? preview : 0));
-    for (let i = 0; i < total; i++) {            // i = 0 is the bottom segment
+    // the meter keeps its height: rows are clamped to the limit and the amount over is carried by the "OVER BY n" text and the marker
+    const afterAll = ev.used + Math.max(0, preview), overUsed = Math.max(0, ev.used - max), overAll = Math.max(0, afterAll - max);
+    const litTo = Math.min(ev.used, max), addTo = Math.min(afterAll, max);
+    for (let i = 0; i < max; i++) {            // i = 0 is the bottom segment
       let cls = 'e';
-      if (i < ev.used) cls = i >= max ? 'unsafe' : 'safe';
-      else if (preview > 0 && i < ev.used + preview) cls = (ev.used + preview > max) ? 'unsafe-add' : 'safe-add';
+      if (i < litTo) cls = i >= max - overUsed ? 'unsafe' : 'safe';
+      else if (preview > 0 && i < addTo) cls = overAll > 0 ? 'unsafe-add' : 'safe-add';
+      else if (preview > 0 && overAll > 0 && i === max - 1) cls = 'unsafe-add';      // already full: the top row hints at the overflow
       segs.push(seg(cls, bottom - (i + 1) * SEG_H, left));
     }
     const labelY = bottom - Math.min(ev.used, max) * SEG_H - 17;
@@ -401,23 +404,31 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     const cur = C.implants.get(store.get().cyber.get(key));
     if (cur && cur.n === imp.n) return '';
     const can = canEquip(C, D, store.get(), key, imp.n);
-    return can.ok ? '' : `Over capacity by ${can.need}`;
+    return can.ok ? '' : `OVER BY ${can.need}`;
   }
+  const qlabel = (v) => `${rarityOf(v.quality)}${plusOf(v.quality)}`;
   function tipHtml(imp, extra, groupName) {
     const lines = statLines(imp);
     const fam = C.familyOf.get(imp.family || imp.id);
-    const sibs = fam.variants.filter((o) => o.tier === imp.tier && o.n !== imp.n);
-    const diff = sibs.map((o) => `vs #${o.variant}: ${variantDiff(imp, o).join(' · ') || 'same stats'}`);
-    const vars = fam.variants.length > 1 ? `<div class="rd-tip-vars" role="group" aria-label="Quality and variant">${fam.variants.map((v) => `<button type="button" class="rd-var${v.n === imp.n ? ' on' : ''}" data-pip="${v.n}" aria-pressed="${v.n === imp.n}" style="--q:${qColor(v.quality)}" aria-label="${esc(`${rarityOf(v.quality)}${plusOf(v.quality)}${v.variant > 1 ? ` #${v.variant}` : ''}, capacity ${v.cost}`)}"><i></i><span>${esc(rarityOf(v.quality))}${esc(plusOf(v.quality))}${v.variant > 1 ? ` #${v.variant}` : ''}</span><b>${v.cost}</b></button>`).join('')}</div>` : '';
-    return `<i class="rd-tipfill"></i><i class="rd-tipstroke"></i><div class="rd-tipc" style="--q:${qColor(imp.quality)}">
-      <div class="rd-tip-head"><div class="rd-tip-name">${esc(imp.name)}</div><i class="rd-tip-sep"></i>
-        <div class="rd-tip-rar"><span>${esc(rarityOf(imp.quality))}</span><em>${esc(plusOf(imp.quality))}</em>${imp.variant > 1 || diff.length ? `<small>#${imp.variant}</small>` : ''}</div>
-        <div class="rd-tip-type">${esc(groupName || 'Cyberware')}</div></div>
-      <div class="rd-tip-cap"><b>${imp.cost}</b><i class="ric"></i><span class="lbl">Capacity</span></div>
-      ${vars}
-      ${lines.length ? `<ul class="rd-tip-stats">${lines.slice(0, 10).map((l) => `<li>${esc(l)}</li>`).join('')}${lines.length > 10 ? `<li class="more">+${lines.length - 10} more</li>` : ''}</ul>` : '<p class="rd-tip-none">No stat modifiers in the data.</p>'}
-      ${diff.length ? `<p class="rd-tip-diff"><i class="cmp"></i><span>${esc(diff.join(' | '))}</span></p>` : ''}
-      ${extra ? `<p class="rd-tip-warn">${ICON_WARN}<span>${esc(extra)}</span></p>` : ''}</div>`;
+    const sibs = fam.variants.filter((o) => o.tier === imp.tier);                 // same quality: the #1 / #2 variants
+    const diff = sibs.filter((o) => o.n !== imp.n).map((o) => `vs #${o.variant}: ${variantDiff(imp, o).join(' · ') || 'same stats'}`);
+    // quality stepper: one entry per quality, in order; stepping keeps the variant number when the next quality has it
+    const quals = [...new Map(fam.variants.slice().sort((x, y) => x.tier - y.tier || x.variant - y.variant).map((v) => [v.tier, v])).keys()];
+    const qi = quals.indexOf(imp.tier);
+    const pickQ = (tier) => { const o = fam.variants.filter((v) => v.tier === tier); return o.find((v) => v.variant === imp.variant) || o[0]; };
+    const prev = qi > 0 ? pickQ(quals[qi - 1]) : null, next = qi < quals.length - 1 ? pickQ(quals[qi + 1]) : null;
+    const costs = new Set(fam.variants.map((v) => v.cost));
+    const step = (v, cls, label) => `<button type="button" class="${cls}" ${v ? `data-pip="${v.n}" aria-label="${esc(`${label} quality: ${qlabel(v)}, capacity ${v.cost}`)}"` : `disabled aria-label="${label} quality: none"`}><i></i></button>`;
+    const stepper = quals.length > 1 ? `<div class="rd-qstep" role="group" aria-label="Quality">${step(prev, 'p', 'Lower')}<span style="--q:${qColor(imp.quality)}">${esc(qlabel(imp))}<small>${qi + 1}/${quals.length}</small></span>${step(next, 'n', 'Higher')}</div>` : '';
+    const qcost = quals.length > 1 && costs.size > 1 ? `<span class="rd-qcost">${prev ? `${prev.cost} &larr; ` : ''}<b>${imp.cost}</b>${next ? ` &rarr; ${next.cost}` : ''}</span>` : '';
+    const tog = sibs.length > 1 ? `<div class="rd-vtog" role="group" aria-label="Variant">${sibs.map((o) => `<button type="button" data-pip="${o.n}" class="${o.n === imp.n ? 'on' : ''}" aria-pressed="${o.n === imp.n}">#${o.variant}</button>`).join('')}</div>` : '';
+    return `<i class="rd-tipstroke"></i><i class="rd-tipfill"></i><div class="rd-tipc" style="--q:${qColor(imp.quality)}">
+      <div class="rd-tip-band"><div class="rd-tip-name">${esc(imp.name)}</div></div>
+      <div class="rd-tip-sub">${esc(qlabel(imp))}${imp.variant > 1 || sibs.length > 1 ? ` #${imp.variant}` : ''} &middot; ${esc(groupName || 'Cyberware')}</div>
+      <div class="rd-tip-cap"><i class="ric"></i><b>${imp.cost}</b><span class="lbl">Capacity</span>${extra ? `<span class="rd-tip-over rd-tip-warn" role="status">${ICON_WARN}<span>${esc(extra)}</span></span>` : ''}</div>
+      ${stepper || tog ? `<div class="rd-tip-q">${stepper}${qcost}${tog}</div>` : ''}
+      ${lines.length ? `<ul class="rd-tip-stats">${lines.slice(0, 8).map((l) => `<li>${esc(l)}</li>`).join('')}${lines.length > 8 ? `<li class="more">+${lines.length - 8} more</li>` : ''}</ul>` : '<p class="rd-tip-none">No stat modifiers in the data.</p>'}
+      ${diff.length ? `<p class="rd-tip-diff"><i class="cmp"></i><span>${esc(diff.join(' | '))}</span></p>` : ''}</div>`;
   }
   let hideT = 0;
   function showTip(target, imp) {
@@ -430,11 +441,11 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     tip.classList.toggle('over', !!extra);
     tip.classList.toggle('pinned', !!S.pinned);
     tip.hidden = false;
-    const b = stage.getBoundingClientRect(), t = target.getBoundingClientRect(), s = stage._s || 1;
-    const x = (t.right - b.left) / s, y = (t.top - b.top) / s;
-    const w = 355;
-    tip.style.left = `${x + 4 + w > 1900 ? (t.left - b.left) / s - 4 - w : x + 4}px`;
-    tip.style.top = `${Math.max(20, Math.min(y - 8, 1080 - tip.offsetHeight - 20))}px`;
+    const b = stage.getBoundingClientRect(), t = target.getBoundingClientRect(), sc = stage._s || 1;
+    const y = (t.top - b.top) / sc;
+    // the empty space between the left column and the body: just right of the grid, never over it
+    tip.style.left = `${L.panel.origin[0] + L.inventory.grid[0] + 24}px`;
+    tip.style.top = `${Math.max(110, Math.min(y - 8, 1060 - tip.offsetHeight))}px`;
   }
   const hideTip = () => { $('#rd-tip').hidden = true; S.tip = null; S.pinned = false; };
   const hideSoon = () => { if (S.pinned) return; clearTimeout(hideT); hideT = setTimeout(hideTip, 180); };
@@ -521,6 +532,11 @@ export async function initRipperdoc({ root, store, D, art, ui }) {
     }
   });
   document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !$('#rd-tip').hidden && (S.pinned || $('#rd-tip').contains(document.activeElement))) {
+      const b = $('#rd-tip').querySelector(e.key === 'ArrowLeft' ? '.rd-qstep .p' : '.rd-qstep .n');
+      if (b && !b.disabled) { e.preventDefault(); b.click(); }
+      return;
+    }
     if (e.key === 'Escape' && S.pinned) { hideTip(); return; }
     if (e.key === 'Escape' && S.open) { hideTip(); closeZone(); }
   });

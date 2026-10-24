@@ -386,9 +386,8 @@ def sec_widgets():
                 rows.append((f"`{item}/{n['name']}`", n["type"].replace("ink", "").replace("Widget", ""), sz(n), marg(n["margin"]), font, f"`{n['part']}`" if n.get("part") else "-", tk))
     w(md(["Widget", "Type", "Size", "Margin", "Font (design px)", "Part", "Style bindings"], rows))
     w("")
-    w("Frame: `unified_tooltip_fill` (tint `Tooltip.backgroundColor`), `unified_tooltip_stroke` (`Tooltip.frameColor`) and `unified_tooltip_outline` (`Tooltip.frameEquippedColor`, the comparison outline, not used) are all Fill-stretched with a cut bottom-right corner. "
-      "**Body order** (stage): name 25 px (`MainColors.Blue`), a 32 x 1 separator, rarity 21 px (`Rarity.mainColor`), type 21 px (`MainColors.Red`), capacity row (value 35 px `MainColors.Yellow` + the 16 px `ripperdoc` icon; the comparison arrow `icon_compare_small` "
-      "when a variant differs), the stat lines 18 px (`MainColors.Blue`), then bottom (price/weight: not used). Everything sits in `contentWrapper` (margins L15 T6 R6 B6, min width 710 = stage 355).")
+    w("Frame: the game draws `unified_tooltip_fill` / `_stroke` / `_outline` stretched with a large cut corner. **Our tooltip is a deliberate redesign (decision after review):** a rectangular dark panel (`Tooltip.backgroundColor`), a thin outline (`Tooltip.frameColor`) and only a small 14 px cut corner, so nothing cuts into the content; fixed width 380 on the stage (the game's 355 plus padding). "
+      "Body order: a band in the rarity colour (`Rarity.mainColor`) with the name, one muted line `<Rarity> \u00b7 <Slot>`, the capacity row (the `ripperdoc` icon, a 46 px number in `MainColors.Yellow`, the word, and the over-capacity cue), a compact quality stepper and a `#1 / #2` toggle when same-quality variants exist, the stat lines, then the `vs #n` diff in small muted text. Placed right of the inventory grid, never over it.")
     w("")
     w("### 10.4 Capacity segment")
     w("`CapacityMeterBar` = `bar` (`bar_long2`) + `highlight` (`perk_highlight_nottransparent`), colored by `NewMeter.BarColor` / `NewMeter.opacity` (section 4). We draw each segment as a mask of `bar_long2` plus a mask of the highlight part under lit segments. "
@@ -398,7 +397,7 @@ def sec_widgets():
     wd = json.loads((Path(__file__).resolve().parent.parent / "data" / "ripperdoc" / "widgets.json").read_text())
     w("- Atlases missing from the export: " + ", ".join(f"`{x}`" for x in wd["absentParts"]) + ". The tile's hatch texture (`texture_1slot`) is a CSS gradient at the game's opacity (0.03); the equipped corner marks (`corners_equipped`) and the iconic texture are left out; "
       "the cyberware empty socket (`fullscreen_elements/socket`) is replaced by the `icon_add` plus part.")
-    w("- `tooltip_style.inkstyle` is not in the export: tooltip colors are the widgets' own default tints (background `#0E0E17`, stroke `MainColors.MildRed`, separator `#451715`). Nine-slice margins are not in the atlas files: the tile parts are stretched (as in the game's `Fill` setting); the tooltip uses a 9-slice mask (`-webkit-mask-box-image`, corner 29 px) where the browser supports it, and stretches otherwise.")
+    w("- `tooltip_style.inkstyle` is not in the export: tooltip colors are the widgets' own default tints (background `#0E0E17`, stroke `MainColors.MildRed`, separator `#451715`). Nine-slice margins are not in the atlas files: the tile parts are stretched (as in the game's `Fill` setting); the tooltip frame is drawn in CSS (see 10.3).")
     w("- `Operating System` decks have no `iconPart`; their `iconName` (`militech_paraline`) is not a part of any exported atlas, so the 15 records show the generic cyberdeck icon (`item_icons/icon_cyberdeck`). Reported by `tools/cyberware_icons.py`.")
     return out
 

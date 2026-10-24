@@ -263,7 +263,7 @@ await t('ripperdoc: over capacity is refused with a tooltip warning, never over 
   await blocked.waitFor();
   assert.equal(await blocked.getAttribute('aria-disabled'), 'true');
   await blocked.hover();
-  assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over capacity/i);
+  assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over by \d+/i);
   // the over-capacity preview is never color alone: a text cue, a warning shape and a marker at the limit
   assert.match(await page.locator('#rd-cap .rd-lab.add').innerText(), /OVER BY \d+/);
   assert.equal(await page.locator('#rd-cap .rd-lab.add svg').count(), 1, 'warning shape in the label');
@@ -383,19 +383,24 @@ await t('ripperdoc: item tooltip follows the game layout: name, rarity, type, ca
   const tip = page.locator('#rd-tip');
   await tip.waitFor({ state: 'visible' });
   assert.ok((await tip.locator('.rd-tip-name').innerText()).trim().length > 0);
-  assert.match(await tip.locator('.rd-tip-rar').innerText(), /Common|Uncommon|Rare|Epic|Legendary|Iconic/);
-  assert.match(await tip.locator('.rd-tip-type').innerText(), /frontal cortex/i);
+  assert.match(await tip.locator('.rd-tip-sub').innerText(), /^(Common|Uncommon|Rare|Epic|Legendary|Iconic)\+*( #\d)? \u00b7 Frontal Cortex$/, 'one muted line: rarity \u00b7 slot');
+  assert.equal(await tip.locator('.rd-tip-band').evaluate((e) => getComputedStyle(e).borderLeftWidth), '5px', 'rarity band');
   const cost = await g.getAttribute('data-cost');
   assert.equal((await tip.locator('.rd-tip-cap b').innerText()).trim(), cost, 'capacity row equals the tile chip');
   assert.equal(await tip.locator('.rd-tipfill').count(), 1);
-  assert.equal(await tip.evaluate((e) => e.offsetWidth), 355, 'width is 710 / 2 on the stage grid');
+  assert.equal(await tip.evaluate((e) => e.offsetWidth), 380, 'fixed width');
+  const tb = await tip.boundingBox(), gbx = await page.locator('#rd-picker .rd-grid').boundingBox();
+  assert.ok(tb.x >= gbx.x + gbx.width, 'the tooltip never covers the grid');
+  assert.equal(await tip.locator('.rd-var').count(), 0, 'no full variant list');
+  assert.ok((await tip.locator('.rd-tip-cap b').evaluate((e) => parseFloat(getComputedStyle(e).fontSize))) >= 40, 'capacity number is large');
   assert.equal(await tip.locator('.rd-tip-warn').count(), 0, 'no warning when it fits');
   await openRdZone(page, 'skeleton', true);
   const blocked = page.locator('#rd-picker .rd-gcell.blocked .rd-gbtn').first();
   await blocked.waitFor();
   await blocked.hover();
-  assert.equal(await page.locator('#rd-tip .rd-tip-warn svg').count(), 1, 'warning icon');
-  assert.match(await page.locator('#rd-tip .rd-tip-warn').innerText(), /over capacity by \d+/i);
+  assert.equal(await page.locator('#rd-tip .rd-tip-cap .rd-tip-warn svg').count(), 1, 'warning icon in the capacity row');
+  assert.match(await page.locator('#rd-tip .rd-tip-cap .rd-tip-warn').innerText(), /over by \d+/i);
+  assert.equal(await page.locator('#rd-cap .rd-seg').count(), 27, 'the meter keeps its height: rows are clamped to the limit');
 });
 
 await t('ripperdoc: capacity segments are the cw_bars_assets parts and keep the text and shape cues', async (page) => {
@@ -454,10 +459,20 @@ await t('ripperdoc: the tooltip pins on click, offers the quality choice, and Es
   const tip = page.locator('#rd-tip');
   await tip.waitFor({ state: 'visible' });
   assert.ok((await tip.getAttribute('class')).includes('pinned'));
-  assert.ok(await tip.locator('.rd-var').count() > 1, 'quality / variant buttons in the tooltip');
+  assert.equal(await tip.locator('.rd-qstep').count(), 1, 'quality stepper');
+  const q0 = await tip.locator('.rd-qstep span').innerText();
   const before = await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp');
-  await tip.locator('.rd-var:not(.on)').first().click();
-  assert.notEqual(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp'), before, 'the equipped variant changed');
+  await tip.locator('.rd-qstep .n').click();
+  const after = await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp');
+  assert.notEqual(after, before, 'the equipped quality changed');
+  assert.notEqual(await tip.locator('.rd-qstep span').innerText(), q0);
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp'), before, 'ArrowLeft steps back');
+  if (await tip.locator('.rd-vtog').count()) {
+    const v = await tip.locator('.rd-vtog button:not(.on)').first();
+    await v.click();
+    assert.notEqual(await page.locator('#rd-panel .rd-cell[data-slot="0"]').getAttribute('data-imp'), before, 'variant toggle');
+  }
   assert.equal(await tip.isVisible(), true, 'tooltip stays open after the choice');
   assert.ok(await tip.locator('.rd-tip-cap b').innerText());
   await page.mouse.move(5, 5);

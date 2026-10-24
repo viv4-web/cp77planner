@@ -88,7 +88,6 @@ def build():
     parts = sorted({part_key(x) for x in flat(disp) if x.get("part") and x["name"] in (
         "background", "frame", "accent", "emptyItemLines", "itemEmptyIcon", "lockedIcon", "equippedMarker", "selectedFrame", "selectedFrame2",
         "backgroundHover", "backgroundEquipped", "frameEquipped", "backgroundEquippedFrame", "backgroundIconic")} | {
-        "atlas_shapes_sync/unified_tooltip_fill", "atlas_shapes_sync/unified_tooltip_stroke", "atlas_shapes_sync/unified_tooltip_outline",
         "atlas_shapes_sync/label_frame", "atlas_shapes_sync/label_frame_line", "atlas_common/icon_compare_small", "mappin_icons/ripperdoc",
         "atlas_common/ico_lock", "inventory4_atlas/icon_add"})
     # parts the game uses that this export does not contain (atlas_inventory.inkatlas, fullscreen_elements.inkatlas): reported, not guessed
