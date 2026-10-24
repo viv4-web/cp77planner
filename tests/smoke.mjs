@@ -574,6 +574,34 @@ await t('ripperdoc: the woman floats gently at idle in Full (our approximation);
   assert.equal(await name(), 'none', 'Calm: no float');
 });
 
+await t('ripperdoc: rotating rings behind the body (BG_animation: 360 / 720 / 1080 deg in 18 s), static in Calm', async (page) => {
+  await openRd(page);
+  if (!(await hasArt(page))) return;
+  const css = (sel, prop) => page.locator(sel).evaluate((e, p) => getComputedStyle(e)[p], prop);
+  assert.equal(await page.locator('#rd-rings .c1, #rd-rings .c2, #rd-rings .c3, #rd-rings .dots, #rd-rings .cab').count(), 5);
+  assert.equal(await css('#rd-rings .c1', 'animationName'), 'rdspin1');
+  assert.equal(await css('#rd-rings .c2', 'animationName'), 'rdspin2');
+  assert.equal(await css('#rd-rings .c3', 'animationName'), 'rdspin3');
+  assert.equal(await css('#rd-rings .c3', 'animationDuration'), '18s');
+  assert.equal(await css('#rd-rings .c3', 'animationIterationCount'), 'infinite');
+  assert.match(await css('#rd-rings .cab', 'backgroundImage'), /woman_cables/);
+  // the rings sit behind the body
+  const order = await page.evaluate(() => { const k = [...document.querySelectorAll('#rd > *')].map((e) => e.id); return [k.indexOf('rd-rings'), k.indexOf('rd-tab')]; });
+  assert.ok(order[0] >= 0 && order[0] < order[1]);
+  await page.click('#rd-gender [data-g=man]');
+  assert.match(await css('#rd-rings .cab', 'backgroundImage'), /man_cables/);
+  await page.click('#motion [data-m=calm]');
+  assert.equal(await css('#rd-rings .c1', 'animationName'), 'none', 'Calm: static rings');
+  await page.click('#motion [data-m=off]');
+  assert.equal(await css('#rd-rings .c2', 'animationName'), 'none', 'Off: static rings');
+});
+
+await t('ripperdoc: the woman float is small (2 px, 1.002 scale)', async (page) => {
+  await openRd(page);
+  const v = await page.evaluate(() => { const s = getComputedStyle(document.getElementById('rd')); return [s.getPropertyValue('--rd-float-y').trim(), s.getPropertyValue('--rd-float-s').trim()]; });
+  assert.deepEqual(v, ['2px', '1.002']);
+});
+
 await t('ripperdoc: a wide window and a 1920 window both fit the stage with no horizontal scroll', async (page) => {
   await openRd(page);
   assert.equal(await noHScroll(page), true);
