@@ -3,6 +3,8 @@ import {
 } from './rules.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ICON_LOCK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 017 0v2M3 7h10v7H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+const ICON_CHECK = '<svg class="mi" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const REASON = {
   locked: 'Locked: requirement not met.',
   'no-points': 'No points left to spend.',
@@ -95,9 +97,11 @@ export function initCharacter({ root, store, D, art }) {
         return `
           <div class="nodewrap" data-s="${s}">
             <i class="ping"></i>
-            <button type="button" class="node cutline ${justInstalled === p.n ? 'installing' : ''}" data-s="${s}" data-perk="${p.n}" aria-pressed="${on}" aria-label="${esc(p.name)}, ${s}">
-              ${art.html(p.id)}<i class="plate"></i>
-            </button>
+            <span class="nbox" data-sel="${on}">
+              <button type="button" class="node cutline ${justInstalled === p.n ? 'installing' : ''}" data-s="${s}" data-perk="${p.n}" aria-pressed="${on}" aria-label="${esc(p.name)}, ${s}">
+                ${art.html(p.id)}<i class="plate"></i>
+              </button>
+            </span>
             <span class="pn">${esc(p.name)}${p.new ? '<span class="newb">NEW</span>' : ''}</span>
           </div>`;
       }).join('');
@@ -138,7 +142,7 @@ export function initCharacter({ root, store, D, art }) {
       <h2 class="pname chrome-text">${esc(perk.name)}</h2>
       ${perk.new ? '<div><span class="badge-new">NEW</span></div>' : ''}
       <div class="meta">
-        <span class="cutline ${s === 'locked' ? 'no' : 'ok'}">${reqLabel}</span>
+        <span class="cutline ${s === 'locked' ? 'unmet' : 'met'}">${s === 'locked' ? ICON_LOCK : ICON_CHECK}${reqLabel}</span>
         <span class="cutline">TIER ${perk.tier + 1}/${tree.tierReq.length}</span>
         <span class="cutline">${s.toUpperCase()}</span>
       </div>

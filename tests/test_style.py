@@ -35,5 +35,15 @@ class ContrastTests(unittest.TestCase):
             self.assertGreaterEqual(ratio(text, bg), 4.5, f"{text} on {bg}")
 
 
+class ChipContrastTests(unittest.TestCase):
+    def test_req_chip_colours(self):
+        css = (ROOT / "src/styles/components.css").read_text()
+        fill = re.search(r"\.meta span\{[^}]*--fill:(#[0-9A-Fa-f]{6})", css).group(1)
+        panel = over("#101438", .62, token("bg"))
+        for name in ("yellow", "cyan"):          # REQ not met (yellow) / met (cyan)
+            for bg in (fill, panel):
+                self.assertGreaterEqual(ratio(token(name), bg), 4.5, f"{name} on {bg}")
+
+
 if __name__ == "__main__":
     unittest.main()
