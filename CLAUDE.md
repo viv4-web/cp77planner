@@ -20,3 +20,10 @@
 
 ## Style
 - Utopian 2077 neon with chrome accents (mockup v4); full spec in docs/STYLE.md. Motion is CSS only, transform/opacity, with a Full/Calm/Off setting; respect prefers-reduced-motion.
+
+## Vault reflex
+Vault: ~/livesync-bridge/vault. At the end of any session that changed code, decisions or plans:
+1. Prepend a dated entry to `<vault>/20 Organs/CP77Planner/CP77Planner Pulse.md`: Changed, Why, Learned (if anything transfers), Decision candidates.
+2. Update `<vault>/20 Organs/CP77Planner/CP77Planner Vitals.md` (health, active work, blockers, next) and set `updated:`.
+3. If a choice passed the decision bar in `<vault>/CLAUDE.md`, ask me one question about why, then write it to `<vault>/00 Senses/` with the Decision template. Same for lessons. Never write to `10 Brain/`.
+Keep it short. Skip if nothing meaningful happened.
